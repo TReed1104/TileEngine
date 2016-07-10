@@ -48,3 +48,6 @@ D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.XInput.xml
 D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.RawInput.xml
 D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
 D:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.csprojResolveAssemblyReference.cache
+C:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.exe
+C:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.pdb
+C:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.csprojResolveAssemblyReference.cache

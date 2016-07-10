@@ -11,8 +11,8 @@ namespace TileEngine
     public class GameObject
     {
         // Vars
-        public string name { get; set; }
-        public Vector2 positionWorld { get; set; }
+        public string tag { get; set; }
+        public Vector2 positionBase { get; set; }
         public Vector2 positionGrid { get; set; }
         public Vector2 positionDraw { get; set; }
         public Texture2D texture { get; set; }
@@ -35,24 +35,24 @@ namespace TileEngine
         public float rotation { get; set; }
         public float scale { get; set; }
         public SpriteEffects spriteEffect { get; set; }
-        public float drawLayerDepth { get; set; }
+        public float layerDepth { get; set; }
 
         // Constructors
         static GameObject()
         {
 
         }
-        public GameObject(string name, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour)
+        public GameObject(string tag, Texture2D texture, Vector2 positionBase, Vector2 sourceRectanglePosition, Vector2 sourceRectangleSize, Color colour, float layerDepth)
         {
             try
             {
-                this.name = name;
+                this.tag = tag;
                 this.texture = texture;
-                this.positionWorld = position_World;
-                int gridX = (int)(this.positionWorld.X / Engine.TileDimensions.X);
-                int gridY = (int)(this.positionWorld.Y / Engine.TileDimensions.Y);
+                this.positionBase = positionBase;
+                int gridX = (int)(this.positionBase.X / Engine.TileDimensions.X);
+                int gridY = (int)(this.positionBase.Y / Engine.TileDimensions.Y);
                 this.positionGrid = new Vector2(gridX, gridY);
-                this.positionDraw = positionWorld + Engine.PlayerCamera.positionWorld;
+                this.positionDraw = positionBase + Engine.PlayerCamera.positionBase;
                 this.sourceRectanglePosition = sourceRectanglePosition;
                 this.sourceRectangleSize = sourceRectangleSize;
                 this.sourceRectangleOffset = Vector2.Zero;
@@ -61,7 +61,7 @@ namespace TileEngine
                 this.rotation = 0.0f;
                 this.scale = 0.0f;
                 this.spriteEffect = SpriteEffects.None;
-                this.drawLayerDepth = 0.0f;
+                this.layerDepth = layerDepth;
             }
             catch (Exception error)
             {
@@ -75,9 +75,9 @@ namespace TileEngine
         {
             try
             {
-                positionDraw = positionWorld + Engine.PlayerCamera.positionWorld;
-                int gridX = (int)(this.positionWorld.X / Engine.TileDimensions.X);
-                int gridY = (int)(this.positionWorld.Y / Engine.TileDimensions.Y);
+                positionDraw = positionBase + Engine.PlayerCamera.positionBase;
+                int gridX = (int)(this.positionBase.X / Engine.TileDimensions.X);
+                int gridY = (int)(this.positionBase.Y / Engine.TileDimensions.Y);
                 this.positionGrid = new Vector2(gridX, gridY);
             }
             catch (Exception error)
@@ -90,7 +90,7 @@ namespace TileEngine
         {
             try
             {
-                Engine.SpriteBatch.Draw(texture, positionDraw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, drawLayerDepth);
+                Engine.SpriteBatch.Draw(texture, positionDraw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
             }
             catch (Exception error)
             {

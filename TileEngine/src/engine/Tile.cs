@@ -24,14 +24,30 @@ namespace TileEngine
         public Tile(string tag, Vector2 sourceRectangle_Position, Color colour, float layerDepth, int id, TileType type)
             : base (tag, null, Vector2.Zero, sourceRectangle_Position, Engine.TileDimensions, colour, layerDepth)
         {
-            this.id = id;
-            this.type = type;
+            try
+            {
+                this.id = id;
+                this.type = type;
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
         }
         public Tile(Tile tileToCopy) 
             : base (tileToCopy.tag, null, tileToCopy.position_Base, tileToCopy.sourceRectangle_Position, Engine.TileDimensions, tileToCopy.colour, tileToCopy.layerDepth)
         {
-            this.id = tileToCopy.id;
-            this.type = tileToCopy.type;
+            try
+            {
+                this.id = tileToCopy.id;
+                this.type = tileToCopy.type;
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
         }
 
         // Methods

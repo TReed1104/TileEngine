@@ -44,9 +44,9 @@ namespace TileEngine
                 int gridX = (int)(this.position_Base.X / Engine.TileDimensions.X);
                 int gridY = (int)(this.position_Base.Y / Engine.TileDimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);
-                Engine.WindowTransformationMatrix = Matrix.Identity;
-                Engine.WindowTransformationMatrix = Matrix.CreateTranslation(new Vector3(-position_Base.X, -position_Base.Y, 0.0f));
-                Engine.WindowTransformationMatrix *= Matrix.CreateScale(Engine.WindowScaleModifier);
+                Engine.Window_TransformationMatrix = Matrix.Identity;
+                Engine.Window_TransformationMatrix = Matrix.CreateTranslation(new Vector3(-position_Base.X, -position_Base.Y, 0.0f));
+                Engine.Window_TransformationMatrix *= Matrix.CreateScale(Engine.WindowScaler);
 
             }
             catch (Exception error)
@@ -66,9 +66,9 @@ namespace TileEngine
                     position_Base = new Vector2(0, position_Base.Y);
                 }
                 // Right bounds check
-                if (position_Base.X > (Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.WindowTileGridSize.X))
+                if (position_Base.X > (Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.Window_TileGrid.X))
                 {
-                    position_Base = new Vector2((Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.WindowTileGridSize.X), position_Base.Y);
+                    position_Base = new Vector2((Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.Window_TileGrid.X), position_Base.Y);
                 }
                 // Up bounds check
                 if (position_Base.Y < 0)
@@ -76,9 +76,9 @@ namespace TileEngine
                     position_Base = new Vector2(position_Base.X, 0);
                 }
                 // Down bounds check
-                if (position_Base.Y > (Engine.GetCurrentLevel().gridSize_Pixels.Y - Engine.WindowTileGridSize.Y))
+                if (position_Base.Y > (Engine.GetCurrentLevel().gridSize_Pixels.Y - Engine.Window_TileGrid.Y))
                 {
-                    position_Base = new Vector2(position_Base.X, (Engine.GetCurrentLevel().gridSize_Pixels.Y - Engine.WindowTileGridSize.Y));
+                    position_Base = new Vector2(position_Base.X, (Engine.GetCurrentLevel().gridSize_Pixels.Y - Engine.Window_TileGrid.Y));
                 }
             }
             catch (Exception error)

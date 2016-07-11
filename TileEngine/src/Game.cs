@@ -1,16 +1,21 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace TileEngine
 {
-    public class Main : Game
+    public class Game : Microsoft.Xna.Framework.Game
     {
 
-        public Main()
+        public Game()
         {
             Engine.GraphicsDevideManager = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
+            Content.RootDirectory = "content";
+            Window.Title = Engine.Window_Title;
+            TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / Engine.FrameRate_Max);
+            IsFixedTimeStep = false;
+            Engine.InitialiseGameWindow();
         }
         protected override void Initialize()
         {

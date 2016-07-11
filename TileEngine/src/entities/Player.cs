@@ -19,15 +19,16 @@ namespace TileEngine
             : base(tag, texture, position_World, sourceRectangle_Position, sourceRectangle_Size, colour, layerDepth)
         {
             camera = new Camera("Player", Vector2.Zero);
+            layerDepth = Engine.LayerDepth_Player;
         }
 
         public override void Update(GameTime gameTime)
         {
-
+            base.Update(gameTime);
         }
         public override void Draw()
         {
-
+            base.Draw();
         }
     }
 }

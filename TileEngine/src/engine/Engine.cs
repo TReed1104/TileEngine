@@ -12,7 +12,8 @@ namespace TileEngine
     {
         public static string EngineName { get; private set; }
         public static string EngineVersion { get; private set; }
-        
+
+        public static bool VisualDebugger { get; set; }
 
         public static GraphicsDeviceManager GraphicsDevideManager { get; set; }
         public static SpriteBatch SpriteBatch { get; set; }
@@ -27,8 +28,6 @@ namespace TileEngine
         public static Vector2 WindowDimensionsScaled { get { return Engine.WindowDimensionsBase * Engine.WindowScaleModifier; } }
         public static int MaxFrameRate { get; private set; }
 
-        public static Camera PlayerCamera { get; set; }
-
         public static List<Tile> RegisterTiles { get; set; }
         public static List<Level> RegisterLevels { get; set; }
         public static List<Player> RegisterPlayers { get; set; }
@@ -40,12 +39,12 @@ namespace TileEngine
         {
             Engine.EngineName = "";
             Engine.EngineVersion = "";
+            Engine.VisualDebugger = false;
             Engine.TileDimensions = new Vector2(16, 16);
             Engine.WindowScaleModifier = 1.0f;
             Engine.WindowTitle = "";
             Engine.WindowTileGridSize = Vector2.Zero;
             Engine.MaxFrameRate = 60;
-            Engine.PlayerCamera = new Camera("Player", Vector2.Zero);
             Engine.RegisterTiles = new List<Tile>();
             Engine.RegisterLevels = new List<Level>();
             Engine.RegisterPlayers = new List<Player>();
@@ -80,15 +79,26 @@ namespace TileEngine
         }
         public static void Update(GameTime gameTime)
         {
-
+            if (Engine.RegisterLevels.Count > 0)
+            {
+                GetCurrentLevel().Update(gameTime);
+            }
+            if (Engine.RegisterPlayers.Count > 0)
+            {
+                GetCurrentPlayer().Update(gameTime);
+            }
         }
         public static void Draw()
         {
             Engine.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.WindowTransformationMatrix);
-
-            GetCurrentLevel().Draw();
-            GetCurrentPlayer().Draw();
-
+            if (Engine.RegisterLevels.Count > 0)
+            {
+                GetCurrentLevel().Draw();
+            }
+            if (Engine.RegisterPlayers.Count > 0)
+            {
+                GetCurrentPlayer().Draw();
+            }
             Engine.SpriteBatch.End();
         }
     }

@@ -12,22 +12,22 @@ namespace TileEngine
     {
         // Vars
         public string tag { get; set; }
-        public Vector2 positionBase { get; set; }
-        public Vector2 positionGrid { get; set; }
-        public Vector2 positionDraw { get; set; }
+        public Vector2 position_Base { get; set; }
+        public Vector2 position_Grid { get; set; }
+        public Vector2 position_Draw { get; set; }
         public Texture2D texture { get; set; }
         public Color colour { get; set; }
-        public Vector2 sourceRectanglePosition { get; set; }
-        public Vector2 sourceRectangleSize { get; set; }
-        public Vector2 sourceRectangleOffset { get; set; }
+        public Vector2 sourceRectangle_Position { get; set; }
+        public Vector2 sourceRectangle_Size { get; set; }
+        public Vector2 sourceRectangle_Offset { get; set; }
         public Rectangle sourceRectangle
         {
             get
             {
-                int x = (int)((sourceRectanglePosition.X * sourceRectangleSize.X) + sourceRectangleOffset.X);
-                int y = (int)((sourceRectanglePosition.Y * sourceRectangleSize.Y) + sourceRectangleOffset.Y);
-                int width = (int)sourceRectangleSize.X;
-                int height = (int)sourceRectangleSize.Y;
+                int x = (int)((sourceRectangle_Position.X * sourceRectangle_Size.X) + sourceRectangle_Offset.X);
+                int y = (int)((sourceRectangle_Position.Y * sourceRectangle_Size.Y) + sourceRectangle_Offset.Y);
+                int width = (int)sourceRectangle_Size.X;
+                int height = (int)sourceRectangle_Size.Y;
                 return new Rectangle(x, y, width, height);
             }
         }
@@ -42,20 +42,20 @@ namespace TileEngine
         {
 
         }
-        public GameObject(string tag, Texture2D texture, Vector2 positionBase, Vector2 sourceRectanglePosition, Vector2 sourceRectangleSize, Color colour, float layerDepth)
+        public GameObject(string tag, Texture2D texture, Vector2 position_Base, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth)
         {
             try
             {
                 this.tag = tag;
                 this.texture = texture;
-                this.positionBase = positionBase;
-                int gridX = (int)(this.positionBase.X / Engine.TileDimensions.X);
-                int gridY = (int)(this.positionBase.Y / Engine.TileDimensions.Y);
-                this.positionGrid = new Vector2(gridX, gridY);
-                this.positionDraw = positionBase + Engine.PlayerCamera.positionBase;
-                this.sourceRectanglePosition = sourceRectanglePosition;
-                this.sourceRectangleSize = sourceRectangleSize;
-                this.sourceRectangleOffset = Vector2.Zero;
+                this.position_Base = position_Base;
+                int gridX = (int)(this.position_Base.X / Engine.TileDimensions.X);
+                int gridY = (int)(this.position_Base.Y / Engine.TileDimensions.Y);
+                this.position_Grid = new Vector2(gridX, gridY);
+                position_Draw = position_Base + Engine.GetCurrentPlayer().camera.position_Base;
+                this.sourceRectangle_Position = sourceRectangle_Position;
+                this.sourceRectangle_Size = sourceRectangle_Size;
+                this.sourceRectangle_Offset = Vector2.Zero;
                 this.colour = colour;
                 this.origin = Vector2.Zero;
                 this.rotation = 0.0f;
@@ -75,10 +75,10 @@ namespace TileEngine
         {
             try
             {
-                positionDraw = positionBase + Engine.PlayerCamera.positionBase;
-                int gridX = (int)(this.positionBase.X / Engine.TileDimensions.X);
-                int gridY = (int)(this.positionBase.Y / Engine.TileDimensions.Y);
-                this.positionGrid = new Vector2(gridX, gridY);
+                position_Draw = position_Base + Engine.GetCurrentPlayer().camera.position_Base;
+                int gridX = (int)(this.position_Base.X / Engine.TileDimensions.X);
+                int gridY = (int)(this.position_Base.Y / Engine.TileDimensions.Y);
+                this.position_Grid = new Vector2(gridX, gridY);
             }
             catch (Exception error)
             {
@@ -90,7 +90,7 @@ namespace TileEngine
         {
             try
             {
-                Engine.SpriteBatch.Draw(texture, positionDraw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
+                Engine.SpriteBatch.Draw(texture, position_Draw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
             }
             catch (Exception error)
             {

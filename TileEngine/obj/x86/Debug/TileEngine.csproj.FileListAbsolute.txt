@@ -74,4 +74,4 @@ C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct2D1.xml
 C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.XInput.xml
 C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.RawInput.xml
 C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
-C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\config\tile_set.ini
+C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\config\tileset.ini

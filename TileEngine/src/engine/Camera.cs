@@ -27,8 +27,8 @@ namespace TileEngine
                 this.tag = tag;
                 this.cameraType = CameraType.Follow;
                 this.position_Base = positionBase;
-                int gridX = (int)(this.position_Base.X / Engine.TileDimensions.X);
-                int gridY = (int)(this.position_Base.Y / Engine.TileDimensions.Y);
+                int gridX = (int)(this.position_Base.X / Tile.TileDimensions.X);
+                int gridY = (int)(this.position_Base.Y / Tile.TileDimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);
             }
             catch (Exception error)
@@ -41,12 +41,12 @@ namespace TileEngine
         {
             try
             {
-                int gridX = (int)(this.position_Base.X / Engine.TileDimensions.X);
-                int gridY = (int)(this.position_Base.Y / Engine.TileDimensions.Y);
+                int gridX = (int)(this.position_Base.X / Tile.TileDimensions.X);
+                int gridY = (int)(this.position_Base.Y / Tile.TileDimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);
                 Engine.Window_TransformationMatrix = Matrix.Identity;
                 Engine.Window_TransformationMatrix = Matrix.CreateTranslation(new Vector3(-position_Base.X, -position_Base.Y, 0.0f));
-                Engine.Window_TransformationMatrix *= Matrix.CreateScale(Engine.WindowScaler);
+                Engine.Window_TransformationMatrix *= Matrix.CreateScale(Engine.Window_Scaler);
 
             }
             catch (Exception error)

@@ -11,6 +11,8 @@ namespace TileEngine
     public class Tile : GameObject
     {
         // Vars
+        public static Vector2 TileDimensions { get; set; }
+        public static string SpritesheetSource { get; set; }
         public static Texture2D TileSet { get; set;}
         public int id { get; set; }
         public enum TileType { Empty, Solid, Water, Ice, Fire, Pitfall, }
@@ -19,10 +21,12 @@ namespace TileEngine
         // Constructors
         static Tile()
         {
-
+            Tile.TileDimensions = new Vector2(16, 16);
+            Tile.TileSet = null;
+            Tile.SpritesheetSource = "";
         }
         public Tile(string tag, Vector2 sourceRectangle_Position, Color colour, float layerDepth, int id, TileType type)
-            : base (tag, null, Vector2.Zero, sourceRectangle_Position, Engine.TileDimensions, colour, layerDepth)
+            : base (tag, null, Vector2.Zero, sourceRectangle_Position, Tile.TileDimensions, colour, layerDepth)
         {
             try
             {
@@ -36,7 +40,7 @@ namespace TileEngine
             }
         }
         public Tile(Tile tileToCopy) 
-            : base (tileToCopy.tag, null, tileToCopy.position_Base, tileToCopy.sourceRectangle_Position, Engine.TileDimensions, tileToCopy.colour, tileToCopy.layerDepth)
+            : base (tileToCopy.tag, null, tileToCopy.position_Base, tileToCopy.sourceRectangle_Position, Tile.TileDimensions, tileToCopy.colour, tileToCopy.layerDepth)
         {
             try
             {

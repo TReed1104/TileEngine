@@ -16,7 +16,7 @@ namespace TileEngine
         {
             get
             {
-                return gridSize_Tiles * Engine.TileDimensions;
+                return gridSize_Tiles * Tile.TileDimensions;
             }
         }
         public Vector2 positionPlayerStart_Grid { get; set; }
@@ -24,7 +24,7 @@ namespace TileEngine
         {
             get
             {
-                return positionPlayerStart_Grid * Engine.TileDimensions;
+                return positionPlayerStart_Grid * Tile.TileDimensions;
             }
         }
         protected Tile[,] map_Base { get; set; }
@@ -130,7 +130,7 @@ namespace TileEngine
                     for (int x = 0; x < gridSize_Tiles.X; x++)
                     {
                         map_Base[x, y] = new Tile("BLANK", Vector2.Zero, Color.White, Engine.LayerDepth_Background, 00, Tile.TileType.Empty);
-                        map_Base[x, y].position_Base = new Vector2(x * Engine.TileDimensions.X, y * Engine.TileDimensions.Y);
+                        map_Base[x, y].position_Base = new Vector2(x * Tile.TileDimensions.X, y * Tile.TileDimensions.Y);
                         map_Base[x, y].position_Grid = new Vector2(x, y);
 
                     }

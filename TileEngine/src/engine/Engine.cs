@@ -2,9 +2,10 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Xml;
 
 namespace TileEngine
 {
@@ -35,18 +36,15 @@ namespace TileEngine
         public static string ConfigFullPath_NpcRegister { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_NpcRegister; } }
         public static string ConfigFullPath_LevelRegister { get { return Engine.ConfigDirectory_Levels + Engine.ConfigFileName_LevelRegister; } }
         #endregion
-        #region // Tile Vars
-        public static Vector2 TileDimensions { get; set; }
-        #endregion
         #region // Window Vars
         public static string Window_Title { get; private set; }
         public static int FrameRate_Max { get; private set; }
         public static Matrix Window_TransformationMatrix { get; set; }
-        public static float WindowScaler { get; set; }
+        public static float Window_Scaler { get; set; }
         public static Vector2 Window_GameRender_Offset { get; set; }
         public static Vector2 Window_TileGrid { get; private set; }
-        public static Vector2 Window_DimensionsPixels_Base { get { return (Engine.Window_TileGrid * Engine.TileDimensions) + Engine.Window_GameRender_Offset; } }
-        public static Vector2 Window_DimensionsPixels_Scaled { get { return Engine.Window_DimensionsPixels_Base * Engine.WindowScaler; } }
+        public static Vector2 Window_DimensionsPixels_Base { get { return (Engine.Window_TileGrid * Tile.TileDimensions) + Engine.Window_GameRender_Offset; } }
+        public static Vector2 Window_DimensionsPixels_Scaled { get { return Engine.Window_DimensionsPixels_Base * Engine.Window_Scaler; } }
         #endregion
         #region // Register Vars
         public static List<Tile> Register_Tiles { get; set; }
@@ -75,13 +73,11 @@ namespace TileEngine
             Engine.EngineName = "NULL";
             Engine.EngineVersion = "NULL";
 
-            Engine.TileDimensions = new Vector2(16, 16);
-
-            Engine.WindowScaler = 1.0f;
+            Engine.Window_Scaler = 1.0f;
             Engine.Window_Title = "NULL";
-            Engine.FrameRate_Max = 60;
+            Engine.FrameRate_Max = 30;
             Engine.Window_GameRender_Offset = new Vector2(0, 50);
-            Engine.Window_TileGrid = new Vector2(30, 20);
+            Engine.Window_TileGrid = new Vector2(10, 10);
 
             Engine.Register_Tiles = new List<Tile>();
             Engine.Register_Levels = new List<Level>();
@@ -98,7 +94,7 @@ namespace TileEngine
 
             Engine.ConfigFileName_Engine = "engine.ini";
             Engine.ConfigFileName_Tileset = "tile_set.ini";
-            Engine.ConfigFileName_PlayerRegister = "playe_register.ini";
+            Engine.ConfigFileName_PlayerRegister = "player_register.ini";
             Engine.ConfigFileName_NpcRegister = "npc_register.ini";
             Engine.ConfigFileName_LevelRegister = "level_register.ini";
 
@@ -163,10 +159,10 @@ namespace TileEngine
         {
             try
             {
-                Engine.LoadEngine();
+                Engine.LoadEngineConfig();
                 Engine.LoadTileset();
-                Engine.LoadLevels();
-                Engine.LoadSaves();
+                Engine.LoadLevelRegister();
+                Engine.LoadPlayerRegister();
             }
             catch (Exception error)
             {
@@ -174,28 +170,104 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void LoadEngine()
+        public static void LoadEngineConfig()
         {
-
+            try
+            {
+                // Check for the config file.
+                if (File.Exists(Engine.ConfigFullPath_EngineConfig))
+                {
+                    // Read the config file.
+                    XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_EngineConfig);
+                    while (xmlReader.Read())
+                    {
+                        if (xmlReader.NodeType == XmlNodeType.Element)
+                        {
+                            if (xmlReader.Name == "engine_settings")
+                            {
+                                // Load the Engine settings
+                                Engine.EngineName = xmlReader.GetAttribute("name");
+                                Engine.EngineVersion = xmlReader.GetAttribute("version");
+                            }
+                            if (xmlReader.Name == "window_settings")
+                            {
+                                // Load the Window settings
+                                Engine.Window_Title = xmlReader.GetAttribute("title");
+                                Engine.Window_TileGrid = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
+                                Engine.FrameRate_Max = int.Parse(xmlReader.GetAttribute("max_frame_rate"));
+                                Engine.Window_Scaler = float.Parse(xmlReader.GetAttribute("scaler"));
+                                Engine.Window_GameRender_Offset = new Vector2(0, int.Parse(xmlReader.GetAttribute("hud_size")));
+                            }
+                            if (xmlReader.Name == "tile_set")
+                            {
+                                // Load the Tileset settings
+                                Tile.TileDimensions = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
+                                Tile.SpritesheetSource = xmlReader.GetAttribute("src");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
         }
         public static void LoadTileset()
         {
+            try
+            {
 
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
         }
-        public static void LoadLevels()
+        public static void LoadLevelRegister()
         {
+            try
+            {
 
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
         }
-        public static void LoadSaves()
+        public static void LoadPlayerRegister()
         {
+            try
+            {
 
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        public static void LoadNpcRegister()
+        {
+            try
+            {
+
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
         }
         public static void InitialiseGameWindow()
         {
             try
             {
                 Engine.Window_TransformationMatrix = Matrix.Identity;
-                Engine.Window_TransformationMatrix *= Matrix.CreateScale(Engine.WindowScaler);
+                Engine.Window_TransformationMatrix *= Matrix.CreateScale(Engine.Window_Scaler);
                 Engine.GraphicsDevideManager.PreferredBackBufferWidth = (int)Engine.Window_DimensionsPixels_Scaled.X;
                 Engine.GraphicsDevideManager.PreferredBackBufferHeight = (int)Engine.Window_DimensionsPixels_Scaled.Y;
                 Engine.GraphicsDevideManager.ApplyChanges();

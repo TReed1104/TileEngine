@@ -61,7 +61,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="Icon.ico" />
-    <None Include="config\tile_set.ini">
+    <None Include="config\tileset.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,57 +1,6 @@
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\TileEngine.exe
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\TileEngine.pdb
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\MonoGame.Framework.dll
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.MediaFoundation.dll
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.dll
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.XAudio2.dll
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.DXGI.dll
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D11.dll
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct2D1.dll
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.XInput.dll
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.RawInput.dll
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D9.dll
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\MonoGame.Framework.xml
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.MediaFoundation.xml
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.xml
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.XAudio2.xml
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.DXGI.xml
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D11.xml
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct2D1.xml
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.XInput.xml
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.RawInput.xml
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\obj\x86\Debug\TileEngine.csprojResolveAssemblyReference.cache
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\obj\x86\Debug\TileEngine.exe
-C:\Users\Tom\AppData\Local\Temporary Projects\TileEngine\obj\x86\Debug\TileEngine.pdb
-D:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.exe
-D:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.pdb
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\TileEngine.exe
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\TileEngine.pdb
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\MonoGame.Framework.dll
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.MediaFoundation.dll
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.dll
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.XAudio2.dll
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.DXGI.dll
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D11.dll
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct2D1.dll
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.XInput.dll
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.RawInput.dll
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D9.dll
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\MonoGame.Framework.xml
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.MediaFoundation.xml
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.xml
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.XAudio2.xml
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.DXGI.xml
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D11.xml
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct2D1.xml
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.XInput.xml
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.RawInput.xml
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
-D:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.csprojResolveAssemblyReference.cache
-C:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.exe
-C:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.pdb
-C:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.csprojResolveAssemblyReference.cache
-C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\Config\engine.ini
+C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\content\tiles\TileSet.bmp
+C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\config\engine.ini
+C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\config\tileset.ini
 C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\TileEngine.exe
 C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\TileEngine.pdb
 C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\MonoGame.Framework.dll
@@ -74,4 +23,6 @@ C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct2D1.xml
 C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.XInput.xml
 C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.RawInput.xml
 C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
-C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\config\tileset.ini
+C:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.csprojResolveAssemblyReference.cache
+C:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.exe
+C:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.pdb

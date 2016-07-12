@@ -52,7 +52,7 @@ namespace TileEngine
                 int gridX = (int)(this.position_Base.X / Tile.TileDimensions.X);
                 int gridY = (int)(this.position_Base.Y / Tile.TileDimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);
-                position_Draw = position_Base + Engine.GetCurrentPlayer().camera.position_Base;
+                position_Draw = position_Base;
                 this.sourceRectangle_Position = sourceRectangle_Position;
                 this.sourceRectangle_Size = sourceRectangle_Size;
                 this.sourceRectangle_Offset = Vector2.Zero;

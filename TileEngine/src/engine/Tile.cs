@@ -10,12 +10,13 @@ namespace TileEngine
 {
     public class Tile : GameObject
     {
+        // Enums
+        public enum TileType { Empty, Solid, Water, Ice, Fire, Pitfall, }
         // Vars
         public static Vector2 TileDimensions { get; set; }
         public static string SpritesheetSource { get; set; }
         public static Texture2D TileSet { get; set;}
         public int id { get; set; }
-        public enum TileType { Empty, Solid, Water, Ice, Fire, Pitfall, }
         public TileType type { get; set; }
 
         // Constructors
@@ -86,6 +87,56 @@ namespace TileEngine
             {
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
+        }
+        public static TileType Register_ConvertTileType(string stringToConvert)
+        {
+            try
+            {
+                switch (stringToConvert)
+                {
+                    case "00":
+                        return TileType.Empty;
+                    case "01":
+                        return TileType.Solid;
+                    case "02":
+                        return TileType.Water;
+                    case "03":
+                        return TileType.Ice;
+                    case "04":
+                        return TileType.Fire;
+                    case "05":
+                        return TileType.Pitfall;
+                    default:
+                        return TileType.Empty;
+                }
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Tile", methodName, error.Message));
+                return TileType.Empty;
+            }
+        }
+        public static Color Register_ConvertColour(string stringToConvert)
+        {
+            try
+            {
+                switch (stringToConvert)
+                {
+                    case "White":
+                        return Color.White;
+                    case "Black":
+                        return Color.Black;
+                    default:
+                        return Color.White;
+                }
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Tile", methodName, error.Message));
+                return Color.White;
             }
         }
     }

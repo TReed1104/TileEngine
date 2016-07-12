@@ -30,7 +30,7 @@ namespace TileEngine
         public static string ConfigDirectory_Engine { get; set; }
         public static string ConfigDirectory_Levels { get; set; }
 
-        public static string ConfigFullPath_EngineConfig{ get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Engine; } }
+        public static string ConfigFullPath_EngineConfig { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Engine; } }
         public static string ConfigFullPath_Tileset { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Tileset; } }
         public static string ConfigFullPath_PlayerRegister { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_PlayerRegister; } }
         public static string ConfigFullPath_NpcRegister { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_NpcRegister; } }
@@ -55,6 +55,12 @@ namespace TileEngine
         #region // Pointer Vars
         public static int PointerCurrent_Player { get; set; }
         public static int PointerCurrent_Level { get; set; }
+        #endregion
+        #region // Counter Vars
+        public static int Counter_Tiles { get; set; }
+        public static int Counter_Levels { get; set; }
+        public static int Counter_Players { get; set; }
+        public static int Counter_Npcs { get; set; }
         #endregion
         #region // LayerDepth Vars
         public static float LayerDepth_Background { get; set; }
@@ -83,8 +89,14 @@ namespace TileEngine
             Engine.Register_Levels = new List<Level>();
             Engine.Register_Players = new List<Player>();
             Engine.Register_Npc = new List<Entity>();
+
             Engine.PointerCurrent_Player = 0;
             Engine.PointerCurrent_Level = 0;
+
+            Engine.Counter_Tiles = 0;
+            Engine.Counter_Levels = 0;
+            Engine.Counter_Players = 0;
+            Engine.Counter_Npcs = 0;
 
             Engine.LayerDepth_Background = 0.10f;
             Engine.LayerDepth_Interactive = 0.09f;
@@ -93,13 +105,13 @@ namespace TileEngine
             Engine.LayerDepth_Foreground = 0.06f;
 
             Engine.ConfigFileName_Engine = "engine.ini";
-            Engine.ConfigFileName_Tileset = "tile_set.ini";
+            Engine.ConfigFileName_Tileset = "tileset.ini";
             Engine.ConfigFileName_PlayerRegister = "player_register.ini";
             Engine.ConfigFileName_NpcRegister = "npc_register.ini";
             Engine.ConfigFileName_LevelRegister = "level_register.ini";
 
             Engine.ConfigDirectory_Engine = "config/";
-            Engine.ConfigDirectory_Levels = "content/levels";
+            Engine.ConfigDirectory_Levels = "content/levels/";
 
             Engine.VisualDebugger = false;
 
@@ -147,6 +159,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
+
         public static Player GetCurrentPlayer()
         {
             return Engine.Register_Players[Engine.PointerCurrent_Player];
@@ -155,6 +168,8 @@ namespace TileEngine
         {
             return Engine.Register_Levels[Engine.PointerCurrent_Level];
         }
+
+        // Engine loading methods
         public static void Load()
         {
             try
@@ -218,7 +233,31 @@ namespace TileEngine
         {
             try
             {
+                // Check for the config file.
+                if (File.Exists(Engine.ConfigFullPath_Tileset))
+                {
+                    Engine.Counter_Tiles = 0;
+                    // Read the config file.
+                    XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_Tileset);
+                    while (xmlReader.Read())
+                    {
+                        if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "tile")
+                        {
+                            // Load the tile
+                            string tag = xmlReader.GetAttribute("tag");
+                            int src_frame_x = int.Parse(xmlReader.GetAttribute("src_frame_x"));
+                            int src_frame_y = int.Parse(xmlReader.GetAttribute("src_frame_y"));
+                            Color colour = Tile.Register_ConvertColour(xmlReader.GetAttribute("colour"));
+                            int id = int.Parse(xmlReader.GetAttribute("id"));
+                            Tile.TileType tileType = Tile.Register_ConvertTileType(xmlReader.GetAttribute("type"));
 
+                            // Add the tile to the register ready for use.
+                            Engine.Register_Tiles.Add(new Tile(tag, new Vector2(src_frame_x, src_frame_y), colour, Engine.LayerDepth_Background, id, tileType));
+
+                            Engine.Counter_Tiles++;
+                        }
+                    }
+                }
             }
             catch (Exception error)
             {
@@ -230,7 +269,51 @@ namespace TileEngine
         {
             try
             {
+                // Check if the level register exists.
+                if (!File.Exists(Engine.ConfigFullPath_LevelRegister))
+                {
+                    // If the directory for the levels does not exist, create it.
+                    if (!Directory.Exists(Engine.ConfigDirectory_Levels))
+                    {
+                        Directory.CreateDirectory(Engine.ConfigDirectory_Levels);
+                    }
 
+                    // If the register does not exist, generate it.
+                    using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigFullPath_LevelRegister))
+                    {
+                        xmlWriter.WriteStartDocument();
+                        xmlWriter.WriteWhitespace("\r\n");
+                        xmlWriter.WriteStartElement("level_register");
+                        xmlWriter.WriteAttributeString("level_count", "0");
+                        xmlWriter.WriteWhitespace("\r\n");
+                        xmlWriter.WriteEndElement();
+                        xmlWriter.WriteEndDocument();
+                        xmlWriter.Flush();
+                        xmlWriter.Close();
+                    }
+                }
+                else
+                {
+                    Engine.Counter_Levels = 0;  // Resets
+
+                    // Read the register
+                    XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_LevelRegister);
+                    while (xmlReader.Read())
+                    {
+                        if (xmlReader.NodeType == XmlNodeType.Element)
+                        {
+                            if (xmlReader.Name == "level")
+                            {
+                                int index = int.Parse(xmlReader.GetAttribute("index"));
+                                string tag = xmlReader.GetAttribute("tag");
+                                string src = xmlReader.GetAttribute("src");
+                                Engine.Register_Levels.Add(new Level(tag, index, src));
+                                Engine.Counter_Levels++;
+                            }
+                        }
+                    }
+                    xmlReader.Close();
+                }
             }
             catch (Exception error)
             {
@@ -262,6 +345,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
+
         public static void InitialiseGameWindow()
         {
             try

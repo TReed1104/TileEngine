@@ -11,7 +11,7 @@ namespace TileEngine
         public Game()
         {
             Engine.GraphicsDevideManager = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "content";
+            Content.RootDirectory = "cont";
             Window.Title = Engine.Window_Title;
             TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / Engine.FrameRate_Max);
             IsFixedTimeStep = false;

@@ -23,11 +23,11 @@ namespace TileEngine
         public WallSlide wallSlide { get; set; }
         protected Vector2 boundingBox_Offset { get; set; }
         public Rectangle boundingBox_AABB { get; set; }
-        protected Vector2 AABB_PlayerTopLeft_GridPosition;
-        protected Vector2 AABB_PlayerTopRight_GridPosition;
-        protected Vector2 AABB_PlayerBottomLeft_GridPosition;
-        protected Vector2 AABB_PlayerBottomRight_GridPosition;
-        protected Vector2 AABB_PlayerCenter_GridPosition;
+        protected Vector2 AABB_TopLeft_GridPosition;
+        protected Vector2 AABB_TopRight_GridPosition;
+        protected Vector2 AABB_BottomLeft_GridPosition;
+        protected Vector2 AABB_BottomRight_GridPosition;
+        protected Vector2 AABB_Center_GridPosition;
         protected Vector2 newGridPosition;
         protected Vector2 newGridPositionOffset;
         protected Vector2 newGridPositionOffsetDiagonal;
@@ -100,11 +100,11 @@ namespace TileEngine
         {
             try
             {
-                AABB_PlayerTopLeft_GridPosition = new Vector2((float)Math.Floor(boundingBox_AABB.X / Tile.TileDimensions.X), (float)Math.Floor(boundingBox_AABB.Y / Tile.TileDimensions.Y));
-                AABB_PlayerTopRight_GridPosition = new Vector2((float)Math.Floor((boundingBox_AABB.X + (boundingBox_AABB.Width - 1)) / Tile.TileDimensions.X), (float)Math.Floor(boundingBox_AABB.Y / Tile.TileDimensions.Y));
-                AABB_PlayerBottomLeft_GridPosition = new Vector2((float)Math.Floor(boundingBox_AABB.X / Tile.TileDimensions.X), (float)Math.Floor((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.TileDimensions.Y));
-                AABB_PlayerBottomRight_GridPosition = new Vector2((float)Math.Floor((boundingBox_AABB.X + (boundingBox_AABB.Width - 1)) / Tile.TileDimensions.X), (float)Math.Floor((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.TileDimensions.Y));
-                AABB_PlayerCenter_GridPosition = new Vector2((float)Math.Floor((boundingBox_AABB.X + (boundingBox_AABB.Width / 2) - 1) / Tile.TileDimensions.X), (float)Math.Floor((boundingBox_AABB.Y + (boundingBox_AABB.Height / 2) - 1) / Tile.TileDimensions.Y));
+                AABB_TopLeft_GridPosition = new Vector2((float)Math.Floor(boundingBox_AABB.X / Tile.TileDimensions.X), (float)Math.Floor(boundingBox_AABB.Y / Tile.TileDimensions.Y));
+                AABB_TopRight_GridPosition = new Vector2((float)Math.Floor((boundingBox_AABB.X + (boundingBox_AABB.Width - 1)) / Tile.TileDimensions.X), (float)Math.Floor(boundingBox_AABB.Y / Tile.TileDimensions.Y));
+                AABB_BottomLeft_GridPosition = new Vector2((float)Math.Floor(boundingBox_AABB.X / Tile.TileDimensions.X), (float)Math.Floor((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.TileDimensions.Y));
+                AABB_BottomRight_GridPosition = new Vector2((float)Math.Floor((boundingBox_AABB.X + (boundingBox_AABB.Width - 1)) / Tile.TileDimensions.X), (float)Math.Floor((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.TileDimensions.Y));
+                AABB_Center_GridPosition = new Vector2((float)Math.Floor((boundingBox_AABB.X + (boundingBox_AABB.Width / 2) - 1) / Tile.TileDimensions.X), (float)Math.Floor((boundingBox_AABB.Y + (boundingBox_AABB.Height / 2) - 1) / Tile.TileDimensions.Y));
             }
             catch (Exception error)
             {

@@ -11,7 +11,7 @@ namespace TileEngine
         public Game()
         {
             Engine.GraphicsDevideManager = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "cont";
+            Content.RootDirectory = "content";
             Window.Title = Engine.Window_Title;
             TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / Engine.FrameRate_Max);
             IsFixedTimeStep = false;
@@ -30,11 +30,13 @@ namespace TileEngine
         }
         protected override void Update(GameTime gameTime)
         {
+            Engine.Update(gameTime);
             base.Update(gameTime);
         }
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+            Engine.Draw(gameTime);
             base.Draw(gameTime);
         }
     }

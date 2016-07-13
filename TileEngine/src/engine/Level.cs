@@ -11,8 +11,9 @@ namespace TileEngine
     public class Level
     {
         // Vars
-        public string tag { get; set; }
         public int index { get; set; }
+        public string tag { get; set; }
+        public string src { get; set; }
         public Vector2 gridSize_Tiles { get; set; }
         public Vector2 gridSize_Pixels { get { return gridSize_Tiles * Tile.TileDimensions; } }
         public Vector2 positionPlayerStart_Grid { get; set; }
@@ -143,11 +144,32 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        protected void Load(string path)
+        protected void Load(string levelSrc)
         {
             try
             {
-
+                string rawLevel = "";
+                XmlReader xmlReader = XmlReader.Create(levelSrc);
+                while (xmlReader.Read())
+                {
+                    if (xmlReader.NodeType == XmlNodeType.Element)
+                    {
+                        if (xmlReader.Name == "level")
+                        {
+                            index = int.Parse(xmlReader.GetAttribute("index"));
+                            tag = xmlReader.GetAttribute("tag");
+                            src = xmlReader.GetAttribute("src");
+                        }
+                        if (xmlReader.Name == "tile_map")
+                        {
+                            gridSize_Tiles = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
+                            rawLevel = xmlReader.ReadElementString();
+                        }
+                    }
+                }
+                InitialiseMap();
+                ConvertStringToTiles(rawLevel);
+                map_Copy = (Tile[,])map_Base.Clone();
             }
             catch (Exception error)
             {
@@ -155,7 +177,37 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        
+        protected void ConvertStringToTiles(string rawLevel)
+        {
+            try
+            {
+                // Remove the formatting
+                rawLevel = rawLevel.Replace("\n", "");
+                rawLevel = rawLevel.Replace("\t", "");
+                rawLevel = rawLevel.Replace("\r", "");
+                rawLevel = rawLevel.Replace(" ", "");
+
+                string[] levelY = rawLevel.Split(';');
+                for (int y = 0; y < levelY.Length; y++)
+                {
+                    string[] levelX = rawLevel.Split(',');
+                    for (int x = 0; x < levelX.Length; x++)
+                    {
+                        int pointer_TileRegister = int.Parse(levelX[x]);
+                        map_Base[x, y].id = Engine.Register_Tiles[pointer_TileRegister].id;
+                        map_Base[x, y].tag = Engine.Register_Tiles[pointer_TileRegister].tag;
+                        map_Base[x, y].type = Engine.Register_Tiles[pointer_TileRegister].type;
+                        map_Base[x, y].sourceRectangle_Position = Engine.Register_Tiles[pointer_TileRegister].sourceRectangle_Position;
+                        map_Base[x, y].colour = Engine.Register_Tiles[pointer_TileRegister].colour;
+                    }
+                }
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
+        }
         // Generation
         protected void Save()
         {

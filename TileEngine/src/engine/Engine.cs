@@ -138,7 +138,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void Draw()
+        public static void Draw(GameTime gameTime)
         {
             try
             {
@@ -162,11 +162,29 @@ namespace TileEngine
 
         public static Player GetCurrentPlayer()
         {
-            return Engine.Register_Players[Engine.PointerCurrent_Player];
+            try
+            {
+                return Engine.Register_Players[Engine.PointerCurrent_Player];
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+                return null;
+            }
         }
         public static Level GetCurrentLevel()
         {
-            return Engine.Register_Levels[Engine.PointerCurrent_Level];
+            try
+            {
+                return Engine.Register_Levels[Engine.PointerCurrent_Level];
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+                return null;
+            }
         }
 
         // Engine loading methods

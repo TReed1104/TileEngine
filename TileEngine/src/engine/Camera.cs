@@ -10,12 +10,15 @@ namespace TileEngine
 {
     public class Camera
     {
-        public string tag { get; set; }
+        // Enums
         public enum CameraType { Manual, Follow, Snapped, };
+        // Vars
+        public string tag { get; set; }
         public CameraType cameraType { get; set; }
         public Vector2 position_Base { get; set; }
         public Vector2 position_Grid { get; set; }
 
+        // Constructors
         static Camera()
         {
 
@@ -37,6 +40,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
+        // XNA methods
         public void Update(GameTime gameTime)
         {
             try
@@ -55,7 +59,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-
+        // Camera control methods
         public void CheckBounds()
         {
             try

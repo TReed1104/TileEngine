@@ -7,7 +7,6 @@ namespace TileEngine
 {
     public class Game : Microsoft.Xna.Framework.Game
     {
-
         public Game()
         {
             Engine.GraphicsDevideManager = new GraphicsDeviceManager(this);
@@ -24,6 +23,9 @@ namespace TileEngine
         protected override void LoadContent()
         {
             Engine.SpriteBatch = new SpriteBatch(GraphicsDevice);
+
+            // Load textures and fonts
+            Tile.TileSet = Content.Load<Texture2D>(Tile.SpritesheetSource);
         }
         protected override void UnloadContent()
         {

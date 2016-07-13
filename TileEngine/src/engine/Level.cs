@@ -37,8 +37,6 @@ namespace TileEngine
                 this.gridSize_Tiles = Vector2.Zero;
                 this.positionPlayerStart_Grid = Vector2.Zero;
                 this.registerNPC = new List<Entity>();
-
-                InitialiseMap();
                 Load(src);
             }
             catch (Exception error)
@@ -47,8 +45,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-
-        // Methods
+        // XNA Methods
         public virtual void Update(GameTime gameTime)
         {
             try
@@ -73,8 +70,8 @@ namespace TileEngine
                 {
                     for (int x = 0; x < Engine.Window_TileGrid.X; x++)
                     {
-                        int drawX = (int)(Engine.GetCurrentPlayer().camera.position_Grid.X + x);
-                        int drawY = (int)(Engine.GetCurrentPlayer().camera.position_Grid.Y + y);
+                        int drawX = (int)(Engine.MainCamera.position_Grid.X + x);
+                        int drawY = (int)(Engine.MainCamera.position_Grid.Y + y);
                         map_Copy[drawX, drawY].Draw();
                         if (drawX + 1 < gridSize_Tiles.X)
                         {
@@ -102,7 +99,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-
+        // Collision methods
         public bool CheckCell(Vector2 gridPositionToCheck)
         {
             try
@@ -120,12 +117,12 @@ namespace TileEngine
                 return false;
             }
         }
-
         // Load methods
         protected void InitialiseMap()
         {
             try
             {
+                // This prevents there being unassigned tile cells and makes sure each cell has the correct positioning in the grid
                 map_Base = new Tile[(int)gridSize_Tiles.X, (int)gridSize_Tiles.Y];
                 for (int y = 0; y < gridSize_Tiles.Y; y++)
                 {
@@ -134,6 +131,7 @@ namespace TileEngine
                         map_Base[x, y] = new Tile("NULL", Vector2.Zero, Color.White, Engine.LayerDepth_Background, 00, Tile.TileType.Empty);
                         map_Base[x, y].position_Base = new Vector2(x * Tile.TileDimensions.X, y * Tile.TileDimensions.Y);
                         map_Base[x, y].position_Grid = new Vector2(x, y);
+                        map_Base[x, y].position_Draw = new Vector2(x * Tile.TileDimensions.X, y * Tile.TileDimensions.Y) + Engine.Window_GameRender_Offset;
 
                     }
                 }
@@ -148,7 +146,7 @@ namespace TileEngine
         {
             try
             {
-                string rawLevel = "";
+                
                 XmlReader xmlReader = XmlReader.Create(levelSrc);
                 while (xmlReader.Read())
                 {
@@ -162,14 +160,37 @@ namespace TileEngine
                         }
                         if (xmlReader.Name == "tile_map")
                         {
-                            gridSize_Tiles = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
-                            rawLevel = xmlReader.ReadElementString();
+                            string rawLevel = xmlReader.ReadElementString();
+                            // Remove the formatting
+                            rawLevel = rawLevel.Replace("\n", "");
+                            rawLevel = rawLevel.Replace("\t", "");
+                            rawLevel = rawLevel.Replace("\r", "");
+                            rawLevel = rawLevel.Replace(" ", "");
+
+                            // Calculate the dimensions of the map
+                            string[] counterY = rawLevel.Split(';');
+                            string[] counterX = counterY[0].Split(',');
+                            gridSize_Tiles = new Vector2(counterX.Length - 1, counterY.Length - 1);
+
+                            // Initialise a blank map
+                            InitialiseMap();
+
+                            // Populate the level using map data taken from the .lvl file
+                            string[] levelY = rawLevel.Split(';');
+                            for (int y = 0; y < gridSize_Tiles.Y; y++)
+                            {
+                                string[] levelX = levelY[y].Split(',');
+                                for (int x = 0; x < gridSize_Tiles.X; x++)
+                                {
+                                    // populates the current cell with the tile specified in the .lvl file
+                                    int pointer_TileRegister = int.Parse(levelX[x]);
+                                    map_Base[x, y].Copy(Engine.Register_Tiles[pointer_TileRegister]);
+                                }
+                            }
+                            map_Copy = (Tile[,])map_Base.Clone();
                         }
                     }
                 }
-                InitialiseMap();
-                ConvertStringToTiles(rawLevel);
-                map_Copy = (Tile[,])map_Base.Clone();
             }
             catch (Exception error)
             {
@@ -177,38 +198,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        protected void ConvertStringToTiles(string rawLevel)
-        {
-            try
-            {
-                // Remove the formatting
-                rawLevel = rawLevel.Replace("\n", "");
-                rawLevel = rawLevel.Replace("\t", "");
-                rawLevel = rawLevel.Replace("\r", "");
-                rawLevel = rawLevel.Replace(" ", "");
-
-                string[] levelY = rawLevel.Split(';');
-                for (int y = 0; y < levelY.Length; y++)
-                {
-                    string[] levelX = rawLevel.Split(',');
-                    for (int x = 0; x < levelX.Length; x++)
-                    {
-                        int pointer_TileRegister = int.Parse(levelX[x]);
-                        map_Base[x, y].id = Engine.Register_Tiles[pointer_TileRegister].id;
-                        map_Base[x, y].tag = Engine.Register_Tiles[pointer_TileRegister].tag;
-                        map_Base[x, y].type = Engine.Register_Tiles[pointer_TileRegister].type;
-                        map_Base[x, y].sourceRectangle_Position = Engine.Register_Tiles[pointer_TileRegister].sourceRectangle_Position;
-                        map_Base[x, y].colour = Engine.Register_Tiles[pointer_TileRegister].colour;
-                    }
-                }
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
-            }
-        }
-        // Generation
+        // Generation methods
         protected void Save()
         {
             try

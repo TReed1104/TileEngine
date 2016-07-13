@@ -11,7 +11,6 @@ namespace TileEngine
 {
     public static class Engine
     {
-        // Vars
         #region // Engine Vars
         public static string EngineName { get; private set; }
         public static string EngineVersion { get; private set; }
@@ -69,6 +68,9 @@ namespace TileEngine
         public static float LayerDepth_Player { get; set; }
         public static float LayerDepth_Foreground { get; set; }
         #endregion
+        #region // Camera Vars
+        public static Camera MainCamera { get; set; }
+        #endregion
         #region // Debugger Vars
         public static bool VisualDebugger { get; set; }
         #endregion
@@ -104,6 +106,8 @@ namespace TileEngine
             Engine.LayerDepth_Player = 0.07f;
             Engine.LayerDepth_Foreground = 0.06f;
 
+            Engine.MainCamera = new Camera("Main Camera", Vector2.Zero);
+
             Engine.ConfigFileName_Engine = "engine.ini";
             Engine.ConfigFileName_Tileset = "tileset.ini";
             Engine.ConfigFileName_PlayerRegister = "player_register.ini";
@@ -117,8 +121,7 @@ namespace TileEngine
 
             Engine.Load();
         }
-
-        // Methods
+        // XNA Methods
         public static void Update(GameTime gameTime)
         {
             try
@@ -159,7 +162,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-
+        // Get methods for ease of access.
         public static Player GetCurrentPlayer()
         {
             try
@@ -186,7 +189,6 @@ namespace TileEngine
                 return null;
             }
         }
-
         // Engine loading methods
         public static void Load()
         {
@@ -312,7 +314,7 @@ namespace TileEngine
                 }
                 else
                 {
-                    Engine.Counter_Levels = 0;  // Resets
+                    Engine.Counter_Levels = 0;  // Resets the level counter
 
                     // Read the register
                     XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_LevelRegister);
@@ -363,7 +365,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-
+        // Engine Setup
         public static void InitialiseGameWindow()
         {
             try

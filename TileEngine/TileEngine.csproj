@@ -67,7 +67,7 @@
     <None Include="config\tileset.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="content\content.mgcb" />
+    <MonoGameContentReference Include="content\content.mgcb" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="content\entity\" />

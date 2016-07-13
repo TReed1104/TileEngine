@@ -40,55 +40,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        public Tile(Tile tileToCopy) 
-            : base (tileToCopy.tag, null, tileToCopy.position_Base, tileToCopy.sourceRectangle_Position, Tile.TileDimensions, tileToCopy.colour, tileToCopy.layerDepth)
-        {
-            try
-            {
-                this.id = tileToCopy.id;
-                this.type = tileToCopy.type;
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
-            }
-        }
-
-        // Methods
-        public override void Update(GameTime gameTime)
-        {
-            try
-            {
-                base.Update(gameTime);
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
-            }
-        }
-        public override void Draw()
-        {
-            try
-            {
-                Engine.SpriteBatch.Draw(Tile.TileSet, position_Draw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
-
-                #region // Debugging
-                // Ready for debugging implementation
-                //if (Engine.VisualDebugger && type == TileType.Solid)
-                //{
-                //   // Reposition this for the right texture!
-                //   Engine.SpriteBatch.Draw(Tile.TileSet, positionDraw, new Rectangle((int)(0 * Engine.TileDimensions.Y), (int)(9 * Engine.TileDimensions.Y), (int)Engine.TileDimensions.X, (int)Engine.TileDimensions.Y), Color.Purple, rotation, origin, scale, spriteEffect, 0.1f);
-                //}
-                #endregion
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
-            }
-        }
+        // Tile string conversion methods
         public static TileType Register_ConvertTileType(string stringToConvert)
         {
             try
@@ -138,6 +90,49 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Tile", methodName, error.Message));
                 return Color.White;
             }
+        }
+        // XNA Methods
+        public override void Update(GameTime gameTime)
+        {
+            try
+            {
+                base.Update(gameTime);
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
+        }
+        public override void Draw()
+        {
+            try
+            {
+                Engine.SpriteBatch.Draw(Tile.TileSet, position_Draw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
+
+                #region // Debugging
+                // Ready for debugging implementation
+                //if (Engine.VisualDebugger && type == TileType.Solid)
+                //{
+                //   // Reposition this for the right texture!
+                //   Engine.SpriteBatch.Draw(Tile.TileSet, positionDraw, new Rectangle((int)(0 * Engine.TileDimensions.Y), (int)(9 * Engine.TileDimensions.Y), (int)Engine.TileDimensions.X, (int)Engine.TileDimensions.Y), Color.Purple, rotation, origin, scale, spriteEffect, 0.1f);
+                //}
+                #endregion
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
+        }
+        // Copy Method
+        public void Copy(Tile tileToCopy)
+        {
+            this.tag = tileToCopy.tag;
+            this.sourceRectangle_Position = tileToCopy.sourceRectangle_Position;
+            this.colour = tileToCopy.colour;
+            this.id = tileToCopy.id;
+            this.type = tileToCopy.type;
         }
     }
 }

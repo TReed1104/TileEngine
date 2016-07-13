@@ -52,14 +52,14 @@ namespace TileEngine
                 int gridX = (int)(this.position_Base.X / Tile.TileDimensions.X);
                 int gridY = (int)(this.position_Base.Y / Tile.TileDimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);
-                position_Draw = position_Base;
+                this.position_Draw = position_Base + Engine.MainCamera.position_Base;
                 this.sourceRectangle_Position = sourceRectangle_Position;
                 this.sourceRectangle_Size = sourceRectangle_Size;
                 this.sourceRectangle_Offset = Vector2.Zero;
                 this.colour = colour;
                 this.origin = Vector2.Zero;
                 this.rotation = 0.0f;
-                this.scale = 0.0f;
+                this.scale = 1.0f;
                 this.spriteEffect = SpriteEffects.None;
                 this.layerDepth = layerDepth;
             }
@@ -69,13 +69,12 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-
-        // Methods
+        // XNA Methods
         public virtual void Update(GameTime gameTime)
         {
             try
             {
-                position_Draw = position_Base + Engine.GetCurrentPlayer().camera.position_Base;
+                position_Draw = position_Base + Engine.MainCamera.position_Base;
                 int gridX = (int)(this.position_Base.X / Tile.TileDimensions.X);
                 int gridY = (int)(this.position_Base.Y / Tile.TileDimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);

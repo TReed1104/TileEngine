@@ -41,14 +41,14 @@ namespace TileEngine
             }
         }
         // XNA methods
-        public void Update(GameTime gameTime)
+        public void Update(GameTime gameTime, GameObject cameraTarget)
         {
             try
             {
                 if (cameraType == CameraType.Follow)
                 {
-                    float newCameraX = Engine.GetCurrentPlayer().position_Base.X - (Engine.Window_PixelGridSize.X / 2);
-                    float newCameraY = Engine.GetCurrentPlayer().position_Base.Y - (Engine.Window_PixelGridSize.Y / 2);
+                    float newCameraX = cameraTarget.position_Base.X - (Engine.Window_PixelGridSize.X / 2);
+                    float newCameraY = cameraTarget.position_Base.Y - (Engine.Window_PixelGridSize.Y / 2);
                     position_Base = new Vector2(newCameraX, newCameraY);
                 }
                 CheckBounds();

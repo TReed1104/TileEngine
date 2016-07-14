@@ -135,6 +135,7 @@ namespace TileEngine
                 {
                     GetCurrentPlayer().Update(gameTime);
                 }
+                Engine.MainCamera.Update(gameTime, Engine.GetCurrentPlayer());
             }
             catch (Exception error)
             {

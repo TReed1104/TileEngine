@@ -25,7 +25,6 @@ namespace TileEngine
         {
             deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             base.Update(gameTime);
-            Engine.MainCamera.Update(gameTime);
         }
         public override void Draw()
         {

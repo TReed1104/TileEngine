@@ -60,9 +60,8 @@
     <None Include="config\engine.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Content Include="content\tiles\TileSet.bmp">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="content\entity\player.bmp" />
+    <Content Include="content\tiles\TileSet.bmp" />
     <Content Include="Icon.ico" />
     <None Include="config\tileset.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -70,7 +69,6 @@
     <MonoGameContentReference Include="content\content.mgcb" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="content\entity\" />
     <Folder Include="content\levels\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

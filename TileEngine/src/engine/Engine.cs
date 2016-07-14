@@ -41,8 +41,9 @@ namespace TileEngine
         public static Matrix Window_TransformationMatrix { get; set; }
         public static float Window_Scaler { get; set; }
         public static Vector2 Window_GameRender_Offset { get; set; }
-        public static Vector2 Window_TileGrid { get; private set; }
-        public static Vector2 Window_DimensionsPixels_Base { get { return (Engine.Window_TileGrid * Tile.TileDimensions) + Engine.Window_GameRender_Offset; } }
+        public static Vector2 Window_TileGridSize { get; private set; }
+        public static Vector2 Window_PixelGridSize { get { return (Engine.Window_TileGridSize * Tile.TileDimensions); } }
+        public static Vector2 Window_DimensionsPixels_Base { get { return (Engine.Window_TileGridSize * Tile.TileDimensions) + Engine.Window_GameRender_Offset; } }
         public static Vector2 Window_DimensionsPixels_Scaled { get { return Engine.Window_DimensionsPixels_Base * Engine.Window_Scaler; } }
         #endregion
         #region // Register Vars
@@ -85,7 +86,7 @@ namespace TileEngine
             Engine.Window_Title = "NULL";
             Engine.FrameRate_Max = 30;
             Engine.Window_GameRender_Offset = new Vector2(0, 50);
-            Engine.Window_TileGrid = new Vector2(10, 10);
+            Engine.Window_TileGridSize = new Vector2(10, 10);
 
             Engine.Register_Tiles = new List<Tile>();
             Engine.Register_Levels = new List<Level>();
@@ -228,7 +229,7 @@ namespace TileEngine
                             {
                                 // Load the Window settings
                                 Engine.Window_Title = xmlReader.GetAttribute("title");
-                                Engine.Window_TileGrid = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
+                                Engine.Window_TileGridSize = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
                                 Engine.FrameRate_Max = int.Parse(xmlReader.GetAttribute("max_frame_rate"));
                                 Engine.Window_Scaler = float.Parse(xmlReader.GetAttribute("scaler"));
                                 Engine.Window_GameRender_Offset = new Vector2(0, int.Parse(xmlReader.GetAttribute("hud_size")));
@@ -345,6 +346,83 @@ namespace TileEngine
         {
             try
             {
+                // Check if the level register exists.
+                if (!File.Exists(Engine.ConfigFullPath_PlayerRegister))
+                {
+                    // If the directory for the levels does not exist, create it.
+                    if (!Directory.Exists(Engine.ConfigDirectory_Engine))
+                    {
+                        Directory.CreateDirectory(Engine.ConfigDirectory_Engine);
+                    }
+
+                    int numberOfSave = 3;
+                    // If the register does not exist, generate it.
+                    using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigFullPath_PlayerRegister))
+                    {
+                        xmlWriter.WriteStartDocument();
+                        xmlWriter.WriteWhitespace("\r\n");
+                        xmlWriter.WriteStartElement("player_register");
+                        xmlWriter.WriteAttributeString("save_count", numberOfSave.ToString());
+                        string src_sheet = "entity/player";
+                        xmlWriter.WriteAttributeString("src", src_sheet);
+                        xmlWriter.WriteWhitespace("\r\n\t");
+                        for (int i = 0; i < numberOfSave; i++)
+                        {
+                            string playerTag = string.Format("Player {0}", i + 1);
+                            int src_rec_x = 0;
+                            int src_rec_y = 0;
+                            int src_rec_size = (int)(Tile.TileDimensions.X) * 3;
+
+                            xmlWriter.WriteStartElement("player_data");
+                            xmlWriter.WriteAttributeString("index", i.ToString());
+                            xmlWriter.WriteAttributeString("tag", playerTag);
+                            xmlWriter.WriteAttributeString("hp", "10");
+                            xmlWriter.WriteAttributeString("src_frame_pos_x", src_rec_x.ToString());
+                            xmlWriter.WriteAttributeString("src_frame_pos_y", src_rec_y.ToString());
+                            xmlWriter.WriteAttributeString("src_frame_size", src_rec_size.ToString());
+
+                            xmlWriter.WriteEndElement();
+                            if (i == numberOfSave - 1)
+                            {
+                                xmlWriter.WriteWhitespace("\r\n");
+                            }
+                            else
+                            {
+                                xmlWriter.WriteWhitespace("\r\n\t");
+                            }
+                        }
+                        xmlWriter.WriteEndElement();
+                        xmlWriter.WriteEndDocument();
+                        xmlWriter.Flush();
+                        xmlWriter.Close();
+                    }
+                }
+                Engine.Counter_Players = 0;  // Resets the level counter
+
+                // Read the register
+                XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_PlayerRegister);
+                while (xmlReader.Read())
+                {
+                    if (xmlReader.NodeType == XmlNodeType.Element)
+                    {
+                        if (xmlReader.Name == "player_register")
+                        {
+                            Player.SpritesheetSource = xmlReader.GetAttribute("src");
+                        }
+                        if (xmlReader.Name == "player_data")
+                        {
+                            int index = int.Parse(xmlReader.GetAttribute("index"));
+                            string tag = xmlReader.GetAttribute("tag");
+                            int healthPoints = int.Parse(xmlReader.GetAttribute("hp"));
+                            Vector2 sourceRectangle_Position = new Vector2(int.Parse(xmlReader.GetAttribute("src_frame_pos_x")), int.Parse(xmlReader.GetAttribute("src_frame_pos_y")));
+                            int frameSize = int.Parse(xmlReader.GetAttribute("src_frame_size"));
+                            Vector2 sourceRectangle_Size = new Vector2(frameSize, frameSize);
+                            Engine.Register_Players.Add(new Player(tag, null, new Vector2(50, 50), sourceRectangle_Position, sourceRectangle_Size, Color.White, Engine.LayerDepth_Player, healthPoints));
+                            Engine.Counter_Players++;
+                        }
+                    }
+                }
+                xmlReader.Close();
 
             }
             catch (Exception error)

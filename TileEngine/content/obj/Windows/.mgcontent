@@ -4,6 +4,7 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/dev/TileEngine/TileEngine/content/tiles/TileSet.bmp</File>
+    <File>D:/dev/TileEngine/TileEngine/content/tiles/TileSet.bmp</File>
+    <File>D:/dev/TileEngine/TileEngine/content/entity/Player.bmp</File>
   </SourceFiles>
 </SourceFileCollection>

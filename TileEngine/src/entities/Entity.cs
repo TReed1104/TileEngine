@@ -10,6 +10,8 @@ namespace TileEngine
 {
     public class Entity : GameObject
     {
+        // Statics
+        public static string SpritesheetSource { get; set; }
         // Enums
         public enum Direction { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
         public enum WallSlide { None, WallSlideLeft, WallSlideRight, WallSlideUp, WallSlideDown, };
@@ -36,9 +38,9 @@ namespace TileEngine
         // Constructors
         static Entity()
         {
-
+            Entity.SpritesheetSource = "";
         }
-        public Entity(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth)
+        public Entity(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
             : base (tag, texture, position_World, sourceRectangle_Position, sourceRectangle_Size, colour, layerDepth)
         {
             deltaTime = 0;
@@ -48,9 +50,11 @@ namespace TileEngine
             damagePower = 1.0f;
             direction = Direction.Down;
             wallSlide = WallSlide.None;
+
             Vector2 boundingSize = new Vector2(10, 10);
             Vector2 boundingGridDelta = Tile.TileDimensions - boundingSize;
-            boundingBox_Offset = boundingGridDelta / 2;
+            boundingBox_Offset = (boundingGridDelta / 2) + Tile.TileDimensions;
+
             position_Grid = new Vector2((int)(position_Draw.X / Tile.TileDimensions.X), (int)(position_Draw.Y / Tile.TileDimensions.Y));
             boundingBox_AABB = new Rectangle((int)(position_Grid.X * Tile.TileDimensions.X) + (int)boundingBox_Offset.X, (int)(position_Grid.Y * Tile.TileDimensions.Y) + (int)boundingBox_Offset.Y, (int)boundingSize.X, (int)boundingSize.Y);
             newGridPosition = Vector2.Zero;

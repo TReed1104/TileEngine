@@ -66,9 +66,9 @@ namespace TileEngine
         {
             try
             {
-                for (int y = 0; y < Engine.Window_TileGrid.Y; y++)
+                for (int y = 0; y < Engine.Window_TileGridSize.Y; y++)
                 {
-                    for (int x = 0; x < Engine.Window_TileGrid.X; x++)
+                    for (int x = 0; x < Engine.Window_TileGridSize.X; x++)
                     {
                         int drawX = (int)(Engine.MainCamera.position_Grid.X + x);
                         int drawY = (int)(Engine.MainCamera.position_Grid.Y + y);

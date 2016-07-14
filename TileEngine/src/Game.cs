@@ -26,6 +26,11 @@ namespace TileEngine
 
             // Load textures and fonts
             Tile.TileSet = Content.Load<Texture2D>(Tile.SpritesheetSource);
+            Texture2D playerTexture = Content.Load<Texture2D>(Player.SpritesheetSource);
+            for (int i = 0; i < Engine.Register_Players.Count; i++)
+            {
+                Engine.Register_Players[i].texture = playerTexture;
+            }
         }
         protected override void UnloadContent()
         {

@@ -13,8 +13,7 @@ namespace TileEngine
         // Vars
         public int index { get; set; }
         public string tag { get; set; }
-        public string src { get; set; }
-        public Vector2 gridSize_Tiles { get; set; }
+        public Vector2 gridSize_Tiles { get; protected set; }
         public Vector2 gridSize_Pixels { get { return gridSize_Tiles * Tile.TileDimensions; } }
         public Vector2 positionPlayerStart_Grid { get; set; }
         public Vector2 positionPlayerStart_Pixel { get { return positionPlayerStart_Grid * Tile.TileDimensions; } }
@@ -26,6 +25,23 @@ namespace TileEngine
         static Level()
         {
 
+        }
+        public Level()
+        {
+            try
+            {
+                this.tag = "";
+                this.index = -1;
+
+                this.gridSize_Tiles = Vector2.Zero;
+                this.positionPlayerStart_Grid = Vector2.Zero;
+                this.registerNPC = new List<Entity>();
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
         }
         public Level(string tag, int index, string src)
         {
@@ -99,7 +115,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        // Collision methods
+        // TileGrid methods
         public bool CheckCell(Vector2 gridPositionToCheck)
         {
             try
@@ -115,6 +131,34 @@ namespace TileEngine
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
                 return false;
+            }
+        }
+        public bool SetTile(Vector2 gridPositionToSet, Tile newTile)
+        {
+            try
+            {
+                map_Base[(int)(gridPositionToSet.X), (int)(gridPositionToSet.Y)] = newTile;
+                map_Copy = (Tile[,])map_Base.Clone();
+                return true;
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+                return false;
+            }
+        }
+        public void SetTileGridSize(Vector2 newGridSize)
+        {
+            try
+            {
+                gridSize_Tiles = newGridSize;
+                InitialiseMap();
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
         // Load methods
@@ -146,7 +190,6 @@ namespace TileEngine
         {
             try
             {
-                
                 XmlReader xmlReader = XmlReader.Create(levelSrc);
                 while (xmlReader.Read())
                 {
@@ -156,7 +199,6 @@ namespace TileEngine
                         {
                             index = int.Parse(xmlReader.GetAttribute("index"));
                             tag = xmlReader.GetAttribute("tag");
-                            src = xmlReader.GetAttribute("src");
                         }
                         if (xmlReader.Name == "tile_map")
                         {
@@ -198,19 +240,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        // Generation methods
-        protected void Save()
-        {
-            try
-            {
-                AddLevelToRegister();
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
-            }
-        }
+        // Save methods
         protected void AddLevelToRegister()
         {
             try
@@ -257,6 +287,23 @@ namespace TileEngine
             {
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Level", methodName, error.Message));
+            }
+        }
+        protected void SaveLevelToFile()
+        {
+
+        }
+        public void Save()
+        {
+            try
+            {
+                AddLevelToRegister();
+                SaveLevelToFile();
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
     }

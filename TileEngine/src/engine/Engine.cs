@@ -119,8 +119,8 @@ namespace TileEngine
             Engine.ConfigDirectory_Levels = "content/levels/";
 
             Engine.VisualDebugger = false;
-
             Engine.Load();
+            Generate_NewWorld(WorldGeneration.WorldType.Plains);
         }
         // XNA Methods
         public static void Update(GameTime gameTime)
@@ -460,6 +460,13 @@ namespace TileEngine
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
+        }
+        // Generation
+        public static void Generate_NewWorld(WorldGeneration.WorldType worldType)
+        {
+            WorldGeneration worldGenerator = new WorldGeneration();
+            worldGenerator.Generate(worldType);
+
         }
     }
 }

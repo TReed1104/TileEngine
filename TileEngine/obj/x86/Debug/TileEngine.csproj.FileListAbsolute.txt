@@ -30,8 +30,6 @@ C:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\Content\tiles\TileSet.xnb
 D:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.exe
 D:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.pdb
 D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\Content\tiles\TileSet.xnb
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\config\engine.ini
-D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\config\tileset.ini
 D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\TileEngine.exe
 D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\TileEngine.pdb
 D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\MonoGame.Framework.dll
@@ -56,3 +54,5 @@ D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.RawInput.xml
 D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\SharpDX.Direct3D9.xml
 D:\dev\TileEngine\TileEngine\obj\x86\Debug\TileEngine.csprojResolveAssemblyReference.cache
 D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\Content\entity\player.xnb
+D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\config\engine.ini
+D:\dev\TileEngine\TileEngine\bin\Windows\x86\Debug\config\tileset.ini

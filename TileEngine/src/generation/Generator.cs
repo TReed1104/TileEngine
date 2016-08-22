@@ -7,19 +7,22 @@ using System.Threading.Tasks;
 
 namespace TileEngine
 {
-    public class WorldGeneration
+    public class Generator
     {
         // Vars
+        public static Random RandomNumberGenerator { get; set; }
+        public const string AlphanumericSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        public const string CharacterSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         public enum WorldType { Plains, Forest, Cave, Mountain, Volcano, Snow, Ocean, }
         protected WorldType worldType { get; set; }
         protected Level generatedLevel { get; set; }
 
         // Constructors
-        static WorldGeneration()
+        static Generator()
         {
-
+            RandomNumberGenerator = new Random();
         }
-        public WorldGeneration()
+        public Generator()
         {
 
         }
@@ -99,7 +102,7 @@ namespace TileEngine
                 }
             }
         }
-        public Level Generate(WorldType worldType)
+        public Level GenerateWorld(WorldType worldType)
         {
             try
             {
@@ -118,6 +121,33 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
                 return null;
             }
+        }
+
+        // Randomiser Methods
+        public static int RandomInt()
+        {
+            return RandomNumberGenerator.Next();
+        }
+        public static int RandomInt(int max)
+        {
+            return RandomNumberGenerator.Next(max);
+        }
+        public static int RandomInt(int min, int max)
+        {
+            return RandomNumberGenerator.Next(min, max);
+        }
+        public static string RandomString(int length)
+        {
+            return new string(Enumerable.Repeat(CharacterSet, length).Select(s => s[RandomNumberGenerator.Next(s.Length)]).ToArray());
+        }
+        public static string RandomString(int minLength, int maxLength)
+        {
+            int length = RandomNumberGenerator.Next(minLength, maxLength);
+            return new string(Enumerable.Repeat(CharacterSet, length).Select(s => s[RandomNumberGenerator.Next(s.Length)]).ToArray());
+        }
+        public static string RandomSeed(int length)
+        {
+            return new string(Enumerable.Repeat(AlphanumericSet, length).Select(s => s[RandomNumberGenerator.Next(s.Length)]).ToArray());
         }
     }
 }

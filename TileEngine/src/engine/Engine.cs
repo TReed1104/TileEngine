@@ -120,7 +120,7 @@ namespace TileEngine
 
             Engine.VisualDebugger = false;
             Engine.Load();
-            Generate_NewWorld(WorldGeneration.WorldType.Plains);
+            Generate_NewWorld(Generator.WorldType.Plains);
         }
         // XNA Methods
         public static void Update(GameTime gameTime)
@@ -462,11 +462,10 @@ namespace TileEngine
             }
         }
         // Generation
-        public static void Generate_NewWorld(WorldGeneration.WorldType worldType)
+        public static void Generate_NewWorld(Generator.WorldType worldType)
         {
-            WorldGeneration worldGenerator = new WorldGeneration();
-            worldGenerator.Generate(worldType);
-
+            Generator worldGenerator = new Generator();
+            worldGenerator.GenerateWorld(worldType);
         }
     }
 }

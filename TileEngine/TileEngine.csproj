@@ -48,7 +48,7 @@
     <Compile Include="src\entities\Player.cs" />
     <Compile Include="src\GameObject.cs" />
     <Compile Include="src\Game.cs" />
-    <Compile Include="src\generation\WorldGeneration.cs" />
+    <Compile Include="src\generation\Generator.cs" />
     <Compile Include="src\Program.cs" />
   </ItemGroup>
   <ItemGroup>

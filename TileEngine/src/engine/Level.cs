@@ -289,16 +289,38 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Level", methodName, error.Message));
             }
         }
-        protected void SaveLevelToFile()
+        protected bool SaveLevelToFile()
         {
+            try
+            {
+                // If the register does not exist, generate it.
+                
+                string randomisedName = Generator.RandomString(4,15);
+                string levelName = tag + "_" + randomisedName + ".lvl";
+                using (XmlWriter xmlWriter = XmlWriter.Create(levelName))
+                {
+                    xmlWriter.WriteStartDocument();
 
+                    xmlWriter.Close();
+                }
+                return true;
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+                return false;
+            }
         }
         public void Save()
         {
             try
             {
-                AddLevelToRegister();
-                SaveLevelToFile();
+                if (SaveLevelToFile())
+                {
+                    // If the level was saved, add it to the register.
+                    AddLevelToRegister();
+                }
             }
             catch (Exception error)
             {

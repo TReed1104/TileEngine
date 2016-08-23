@@ -23,18 +23,15 @@ namespace TileEngine
         #region // Config Vars
         public static string ConfigFileName_Engine { get; set; }
         public static string ConfigFileName_Tileset { get; set; }
-        public static string ConfigFileName_PlayerRegister { get; set; }
         public static string ConfigFileName_NpcRegister { get; set; }
-        public static string ConfigFileName_LevelRegister { get; set; }
 
-        public static string ConfigDirectory_Engine { get; set; }
-        public static string ConfigDirectory_Levels { get; set; }
+        public static string ConfigDirectory_Engine { get; private set; }
+        public static string ConfigDirectory_Levels { get; private set; }
+        public static string ConfigDirectory_SaveData { get; private set; }
 
         public static string ConfigFullPath_EngineConfig { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Engine; } }
         public static string ConfigFullPath_Tileset { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Tileset; } }
-        public static string ConfigFullPath_PlayerRegister { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_PlayerRegister; } }
         public static string ConfigFullPath_NpcRegister { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_NpcRegister; } }
-        public static string ConfigFullPath_LevelRegister { get { return Engine.ConfigDirectory_Levels + Engine.ConfigFileName_LevelRegister; } }
         #endregion
         #region // Window Vars
         public static string Window_Title { get; private set; }
@@ -112,12 +109,11 @@ namespace TileEngine
 
             Engine.ConfigFileName_Engine = "engine.ini";
             Engine.ConfigFileName_Tileset = "tileset.ini";
-            Engine.ConfigFileName_PlayerRegister = "player_register.ini";
             Engine.ConfigFileName_NpcRegister = "npc_register.ini";
-            Engine.ConfigFileName_LevelRegister = "level_register.ini";
 
             Engine.ConfigDirectory_Engine = "config/";
             Engine.ConfigDirectory_Levels = "content/levels/";
+            Engine.ConfigDirectory_SaveData = "content/data/";
 
             Engine.VisualDebugger = false;
             Engine.Load();
@@ -199,7 +195,7 @@ namespace TileEngine
                 Engine.LoadEngineConfig();
                 Engine.LoadTileset();
                 Engine.LoadLevels();
-                Engine.LoadPlayerRegister();
+                Engine.LoadPlayers();
                 Generate_NewWorld(WorldType.Plains);
             }
             catch (Exception error)
@@ -294,6 +290,11 @@ namespace TileEngine
             {
                 Engine.Counter_Levels = 0;  // Resets the level counter
 
+                if (!Directory.Exists(Engine.ConfigDirectory_Levels))
+                {
+                    Directory.CreateDirectory(Engine.ConfigDirectory_Levels);
+                }
+
                 string[] levelList = Directory.GetFiles(Engine.ConfigDirectory_Levels);
                 for (int i = 0; i < levelList.Length; i++)
                 {
@@ -308,88 +309,122 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void LoadPlayerRegister()
+        public static void LoadPlayers()
         {
             try
             {
-                // Check if the level register exists.
-                if (!File.Exists(Engine.ConfigFullPath_PlayerRegister))
+                if (!Directory.Exists(Engine.ConfigDirectory_SaveData))
                 {
-                    // If the directory for the levels does not exist, create it.
-                    if (!Directory.Exists(Engine.ConfigDirectory_Engine))
-                    {
-                        Directory.CreateDirectory(Engine.ConfigDirectory_Engine);
-                    }
+                    Directory.CreateDirectory(Engine.ConfigDirectory_SaveData);
+                }
+                string[] playerSaveList = Directory.GetFiles(Engine.ConfigDirectory_SaveData);
+                Engine.Counter_Players = 0;  // Resets the level counter
 
-                    int numberOfSave = 3;
-                    // If the register does not exist, generate it.
-                    using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigFullPath_PlayerRegister))
+                if (playerSaveList.Length == 0)
+                {
+                    using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_SaveData + "data_" + Generator.RandomString(10) + ".dat"))
                     {
+                        #region // Write a default save file
                         xmlWriter.WriteStartDocument();
                         xmlWriter.WriteWhitespace("\r\n");
-                        xmlWriter.WriteStartElement("player_register");
-                        xmlWriter.WriteAttributeString("save_count", numberOfSave.ToString());
-                        string src_sheet = "entity/player";
-                        xmlWriter.WriteAttributeString("src", src_sheet);
+                        xmlWriter.WriteStartElement("save_data");
                         xmlWriter.WriteWhitespace("\r\n\t");
-                        for (int i = 0; i < numberOfSave; i++)
-                        {
-                            string playerTag = string.Format("Player {0}", i + 1);
-                            int src_rec_x = 0;
-                            int src_rec_y = 0;
-                            int src_rec_size = (int)(Tile.TileDimensions.X) * 3;
 
-                            xmlWriter.WriteStartElement("player_data");
-                            xmlWriter.WriteAttributeString("index", i.ToString());
-                            xmlWriter.WriteAttributeString("tag", playerTag);
-                            xmlWriter.WriteAttributeString("hp", "10");
-                            xmlWriter.WriteAttributeString("src_frame_pos_x", src_rec_x.ToString());
-                            xmlWriter.WriteAttributeString("src_frame_pos_y", src_rec_y.ToString());
-                            xmlWriter.WriteAttributeString("src_frame_size", src_rec_size.ToString());
+                        xmlWriter.WriteStartElement("tag");
+                        xmlWriter.WriteAttributeString("value", "Player");
+                        xmlWriter.WriteWhitespace("\r\n\t");
+                        xmlWriter.WriteEndElement();
 
-                            xmlWriter.WriteEndElement();
-                            if (i == numberOfSave - 1)
-                            {
-                                xmlWriter.WriteWhitespace("\r\n");
-                            }
-                            else
-                            {
-                                xmlWriter.WriteWhitespace("\r\n\t");
-                            }
-                        }
+                        xmlWriter.WriteStartElement("src");
+                        xmlWriter.WriteAttributeString("value", "entity/player");
+                        xmlWriter.WriteWhitespace("\r\n\t");
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("src_frame_pos_x");
+                        xmlWriter.WriteAttributeString("value", "0");
+                        xmlWriter.WriteWhitespace("\r\n\t");
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("src_frame_pos_y");
+                        xmlWriter.WriteAttributeString("value", "0");
+                        xmlWriter.WriteWhitespace("\r\n\t");
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("src_frame_size");
+                        xmlWriter.WriteAttributeString("value", "48");
+                        xmlWriter.WriteWhitespace("\r\n\t");
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("position_x");
+                        xmlWriter.WriteAttributeString("value", "48");
+                        xmlWriter.WriteWhitespace("\r\n\t");
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("position_y");
+                        xmlWriter.WriteAttributeString("value", "68");
+                        xmlWriter.WriteWhitespace("\r\n\t");
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("hp");
+                        xmlWriter.WriteAttributeString("value", "10");
+                        xmlWriter.WriteWhitespace("\r\n\t");
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteStartElement("gold");
+                        xmlWriter.WriteAttributeString("value", "0");
+                        xmlWriter.WriteWhitespace("\r\n\t");
+                        xmlWriter.WriteEndElement();
+
+                        xmlWriter.WriteWhitespace("\r\n");
                         xmlWriter.WriteEndElement();
                         xmlWriter.WriteEndDocument();
                         xmlWriter.Flush();
                         xmlWriter.Close();
+                        #endregion
                     }
+                    playerSaveList = Directory.GetFiles(Engine.ConfigDirectory_SaveData);
                 }
-                Engine.Counter_Players = 0;  // Resets the level counter
-
-                // Read the register
-                XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_PlayerRegister);
-                while (xmlReader.Read())
+                for (int i = 0; i < playerSaveList.Length; i++)
                 {
-                    if (xmlReader.NodeType == XmlNodeType.Element)
+                    // Read the register
+                    XmlReader xmlReader = XmlReader.Create(playerSaveList[i]);
+                    string tag = "";
+                    string src = "";
+                    int src_frame_pos_x = -1;
+                    int src_frame_pos_y = -1;
+                    int src_frame_size = -1;
+                    int position_x = -1;
+                    int position_y = -1;
+                    int hp = -1;
+                    int gold = -1;
+
+                    while (xmlReader.Read())
                     {
-                        if (xmlReader.Name == "player_register")
+                        if (xmlReader.NodeType == XmlNodeType.Element)
                         {
-                            Player.SpritesheetSource = xmlReader.GetAttribute("src");
-                        }
-                        if (xmlReader.Name == "player_data")
-                        {
-                            int index = int.Parse(xmlReader.GetAttribute("index"));
-                            string tag = xmlReader.GetAttribute("tag");
-                            int healthPoints = int.Parse(xmlReader.GetAttribute("hp"));
-                            Vector2 sourceRectangle_Position = new Vector2(int.Parse(xmlReader.GetAttribute("src_frame_pos_x")), int.Parse(xmlReader.GetAttribute("src_frame_pos_y")));
-                            int frameSize = int.Parse(xmlReader.GetAttribute("src_frame_size"));
-                            Vector2 sourceRectangle_Size = new Vector2(frameSize, frameSize);
-                            Engine.Register_Players.Add(new Player(tag, null, new Vector2(50, 50), sourceRectangle_Position, sourceRectangle_Size, Color.White, Engine.LayerDepth_Player, healthPoints));
-                            Engine.Counter_Players++;
+                            if (xmlReader.Name == "tag") { tag = xmlReader.GetAttribute("value"); }
+                            if (xmlReader.Name == "src") { src = xmlReader.GetAttribute("value"); }
+                            if (xmlReader.Name == "src_frame_pos_x") { src_frame_pos_x = int.Parse(xmlReader.GetAttribute("value")); }
+                            if (xmlReader.Name == "src_frame_pos_y") { src_frame_pos_y = int.Parse(xmlReader.GetAttribute("value")); }
+                            if (xmlReader.Name == "src_frame_size") { src_frame_size = int.Parse(xmlReader.GetAttribute("value")); }
+                            if (xmlReader.Name == "position_x") { position_x = int.Parse(xmlReader.GetAttribute("value")); }
+                            if (xmlReader.Name == "position_y") { position_y = int.Parse(xmlReader.GetAttribute("value")); }
+                            if (xmlReader.Name == "hp") { hp = int.Parse(xmlReader.GetAttribute("value")); }
+                            if (xmlReader.Name == "gold") { gold = int.Parse(xmlReader.GetAttribute("value")); }
                         }
                     }
-                }
-                xmlReader.Close();
+                    xmlReader.Close();
 
+                    Vector2 position = new Vector2(position_x, position_y);
+                    Vector2 sourceRectangle_Position = new Vector2(src_frame_pos_x, src_frame_pos_y);
+                    Vector2 sourceRectangle_Size = new Vector2(src_frame_size, src_frame_size);
+
+                    Player newPlayer = new Player(tag, null, position, sourceRectangle_Position, sourceRectangle_Size, Color.White, Engine.LayerDepth_Player, hp);
+                    newPlayer.spriteSheetSource = src;
+
+                    Engine.Register_Players.Add(newPlayer);
+                    Engine.Counter_Players++;
+                }
             }
             catch (Exception error)
             {

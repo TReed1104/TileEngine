@@ -10,12 +10,11 @@ namespace TileEngine
 {
     public class Entity : GameObject
     {
-        // Statics
-        public static string SpritesheetSource { get; set; }
         // Enums
         public enum Direction { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
         public enum WallSlide { None, WallSlideLeft, WallSlideRight, WallSlideUp, WallSlideDown, };
         // Vars
+        public string spriteSheetSource { get; set; }
         public float healthPoints { get; protected set; }
         public float damagePower { get; protected set; }
         public float movementSpeed { get; protected set; }
@@ -38,7 +37,7 @@ namespace TileEngine
         // Constructors
         static Entity()
         {
-            Entity.SpritesheetSource = "";
+
         }
         public Entity(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
             : base (tag, texture, position_World, sourceRectangle_Position, sourceRectangle_Size, colour, layerDepth)

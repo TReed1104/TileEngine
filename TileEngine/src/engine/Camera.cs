@@ -77,9 +77,9 @@ namespace TileEngine
                     position_Base = new Vector2(0, position_Base.Y);
                 }
                 // Right bounds check
-                if (position_Base.X > (Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.Window_PixelGridSize.X))
+                if (position_Base.X > (Engine.GetCurrentWorld().GetCurrentZone().gridSize_Pixels.X - Engine.Window_PixelGridSize.X))
                 {
-                    position_Base = new Vector2((Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.Window_PixelGridSize.X), position_Base.Y);
+                    position_Base = new Vector2((Engine.GetCurrentWorld().GetCurrentZone().gridSize_Pixels.X - Engine.Window_PixelGridSize.X), position_Base.Y);
                 }
                 // Up bounds check
                 if (position_Base.Y < 0)
@@ -87,9 +87,9 @@ namespace TileEngine
                     position_Base = new Vector2(position_Base.X, 0);
                 }
                 // Down bounds check
-                if (position_Base.Y > (Engine.GetCurrentLevel().gridSize_Pixels.Y - Engine.Window_PixelGridSize.Y))
+                if (position_Base.Y > (Engine.GetCurrentWorld().GetCurrentZone().gridSize_Pixels.Y - Engine.Window_PixelGridSize.Y))
                 {
-                    position_Base = new Vector2(position_Base.X, (Engine.GetCurrentLevel().gridSize_Pixels.Y - Engine.Window_PixelGridSize.Y));
+                    position_Base = new Vector2(position_Base.X, (Engine.GetCurrentWorld().GetCurrentZone().gridSize_Pixels.Y - Engine.Window_PixelGridSize.Y));
                 }
             }
             catch (Exception error)

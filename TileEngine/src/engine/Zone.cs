@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,13 +9,14 @@ using System.Xml;
 
 namespace TileEngine
 {
-    public class Level
+    public class Zone
     {
         // Vars
-        public enum WorldType { Plains, Forest, Cave, Mountain, Volcano, Snow, Ocean, }
+        public enum ZoneType { Plains, Forest, Cave, Mountain, Volcano, Snow, Ocean, }
+        [DebuggerDisplay("{tag}")]
         public string tag { get; protected set; }
         public int index { get; protected set; }
-        public WorldType worldType { get; protected set; }
+        public ZoneType zoneType { get; protected set; }
         public Vector2 gridSize_Tiles { get; protected set; }
         public Vector2 gridSize_Pixels { get { return gridSize_Tiles * Tile.TileDimensions; } }
         public Vector2 positionPlayerStart_Grid { get; protected set; }
@@ -24,11 +26,11 @@ namespace TileEngine
         protected List<Entity> registerNPC { get; set; }
 
         // Constructors
-        static Level()
+        static Zone()
         {
 
         }
-        public Level()
+        public Zone()
         {
             try
             {
@@ -45,7 +47,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        public Level(string src)
+        public Zone(string src)
         {
             try
             {
@@ -62,6 +64,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
+
         // XNA Methods
         public virtual void Update(GameTime gameTime)
         {
@@ -116,7 +119,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        // TileGrid methods
+        // Methods
         public bool IsTileSolid(Vector2 gridPositionToCheck)
         {
             try
@@ -174,7 +177,6 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        // Load methods
         protected void InitialiseMap()
         {
             try
@@ -211,6 +213,7 @@ namespace TileEngine
                         {
                             index = int.Parse(xmlReader.GetAttribute("index"));
                             tag = xmlReader.GetAttribute("tag");
+                            zoneType = Convert_StringToZoneType(xmlReader.GetAttribute("zone_type"));
                         }
                         if (xmlReader.Name == "base_tile_map")
                         {
@@ -252,16 +255,15 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        // Save methods
-        public bool Save(string tag, int index, WorldType worldType)
+        public bool Save(string worldName, string tag, int index, ZoneType zoneType)
         {
             try
             {
                 this.tag = tag;
                 this.index = index;
-                this.worldType = worldType;
+                this.zoneType = zoneType;
 
-                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_Levels + tag + ".lvl"))
+                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_Worlds + worldName + "/" + tag + ".lvl"))
                 {
                     xmlWriter.WriteStartDocument();
                     xmlWriter.WriteWhitespace("\r\n");
@@ -269,6 +271,7 @@ namespace TileEngine
 
                     xmlWriter.WriteAttributeString("index", index.ToString());
                     xmlWriter.WriteAttributeString("tag", tag);
+                    xmlWriter.WriteAttributeString("zone_type", zoneType.ToString());
                     xmlWriter.WriteWhitespace("\r\n\t");
 
                     xmlWriter.WriteStartElement("base_tile_map");
@@ -301,6 +304,28 @@ namespace TileEngine
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
                 return false;
+            }
+        }
+        public static ZoneType Convert_StringToZoneType(string zoneTypeString)
+        {
+            switch (zoneTypeString)
+            {
+                case "Plains":
+                    return ZoneType.Plains;
+                case "Forest":
+                    return ZoneType.Forest;
+                case "Cave":
+                    return ZoneType.Cave;
+                case "Mountain":
+                    return ZoneType.Mountain;
+                case "Volcano":
+                    return ZoneType.Volcano;
+                case "Snow":
+                    return ZoneType.Snow;
+                case "Ocean":
+                    return ZoneType.Ocean;
+                default:
+                    return ZoneType.Plains;
             }
         }
     }

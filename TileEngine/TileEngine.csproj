@@ -42,7 +42,8 @@
     <Compile Include="src\AbstractGameObject.cs" />
     <Compile Include="src\engine\Camera.cs" />
     <Compile Include="src\engine\Engine.cs" />
-    <Compile Include="src\engine\Level.cs" />
+    <Compile Include="src\engine\World.cs" />
+    <Compile Include="src\engine\Zone.cs" />
     <Compile Include="src\engine\Tile.cs" />
     <Compile Include="src\entities\Entity.cs" />
     <Compile Include="src\entities\Player.cs" />

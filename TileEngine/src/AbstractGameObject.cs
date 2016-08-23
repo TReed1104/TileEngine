@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 
 namespace TileEngine
 {
@@ -7,6 +8,7 @@ namespace TileEngine
     {
         // Vars
         public string src { get; set; }
+        [DebuggerDisplay("{tag}")]
         public string tag { get; set; }
         public Vector2 position_Base { get; set; }
         public Vector2 position_Grid { get; set; }

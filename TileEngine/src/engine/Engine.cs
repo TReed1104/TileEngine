@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using static TileEngine.Level;
+using static TileEngine.Zone;
 
 namespace TileEngine
 {
@@ -26,7 +26,7 @@ namespace TileEngine
         public static string ConfigFileName_NpcRegister { get; set; }
 
         public static string ConfigDirectory_Engine { get; private set; }
-        public static string ConfigDirectory_Levels { get; private set; }
+        public static string ConfigDirectory_Worlds { get; private set; }
         public static string ConfigDirectory_SaveData { get; private set; }
 
         public static string ConfigFullPath_EngineConfig { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Engine; } }
@@ -46,17 +46,17 @@ namespace TileEngine
         #endregion
         #region // Register Vars
         public static List<Tile> Register_Tiles { get; set; }
-        public static List<Level> Register_Levels { get; set; }
+        public static List<World> Register_Worlds { get; set; }
         public static List<Player> Register_Players { get; set; }
         public static List<Entity> Register_Npc { get; set; }
         #endregion
         #region // Pointer Vars
         public static int PointerCurrent_Player { get; set; }
-        public static int PointerCurrent_Level { get; set; }
+        public static int PointerCurrent_World { get; set; }
         #endregion
         #region // Counter Vars
         public static int Counter_Tiles { get; set; }
-        public static int Counter_Levels { get; set; }
+        public static int CounterWorld { get; set; }
         public static int Counter_Players { get; set; }
         public static int Counter_Npcs { get; set; }
         #endregion
@@ -87,15 +87,15 @@ namespace TileEngine
             Engine.Window_TileGridSize = new Vector2(10, 10);
 
             Engine.Register_Tiles = new List<Tile>();
-            Engine.Register_Levels = new List<Level>();
+            Engine.Register_Worlds = new List<World>();
             Engine.Register_Players = new List<Player>();
             Engine.Register_Npc = new List<Entity>();
 
             Engine.PointerCurrent_Player = 0;
-            Engine.PointerCurrent_Level = 0;
+            Engine.PointerCurrent_World = 0;
 
             Engine.Counter_Tiles = 0;
-            Engine.Counter_Levels = 0;
+            Engine.CounterWorld = 0;
             Engine.Counter_Players = 0;
             Engine.Counter_Npcs = 0;
 
@@ -112,20 +112,21 @@ namespace TileEngine
             Engine.ConfigFileName_NpcRegister = "npc_register.ini";
 
             Engine.ConfigDirectory_Engine = "config/";
-            Engine.ConfigDirectory_Levels = "content/levels/";
+            Engine.ConfigDirectory_Worlds = "content/worlds/";
             Engine.ConfigDirectory_SaveData = "content/data/";
 
             Engine.VisualDebugger = false;
             Engine.Load();
+            Engine.Register_Worlds.Add(Generator.GenerateWorld(Generator.RandomSeed(6), Generator.RandomInt(1, 5)));
         }
         // XNA Methods
         public static void Update(GameTime gameTime)
         {
             try
             {
-                if (Engine.Register_Levels.Count > 0)
+                if (Engine.Register_Worlds.Count > 0)
                 {
-                    GetCurrentLevel().Update(gameTime);
+                    GetCurrentWorld().Update(gameTime);
                 }
                 if (Engine.Register_Players.Count > 0)
                 {
@@ -144,9 +145,9 @@ namespace TileEngine
             try
             {
                 Engine.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.Window_TransformationMatrix);
-                if (Engine.Register_Levels.Count > 0)
+                if (Engine.Register_Worlds.Count > 0)
                 {
-                    GetCurrentLevel().Draw();
+                    GetCurrentWorld().Draw();
                 }
                 if (Engine.Register_Players.Count > 0)
                 {
@@ -174,11 +175,11 @@ namespace TileEngine
                 return null;
             }
         }
-        public static Level GetCurrentLevel()
+        public static World GetCurrentWorld()
         {
             try
             {
-                return Engine.Register_Levels[Engine.PointerCurrent_Level];
+                return Engine.Register_Worlds[Engine.PointerCurrent_World];
             }
             catch (Exception error)
             {
@@ -194,9 +195,8 @@ namespace TileEngine
             {
                 Engine.LoadEngineConfig();
                 Engine.LoadTileset();
-                Engine.LoadLevels();
+                Engine.LoadWorlds();
                 Engine.LoadPlayers();
-                Generate_NewWorld(WorldType.Plains);
             }
             catch (Exception error)
             {
@@ -284,23 +284,31 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void LoadLevels()
+        public static void LoadWorlds()
         {
             try
             {
-                Engine.Counter_Levels = 0;  // Resets the level counter
+                Engine.CounterWorld = 0;  // Resets the level counter
 
-                if (!Directory.Exists(Engine.ConfigDirectory_Levels))
+                if (!Directory.Exists(Engine.ConfigDirectory_Worlds))
                 {
-                    Directory.CreateDirectory(Engine.ConfigDirectory_Levels);
+                    Directory.CreateDirectory(Engine.ConfigDirectory_Worlds);
                 }
+                string[] worldList = Directory.GetDirectories(Engine.ConfigDirectory_Worlds);
 
-                string[] levelList = Directory.GetFiles(Engine.ConfigDirectory_Levels);
-                for (int i = 0; i < levelList.Length; i++)
+                for (int w = 0; w < worldList.Length; w++)
                 {
-                    string src = levelList[i];
-                    Engine.Register_Levels.Add(new Level(src));
-                    Engine.Counter_Levels++;
+                    string[] splitWorldDir = worldList[w].Split('/');
+                    
+                    World newWorld = new World(splitWorldDir[2]);
+                    string[] zoneList = Directory.GetFiles(worldList[w]);
+                    for (int z = 0; z < zoneList.Length; z++)
+                    {
+                        string src = zoneList[z];
+                        newWorld.AddZoneToWorld(new Zone(src));
+                    }
+                    Engine.Register_Worlds.Add(newWorld);
+                    Engine.CounterWorld++;
                 }
             }
             catch (Exception error)
@@ -468,11 +476,6 @@ namespace TileEngine
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
-        }
-        // Generation
-        public static void Generate_NewWorld(WorldType worldType)
-        {
-            Engine.Register_Levels.Add(Generator.GenerateWorld(worldType));
         }
     }
 }

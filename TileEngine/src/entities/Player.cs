@@ -365,6 +365,7 @@ namespace TileEngine
                 // If there are collisions, check if the movement is diagonal.
                 else if (direction == Direction.UpLeft || direction == Direction.UpRight || direction == Direction.DownLeft || direction == Direction.DownRight)
                 {
+                    #region // Diagonal movement
                     // Handles wallsliding method calls
                     Vector2 newPositionWallslide = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y);
                     if (wallSlide == WallSlide.WallSlideLeft)
@@ -399,6 +400,7 @@ namespace TileEngine
                         wallSlide = WallSlide.None;
                         CollisionCheckTileMap(newPositionWallslide);
                     }
+                    #endregion
                 }
             }
             catch (Exception error)
@@ -414,7 +416,8 @@ namespace TileEngine
             {
                 Vector2 newPosition = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y);        // Takes a copy of the current position.
                 bool keyPressed = false;
-                // Left
+
+                #region // Left
                 if (Keyboard.GetState().IsKeyDown(Keys.Left) && Keyboard.GetState().IsKeyUp(Keys.Right))
                 {
                     velocity = new Vector2(-movementSpeed, 0);     // Sets the Player's Velocity.
@@ -423,7 +426,8 @@ namespace TileEngine
                     newPosition = new Vector2(boundingBox_AABB.X + (velocity.X * deltaTime), boundingBox_AABB.Y);
                     keyPressed = true;
                 }
-                // Right
+                #endregion
+                #region // Right
                 if (Keyboard.GetState().IsKeyDown(Keys.Right) && Keyboard.GetState().IsKeyUp(Keys.Left))
                 {
                     velocity = new Vector2(movementSpeed, 0);     // Sets the Player's Velocity.
@@ -432,7 +436,8 @@ namespace TileEngine
                     newPosition = new Vector2((boundingBox_AABB.X + boundingBox_AABB.Width) + (velocity.X * deltaTime), boundingBox_AABB.Y);
                     keyPressed = true;
                 }
-                // Up
+                #endregion
+                #region // Up
                 if (Keyboard.GetState().IsKeyDown(Keys.Up) && Keyboard.GetState().IsKeyUp(Keys.Down))
                 {
                     velocity = new Vector2(0, -movementSpeed);     // Sets the Player's Velocity.
@@ -441,7 +446,8 @@ namespace TileEngine
                     newPosition = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
-                // Down
+                #endregion
+                #region // Down
                 if (Keyboard.GetState().IsKeyDown(Keys.Down) && Keyboard.GetState().IsKeyUp(Keys.Up))
                 {
                     velocity = new Vector2(0, movementSpeed);     // Sets the Player's Velocity.
@@ -450,7 +456,8 @@ namespace TileEngine
                     newPosition = new Vector2(boundingBox_AABB.X, (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
-                // Up-Left
+                #endregion
+                #region // Up-Left
                 if (Keyboard.GetState().IsKeyDown(Keys.Up) && Keyboard.GetState().IsKeyDown(Keys.Left))
                 {
                     velocity = new Vector2(-movementSpeed, -movementSpeed);
@@ -459,7 +466,8 @@ namespace TileEngine
                     newPosition = new Vector2(boundingBox_AABB.X + (velocity.X * deltaTime), boundingBox_AABB.Y + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
-                // Up-Right
+                #endregion
+                #region // Up-Right
                 if (Keyboard.GetState().IsKeyDown(Keys.Up) && Keyboard.GetState().IsKeyDown(Keys.Right))
                 {
                     velocity = new Vector2(movementSpeed, -movementSpeed);
@@ -468,7 +476,8 @@ namespace TileEngine
                     newPosition = new Vector2((boundingBox_AABB.X + boundingBox_AABB.Width) + (velocity.X * deltaTime), boundingBox_AABB.Y + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
-                // Down-Left
+                #endregion
+                #region // Down-Left
                 if (Keyboard.GetState().IsKeyDown(Keys.Down) && Keyboard.GetState().IsKeyDown(Keys.Left))
                 {
                     velocity = new Vector2(-movementSpeed, movementSpeed);
@@ -477,7 +486,8 @@ namespace TileEngine
                     newPosition = new Vector2(boundingBox_AABB.X + (velocity.X * deltaTime), (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
-                // Down-Right
+                #endregion
+                #region // Down-Right
                 if (Keyboard.GetState().IsKeyDown(Keys.Down) && Keyboard.GetState().IsKeyDown(Keys.Right))
                 {
                     velocity = new Vector2(movementSpeed, movementSpeed);
@@ -486,6 +496,8 @@ namespace TileEngine
                     newPosition = new Vector2((boundingBox_AABB.X + boundingBox_AABB.Width) + (velocity.X * deltaTime), (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
+                #endregion
+
                 if (keyPressed)                 // If a movement key has been pressed.
                 {
                     CollisionCheckTileMap(newPosition);    // Calls the method for setting the next position.

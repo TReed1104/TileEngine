@@ -261,7 +261,6 @@ namespace TileEngine
                 this.index = index;
                 this.worldType = worldType;
 
-
                 using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_Levels + tag + ".lvl"))
                 {
                     xmlWriter.WriteStartDocument();

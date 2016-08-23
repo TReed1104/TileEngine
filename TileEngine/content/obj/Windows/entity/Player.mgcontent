@@ -3,7 +3,7 @@
   <SourceFile>D:/dev/TileEngine/TileEngine/content/entity/Player.bmp</SourceFile>
   <SourceTime>2016-08-22T18:24:32.219959+01:00</SourceTime>
   <DestFile>D:/dev/TileEngine/TileEngine/Content/bin/Windows/entity/Player.xnb</DestFile>
-  <DestTime>2016-08-23T18:20:44.3585288+01:00</DestTime>
+  <DestTime>2016-08-23T20:32:22.0080905+01:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2016-03-30T07:36:08+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

@@ -313,13 +313,18 @@ namespace TileEngine
         {
             try
             {
+                #region // Check if the directory doesn't exist, if not then create it.
                 if (!Directory.Exists(Engine.ConfigDirectory_SaveData))
                 {
                     Directory.CreateDirectory(Engine.ConfigDirectory_SaveData);
                 }
+                #endregion
+
+                #region // Find all the save data files.
                 string[] playerSaveList = Directory.GetFiles(Engine.ConfigDirectory_SaveData);
                 Engine.Counter_Players = 0;  // Resets the level counter
 
+                // If there is no save data files, create one and reload the folder.
                 if (playerSaveList.Length == 0)
                 {
                     using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_SaveData + "data_" + Generator.RandomString(10) + ".dat"))
@@ -384,9 +389,11 @@ namespace TileEngine
                     }
                     playerSaveList = Directory.GetFiles(Engine.ConfigDirectory_SaveData);
                 }
+                #endregion
+
+                #region // Read all the found save data files.
                 for (int i = 0; i < playerSaveList.Length; i++)
                 {
-                    // Read the register
                     XmlReader xmlReader = XmlReader.Create(playerSaveList[i]);
                     string tag = "";
                     string src = "";
@@ -425,6 +432,7 @@ namespace TileEngine
                     Engine.Register_Players.Add(newPlayer);
                     Engine.Counter_Players++;
                 }
+                #endregion
             }
             catch (Exception error)
             {
@@ -464,8 +472,7 @@ namespace TileEngine
         // Generation
         public static void Generate_NewWorld(WorldType worldType)
         {
-            Generator worldGenerator = new Generator();
-            Engine.Register_Levels.Add(worldGenerator.GenerateWorld(worldType));
+            Engine.Register_Levels.Add(Generator.GenerateWorld(worldType));
         }
     }
 }

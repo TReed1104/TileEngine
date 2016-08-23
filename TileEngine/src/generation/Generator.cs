@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static TileEngine.Level;
 
 namespace TileEngine
 {
@@ -13,7 +14,7 @@ namespace TileEngine
         public static Random RandomNumberGenerator { get; set; }
         public const string AlphanumericSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         public const string CharacterSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        public enum WorldType { Plains, Forest, Cave, Mountain, Volcano, Snow, Ocean, }
+
         protected WorldType worldType { get; set; }
         protected Level generatedLevel { get; set; }
 
@@ -39,25 +40,25 @@ namespace TileEngine
                         switch (worldType)
                         {
                             case WorldType.Plains:
-                                generatedLevel.SetTile(new Vector2(x, y), Engine.Register_Tiles[1]);
+                                generatedLevel.SetTileType(new Vector2(x, y), Engine.Register_Tiles[1]);
                                 break;
                             case WorldType.Forest:
-                                generatedLevel.SetTile(new Vector2(x, y), Engine.Register_Tiles[1]);
+                                generatedLevel.SetTileType(new Vector2(x, y), Engine.Register_Tiles[1]);
                                 break;
                             case WorldType.Cave:
-                                generatedLevel.SetTile(new Vector2(x, y), Engine.Register_Tiles[1]);
+                                generatedLevel.SetTileType(new Vector2(x, y), Engine.Register_Tiles[1]);
                                 break;
                             case WorldType.Mountain:
-                                generatedLevel.SetTile(new Vector2(x, y), Engine.Register_Tiles[1]);
+                                generatedLevel.SetTileType(new Vector2(x, y), Engine.Register_Tiles[1]);
                                 break;
                             case WorldType.Volcano:
-                                generatedLevel.SetTile(new Vector2(x, y), Engine.Register_Tiles[1]);
+                                generatedLevel.SetTileType(new Vector2(x, y), Engine.Register_Tiles[1]);
                                 break;
                             case WorldType.Snow:
-                                generatedLevel.SetTile(new Vector2(x, y), Engine.Register_Tiles[1]);
+                                generatedLevel.SetTileType(new Vector2(x, y), Engine.Register_Tiles[1]);
                                 break;
                             case WorldType.Ocean:
-                                generatedLevel.SetTile(new Vector2(x, y), Engine.Register_Tiles[1]);
+                                generatedLevel.SetTileType(new Vector2(x, y), Engine.Register_Tiles[1]);
                                 break;
                             default:
                                 break;
@@ -69,32 +70,32 @@ namespace TileEngine
                     switch (worldType)
                     {
                         case WorldType.Plains:
-                            generatedLevel.SetTile(new Vector2(0, y), Engine.Register_Tiles[1]);
-                            generatedLevel.SetTile(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(0, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
                             break;
                         case WorldType.Forest:
-                            generatedLevel.SetTile(new Vector2(0, y), Engine.Register_Tiles[1]);
-                            generatedLevel.SetTile(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(0, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
                             break;
                         case WorldType.Cave:
-                            generatedLevel.SetTile(new Vector2(0, y), Engine.Register_Tiles[1]);
-                            generatedLevel.SetTile(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(0, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
                             break;
                         case WorldType.Mountain:
-                            generatedLevel.SetTile(new Vector2(0, y), Engine.Register_Tiles[1]);
-                            generatedLevel.SetTile(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(0, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
                             break;
                         case WorldType.Volcano:
-                            generatedLevel.SetTile(new Vector2(0, y), Engine.Register_Tiles[1]);
-                            generatedLevel.SetTile(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(0, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
                             break;
                         case WorldType.Snow:
-                            generatedLevel.SetTile(new Vector2(0, y), Engine.Register_Tiles[1]);
-                            generatedLevel.SetTile(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(0, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
                             break;
                         case WorldType.Ocean:
-                            generatedLevel.SetTile(new Vector2(0, y), Engine.Register_Tiles[1]);
-                            generatedLevel.SetTile(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(0, y), Engine.Register_Tiles[1]);
+                            generatedLevel.SetTileType(new Vector2(generatedLevel.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
                             break;
                         default:
                             break;
@@ -109,10 +110,13 @@ namespace TileEngine
                 this.worldType = worldType;
                 generatedLevel = new Level();
                 generatedLevel.SetTileGridSize(new Vector2(100, 100));
+                generatedLevel.SetPlayerStartGridPosition(new Vector2(0, 0));
                 SetWorldBounds();
-                generatedLevel.tag = worldType.ToString();
-                generatedLevel.index = Engine.Register_Levels.Count;
-                generatedLevel.Save();
+
+
+                // If the register does not exist, generate it.
+                string tag = worldType + "_" + Generator.RandomString(4, 15);
+                generatedLevel.Save(tag, Engine.Register_Levels.Count, worldType);
                 return generatedLevel;
             }
             catch (Exception error)

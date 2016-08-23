@@ -75,7 +75,7 @@ namespace TileEngine
                         {
                             cellOffSet = new Vector2(-1, 0);
                             cellOffSetDiagonal = new Vector2(-1, 1);
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
                             {
                                 wallSlide = WallSlide.WallSlideUp;
                             }
@@ -86,21 +86,21 @@ namespace TileEngine
                         }
                         if (newGridPosition == (AABB_TopLeft_GridPosition + new Vector2(-1, -1)))
                         {
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(1, 0)) &&
-                                !Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(0, 1)))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(1, 0)) &&
+                                !Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, 1)))
                             {
                                 cellOffSet = new Vector2(1, 0);
                                 cellOffSetDiagonal = new Vector2(0, 1);
                                 wallSlide = WallSlide.WallSlideUp;
                             }
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(0, 1)))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, 1)))
                             {
                                 cellOffSet = new Vector2(1, 0);
                                 cellOffSetDiagonal = new Vector2(0, 1);
                                 wallSlide = WallSlide.WallSlideLeft;
                             }
-                            if (!Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(1, 0)) &&
-                                !Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(0, 1)))
+                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(1, 0)) &&
+                                !Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, 1)))
                             {
                                 cellOffSet = new Vector2(1, 0);
                                 cellOffSetDiagonal = new Vector2(0, 1);
@@ -109,7 +109,7 @@ namespace TileEngine
                         }
                         if (newGridPosition == (AABB_TopLeft_GridPosition + new Vector2(-1, 0)))
                         {
-                            if (!Engine.GetCurrentLevel().CheckCell(newGridPosition))
+                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
                             {
                                 cellOffSet = new Vector2(0, -1);
                                 cellOffSetDiagonal = new Vector2(1, -1);
@@ -147,7 +147,7 @@ namespace TileEngine
                         {
                             cellOffSet = new Vector2(1, 0);
                             cellOffSetDiagonal = new Vector2(1, 1);
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
                             {
                                 wallSlide = WallSlide.WallSlideUp;
                             }
@@ -158,20 +158,20 @@ namespace TileEngine
                         }
                         if (newGridPosition == (AABB_TopRight_GridPosition + new Vector2(1, -1)))
                         {
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(-1, 0)))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(-1, 0)))
                             {
                                 cellOffSet = new Vector2(-1, 0);
                                 cellOffSetDiagonal = new Vector2(0, 1);
                                 wallSlide = WallSlide.WallSlideUp;
                             }
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(0, 1)))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, 1)))
                             {
                                 cellOffSet = new Vector2(-1, 0);
                                 cellOffSetDiagonal = new Vector2(0, 1);
                                 wallSlide = WallSlide.WallSlideRight;
                             }
-                            if (!Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(-1, 0)) &&
-                                !Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(0, 1)))
+                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(-1, 0)) &&
+                                !Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, 1)))
                             {
                                 cellOffSet = new Vector2(-1, 0);
                                 cellOffSetDiagonal = new Vector2(0, 1);
@@ -180,7 +180,7 @@ namespace TileEngine
                         }
                         if (newGridPosition == (AABB_TopRight_GridPosition + new Vector2(1, 0)))
                         {
-                            if (!Engine.GetCurrentLevel().CheckCell(newGridPosition))
+                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
                             {
                                 cellOffSet = new Vector2(0, -1);
                                 cellOffSetDiagonal = new Vector2(-1, -1);
@@ -218,7 +218,7 @@ namespace TileEngine
                         {
                             cellOffSet = new Vector2(-1, 0);
                             cellOffSetDiagonal = new Vector2(-1, -1);
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
                             {
                                 wallSlide = WallSlide.WallSlideDown;
                             }
@@ -229,20 +229,20 @@ namespace TileEngine
                         }
                         if (newGridPosition == (AABB_BottomLeft_GridPosition + new Vector2(-1, 1)))
                         {
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(1, 0)))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(1, 0)))
                             {
                                 cellOffSet = new Vector2(1, 0);
                                 cellOffSetDiagonal = new Vector2(0, -1);
                                 wallSlide = WallSlide.WallSlideDown;
                             }
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(0, -1)))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, -1)))
                             {
                                 cellOffSet = new Vector2(1, 0);
                                 cellOffSetDiagonal = new Vector2(0, -1);
                                 wallSlide = WallSlide.WallSlideLeft;
                             }
-                            if (!Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(1, 0)) &&
-                                !Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(0, -1)))
+                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(1, 0)) &&
+                                !Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, -1)))
                             {
                                 cellOffSet = new Vector2(1, 0);
                                 cellOffSetDiagonal = new Vector2(0, -1);
@@ -251,7 +251,7 @@ namespace TileEngine
                         }
                         if (newGridPosition == (AABB_BottomLeft_GridPosition + new Vector2(-1, 0)))
                         {
-                            if (!Engine.GetCurrentLevel().CheckCell(newGridPosition))
+                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
                             {
                                 cellOffSet = new Vector2(0, 1);
                                 cellOffSetDiagonal = new Vector2(1, -1);
@@ -289,7 +289,7 @@ namespace TileEngine
                         {
                             cellOffSet = new Vector2(1, 0);
                             cellOffSetDiagonal = new Vector2(1, -1);
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
                             {
                                 wallSlide = WallSlide.WallSlideDown;
                             }
@@ -300,20 +300,20 @@ namespace TileEngine
                         }
                         if (newGridPosition == (AABB_BottomRight_GridPosition + new Vector2(1, 1)))
                         {
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(-1, 0)))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(-1, 0)))
                             {
                                 cellOffSet = new Vector2(-1, 0);
                                 cellOffSetDiagonal = new Vector2(0, -1);
                                 wallSlide = WallSlide.WallSlideDown;
                             }
-                            if (Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(0, -1)))
+                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, -1)))
                             {
                                 cellOffSet = new Vector2(-1, 0);
                                 cellOffSetDiagonal = new Vector2(0, -1);
                                 wallSlide = WallSlide.WallSlideRight;
                             }
-                            if (!Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(-1, 0)) &&
-                                !Engine.GetCurrentLevel().CheckCell(newGridPosition + new Vector2(0, -1)))
+                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(-1, 0)) &&
+                                !Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, -1)))
                             {
                                 cellOffSet = new Vector2(-1, 0);
                                 cellOffSetDiagonal = new Vector2(0, -1);
@@ -322,7 +322,7 @@ namespace TileEngine
                         }
                         if (newGridPosition == (AABB_BottomRight_GridPosition + new Vector2(1, 0)))
                         {
-                            if (!Engine.GetCurrentLevel().CheckCell(newGridPosition))
+                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
                             {
                                 cellOffSet = new Vector2(0, 1);
                                 cellOffSetDiagonal = new Vector2(-1, 1);
@@ -355,9 +355,9 @@ namespace TileEngine
                 newGridPositionOffsetDiagonal = newGridPosition + cellOffSetDiagonal;
 
                 // Check the collisions.
-                if (Engine.GetCurrentLevel().CheckCell(newGridPosition) &&
-                    Engine.GetCurrentLevel().CheckCell(newGridPositionOffset) &&
-                    Engine.GetCurrentLevel().CheckCell(newGridPositionOffsetDiagonal))
+                if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition) &&
+                    Engine.GetCurrentLevel().IsTileSolid(newGridPositionOffset) &&
+                    Engine.GetCurrentLevel().IsTileSolid(newGridPositionOffsetDiagonal))
                 {
                     boundingBox_AABB = new Rectangle((int)(boundingBox_AABB.X + velocity.X), (int)(boundingBox_AABB.Y + velocity.Y), boundingBox_AABB.Width, boundingBox_AABB.Height);
                     position_Grid = new Vector2((float)Math.Floor(boundingBox_AABB.X / Tile.TileDimensions.X), (float)Math.Floor(boundingBox_AABB.Y / Tile.TileDimensions.Y));

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using static TileEngine.Level;
 
 namespace TileEngine
 {
@@ -120,7 +121,6 @@ namespace TileEngine
 
             Engine.VisualDebugger = false;
             Engine.Load();
-            Generate_NewWorld(Generator.WorldType.Plains);
         }
         // XNA Methods
         public static void Update(GameTime gameTime)
@@ -198,8 +198,9 @@ namespace TileEngine
             {
                 Engine.LoadEngineConfig();
                 Engine.LoadTileset();
-                Engine.LoadLevelRegister();
+                Engine.LoadLevels();
                 Engine.LoadPlayerRegister();
+                Generate_NewWorld(WorldType.Plains);
             }
             catch (Exception error)
             {
@@ -287,54 +288,18 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void LoadLevelRegister()
+        public static void LoadLevels()
         {
             try
             {
-                // Check if the level register exists.
-                if (!File.Exists(Engine.ConfigFullPath_LevelRegister))
-                {
-                    // If the directory for the levels does not exist, create it.
-                    if (!Directory.Exists(Engine.ConfigDirectory_Levels))
-                    {
-                        Directory.CreateDirectory(Engine.ConfigDirectory_Levels);
-                    }
+                Engine.Counter_Levels = 0;  // Resets the level counter
 
-                    // If the register does not exist, generate it.
-                    using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigFullPath_LevelRegister))
-                    {
-                        xmlWriter.WriteStartDocument();
-                        xmlWriter.WriteWhitespace("\r\n");
-                        xmlWriter.WriteStartElement("level_register");
-                        xmlWriter.WriteAttributeString("level_count", "0");
-                        xmlWriter.WriteWhitespace("\r\n");
-                        xmlWriter.WriteEndElement();
-                        xmlWriter.WriteEndDocument();
-                        xmlWriter.Flush();
-                        xmlWriter.Close();
-                    }
-                }
-                else
+                string[] levelList = Directory.GetFiles(Engine.ConfigDirectory_Levels);
+                for (int i = 0; i < levelList.Length; i++)
                 {
-                    Engine.Counter_Levels = 0;  // Resets the level counter
-
-                    // Read the register
-                    XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_LevelRegister);
-                    while (xmlReader.Read())
-                    {
-                        if (xmlReader.NodeType == XmlNodeType.Element)
-                        {
-                            if (xmlReader.Name == "level")
-                            {
-                                int index = int.Parse(xmlReader.GetAttribute("index"));
-                                string tag = xmlReader.GetAttribute("tag");
-                                string src = xmlReader.GetAttribute("src");
-                                Engine.Register_Levels.Add(new Level(tag, index, src));
-                                Engine.Counter_Levels++;
-                            }
-                        }
-                    }
-                    xmlReader.Close();
+                    string src = levelList[i];
+                    Engine.Register_Levels.Add(new Level(src));
+                    Engine.Counter_Levels++;
                 }
             }
             catch (Exception error)
@@ -462,10 +427,10 @@ namespace TileEngine
             }
         }
         // Generation
-        public static void Generate_NewWorld(Generator.WorldType worldType)
+        public static void Generate_NewWorld(WorldType worldType)
         {
             Generator worldGenerator = new Generator();
-            worldGenerator.GenerateWorld(worldType);
+            Engine.Register_Levels.Add(worldGenerator.GenerateWorld(worldType));
         }
     }
 }

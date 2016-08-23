@@ -11,11 +11,13 @@ namespace TileEngine
     public class Level
     {
         // Vars
-        public int index { get; set; }
-        public string tag { get; set; }
+        public enum WorldType { Plains, Forest, Cave, Mountain, Volcano, Snow, Ocean, }
+        public string tag { get; protected set; }
+        public int index { get; protected set; }
+        public WorldType worldType { get; protected set; }
         public Vector2 gridSize_Tiles { get; protected set; }
         public Vector2 gridSize_Pixels { get { return gridSize_Tiles * Tile.TileDimensions; } }
-        public Vector2 positionPlayerStart_Grid { get; set; }
+        public Vector2 positionPlayerStart_Grid { get; protected set; }
         public Vector2 positionPlayerStart_Pixel { get { return positionPlayerStart_Grid * Tile.TileDimensions; } }
         protected Tile[,] map_Base { get; set; }
         public Tile[,] map_Copy { get; private set; }
@@ -43,13 +45,12 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        public Level(string tag, int index, string src)
+        public Level(string src)
         {
             try
             {
-                this.tag = tag;
-                this.index = index;
-
+                this.tag = "";
+                this.index = -1;
                 this.gridSize_Tiles = Vector2.Zero;
                 this.positionPlayerStart_Grid = Vector2.Zero;
                 this.registerNPC = new List<Entity>();
@@ -116,7 +117,7 @@ namespace TileEngine
             }
         }
         // TileGrid methods
-        public bool CheckCell(Vector2 gridPositionToCheck)
+        public bool IsTileSolid(Vector2 gridPositionToCheck)
         {
             try
             {
@@ -133,11 +134,11 @@ namespace TileEngine
                 return false;
             }
         }
-        public bool SetTile(Vector2 gridPositionToSet, Tile newTile)
+        public bool SetTileType(Vector2 gridPositionToSet, Tile newTile)
         {
             try
             {
-                map_Base[(int)(gridPositionToSet.X), (int)(gridPositionToSet.Y)] = newTile;
+                map_Base[(int)(gridPositionToSet.X), (int)(gridPositionToSet.Y)].Copy(newTile);
                 map_Copy = (Tile[,])map_Base.Clone();
                 return true;
             }
@@ -161,6 +162,18 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
+        public void SetPlayerStartGridPosition(Vector2 newPosition)
+        {
+            try
+            {
+                positionPlayerStart_Grid = newPosition;
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
+        }
         // Load methods
         protected void InitialiseMap()
         {
@@ -176,7 +189,6 @@ namespace TileEngine
                         map_Base[x, y].position_Base = new Vector2(x * Tile.TileDimensions.X, y * Tile.TileDimensions.Y);
                         map_Base[x, y].position_Grid = new Vector2(x, y);
                         map_Base[x, y].position_Draw = new Vector2(x * Tile.TileDimensions.X, y * Tile.TileDimensions.Y) + Engine.Window_GameRender_Offset;
-
                     }
                 }
             }
@@ -200,7 +212,7 @@ namespace TileEngine
                             index = int.Parse(xmlReader.GetAttribute("index"));
                             tag = xmlReader.GetAttribute("tag");
                         }
-                        if (xmlReader.Name == "tile_map")
+                        if (xmlReader.Name == "base_tile_map")
                         {
                             string rawLevel = xmlReader.ReadElementString();
                             // Remove the formatting
@@ -241,66 +253,46 @@ namespace TileEngine
             }
         }
         // Save methods
-        protected void AddLevelToRegister()
+        public bool Save(string tag, int index, WorldType worldType)
         {
             try
             {
-                XmlDocument xmlDocument = new XmlDocument();
-                xmlDocument.PreserveWhitespace = true;          // prevents strange formatting, but then needs new whitespaces.
-                xmlDocument.Load(Engine.ConfigFullPath_LevelRegister);
+                this.tag = tag;
+                this.index = index;
+                this.worldType = worldType;
 
-                // Amend the level count
-                XmlNode xmlNodeLevels = xmlDocument.SelectSingleNode("level_register");
-                XmlAttribute xmlAttribute_levelCounter = xmlNodeLevels.Attributes["level_count"];
-                int numberOfLevels = int.Parse(xmlAttribute_levelCounter.Value);
-                int updatedNumberOfLevels = numberOfLevels + 1;
-                xmlAttribute_levelCounter.Value = updatedNumberOfLevels.ToString();
 
-                // Creates the new Node.
-                XmlNode newNode = xmlDocument.CreateNode(XmlNodeType.Element, "level", null);
-
-                XmlAttribute levelIndex = xmlDocument.CreateAttribute("index");
-                levelIndex.Value = (updatedNumberOfLevels - 1).ToString();
-                newNode.Attributes.Append(levelIndex);
-
-                XmlAttribute levelTag = xmlDocument.CreateAttribute("tag");
-                levelTag.Value = tag;
-                newNode.Attributes.Append(levelTag);
-
-                XmlAttribute levelSource = xmlDocument.CreateAttribute("src");
-                levelSource.Value = Engine.ConfigDirectory_Levels + tag + ".lvl";
-                newNode.Attributes.Append(levelSource);
-
-                // Formatting whitespaces - Used because XMLDocument has flaws with its ability to preserve whitespace.
-                XmlWhitespace tabs = xmlDocument.CreateWhitespace("\t");
-                XmlWhitespace carriageReturn = xmlDocument.CreateWhitespace("\r\n");
-
-                // Edits the XML file with the formatting and new Node.
-                xmlNodeLevels.AppendChild(tabs);
-                xmlNodeLevels.AppendChild(newNode);
-                xmlNodeLevels.AppendChild(carriageReturn);
-
-                // Saves the XML file.
-                xmlDocument.Save(Engine.ConfigFullPath_LevelRegister);
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Level", methodName, error.Message));
-            }
-        }
-        protected bool SaveLevelToFile()
-        {
-            try
-            {
-                // If the register does not exist, generate it.
-                
-                string randomisedName = Generator.RandomString(4,15);
-                string levelName = tag + "_" + randomisedName + ".lvl";
-                using (XmlWriter xmlWriter = XmlWriter.Create(levelName))
+                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_Levels + tag + ".lvl"))
                 {
                     xmlWriter.WriteStartDocument();
+                    xmlWriter.WriteWhitespace("\r\n");
+                    xmlWriter.WriteStartElement("level");
 
+                    xmlWriter.WriteAttributeString("index", index.ToString());
+                    xmlWriter.WriteAttributeString("tag", tag);
+                    xmlWriter.WriteWhitespace("\r\n\t");
+
+                    xmlWriter.WriteStartElement("base_tile_map");
+
+                    string tileMapString = "";
+                    for (int y = 0; y < gridSize_Tiles.Y; y++)
+                    {
+                        tileMapString += "\r\n\t\t";
+                        for (int x = 0; x < gridSize_Tiles.X; x++)
+                        {
+                            tileMapString += "0" + map_Base[x, y].id + ",";
+                        }
+                        tileMapString += ";";
+                    }
+
+                    xmlWriter.WriteValue(tileMapString);
+                    xmlWriter.WriteWhitespace("\r\n\t");
+                    xmlWriter.WriteEndElement();
+
+                    xmlWriter.WriteWhitespace("\r\n");
+                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteEndDocument();
+                    xmlWriter.Flush();
                     xmlWriter.Close();
                 }
                 return true;
@@ -310,22 +302,6 @@ namespace TileEngine
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
                 return false;
-            }
-        }
-        public void Save()
-        {
-            try
-            {
-                if (SaveLevelToFile())
-                {
-                    // If the level was saved, add it to the register.
-                    AddLevelToRegister();
-                }
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
     }

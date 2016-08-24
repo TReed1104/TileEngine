@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SourceFile>D:/dev/TileEngine/TileEngine/content/tiles/TileSet.bmp</SourceFile>
-  <SourceTime>2016-08-22T18:24:32.2239684+01:00</SourceTime>
+  <SourceTime>2016-08-24T21:10:08.5834974+01:00</SourceTime>
   <DestFile>D:/dev/TileEngine/TileEngine/Content/bin/Windows/tiles/TileSet.xnb</DestFile>
-  <DestTime>2016-08-23T20:32:21.9760036+01:00</DestTime>
+  <DestTime>2016-08-24T21:10:48.5280355+01:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2016-03-30T07:36:08+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

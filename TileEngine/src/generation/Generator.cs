@@ -23,21 +23,31 @@ namespace TileEngine
         }
 
         // Methods
-        public static void SetWorldBounds(Zone level, ZoneType zoneType)
+        private static void FillZoneWithBaseTile(Zone zone, Tile baseTile)
         {
-            for (int y = 0; y < level.gridSize_Tiles.Y; y++)
+            for (int y = 0; y < zone.gridSize_Tiles.Y; y++)
             {
-                if (y == 0 || y == (level.gridSize_Tiles.Y - 1))
+                for (int x = 0; x < zone.gridSize_Tiles.X; x++)
                 {
-                    for (int x = 0; x < level.gridSize_Tiles.X; x++)
+                    zone.SetTileType(new Vector2(x, y), baseTile);
+                }
+            }
+        }
+        private static void AddWorldBorder(Zone zone, Tile baseTile)
+        {
+            for (int y = 0; y < zone.gridSize_Tiles.Y; y++)
+            {
+                if (y == 0 || y == (zone.gridSize_Tiles.Y - 1))
+                {
+                    for (int x = 0; x < zone.gridSize_Tiles.X; x++)
                     {
-                        level.SetTileType(new Vector2(x, y), Engine.Register_Tiles[1]);
+                        zone.SetTileType(new Vector2(x, y), baseTile);
                     }
                 }
                 else
                 {
-                    level.SetTileType(new Vector2(0, y), Engine.Register_Tiles[1]);
-                    level.SetTileType(new Vector2(level.gridSize_Tiles.X - 1, y), Engine.Register_Tiles[1]);
+                    zone.SetTileType(new Vector2(0, y), baseTile);
+                    zone.SetTileType(new Vector2(zone.gridSize_Tiles.X - 1, y), baseTile);
 
                 }
             }
@@ -46,18 +56,21 @@ namespace TileEngine
         {
             try
             {
-                Zone newLevel = new Zone();
-                newLevel.SetTileGridSize(new Vector2(100, 100));
-                newLevel.SetPlayerStartGridPosition(new Vector2(0, 0));
+                Zone newZone = new Zone();
+                newZone.SetTileGridSize(new Vector2(100, 100));
+                newZone.SetPlayerStartGridPosition(new Vector2(0, 0));
 
                 // Generation
-                SetWorldBounds(newLevel, zoneTypeToGenerate);
+                FillZoneWithBaseTile(newZone, Engine.Register_Tiles[3]);
+                AddWorldBorder(newZone, Engine.Register_Tiles[2]);
+
 
                 // If the register does not exist, generate it.
                 string tag = zoneTypeToGenerate + "_" + Generator.RandomString(5);
-                newLevel.Save(worldName, tag, Engine.Register_Worlds.Count, zoneTypeToGenerate);
+                newZone.CopyBaseTileMap();
+                newZone.Save(worldName, tag, Engine.Register_Worlds.Count, zoneTypeToGenerate);
 
-                return newLevel;
+                return newZone;
             }
             catch (Exception error)
             {
@@ -75,7 +88,8 @@ namespace TileEngine
                 World newWorld = new World(worldName);
                 for (int i = 0; i < numberOfZones; i++)
                 {
-                    newWorld.AddZoneToWorld(GenerateZone(ZoneType.Plains, worldName));
+                    //newWorld.AddZoneToWorld(GenerateZone((ZoneType)Generator.RandomInt(0, 7), worldName));
+                    newWorld.AddZoneToWorld(GenerateZone((ZoneType)Generator.RandomInt(0, 1), worldName));
                 }
 
                 return newWorld;

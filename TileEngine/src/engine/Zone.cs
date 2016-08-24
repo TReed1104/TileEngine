@@ -9,11 +9,11 @@ using System.Xml;
 
 namespace TileEngine
 {
+    [DebuggerDisplay("{tag}")]
     public class Zone
     {
         // Vars
         public enum ZoneType { Plains, Forest, Cave, Mountain, Volcano, Snow, Ocean, }
-        [DebuggerDisplay("{tag}")]
         public string tag { get; protected set; }
         public int index { get; protected set; }
         public ZoneType zoneType { get; protected set; }
@@ -120,6 +120,29 @@ namespace TileEngine
             }
         }
         // Methods
+        protected void InitialiseMap()
+        {
+            try
+            {
+                // This prevents there being unassigned tile cells and makes sure each cell has the correct positioning in the grid
+                map_Base = new Tile[(int)gridSize_Tiles.X, (int)gridSize_Tiles.Y];
+                for (int y = 0; y < gridSize_Tiles.Y; y++)
+                {
+                    for (int x = 0; x < gridSize_Tiles.X; x++)
+                    {
+                        map_Base[x, y] = new Tile("EMPTY", Vector2.Zero, Color.White, Engine.LayerDepth_Background, 00, Tile.TileType.Empty);
+                        map_Base[x, y].position_Base = new Vector2(x * Tile.TileDimensions.X, y * Tile.TileDimensions.Y);
+                        map_Base[x, y].position_Grid = new Vector2(x, y);
+                        map_Base[x, y].position_Draw = new Vector2(x * Tile.TileDimensions.X, y * Tile.TileDimensions.Y) + Engine.Window_GameRender_Offset;
+                    }
+                }
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
+        }
         public bool IsTileSolid(Vector2 gridPositionToCheck)
         {
             try
@@ -177,28 +200,9 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        protected void InitialiseMap()
+        public void CopyBaseTileMap()
         {
-            try
-            {
-                // This prevents there being unassigned tile cells and makes sure each cell has the correct positioning in the grid
-                map_Base = new Tile[(int)gridSize_Tiles.X, (int)gridSize_Tiles.Y];
-                for (int y = 0; y < gridSize_Tiles.Y; y++)
-                {
-                    for (int x = 0; x < gridSize_Tiles.X; x++)
-                    {
-                        map_Base[x, y] = new Tile("NULL", Vector2.Zero, Color.White, Engine.LayerDepth_Background, 00, Tile.TileType.Empty);
-                        map_Base[x, y].position_Base = new Vector2(x * Tile.TileDimensions.X, y * Tile.TileDimensions.Y);
-                        map_Base[x, y].position_Grid = new Vector2(x, y);
-                        map_Base[x, y].position_Draw = new Vector2(x * Tile.TileDimensions.X, y * Tile.TileDimensions.Y) + Engine.Window_GameRender_Offset;
-                    }
-                }
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
-            }
+            map_Copy = (Tile[,])map_Base.Clone();
         }
         protected void Load(string levelSrc)
         {
@@ -244,7 +248,7 @@ namespace TileEngine
                                     map_Base[x, y].Copy(Engine.Register_Tiles[pointer_TileRegister]);
                                 }
                             }
-                            map_Copy = (Tile[,])map_Base.Clone();
+                            CopyBaseTileMap();
                         }
                     }
                 }

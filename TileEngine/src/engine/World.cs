@@ -8,17 +8,17 @@ using System.Threading.Tasks;
 
 namespace TileEngine
 {
+    [DebuggerDisplay("{name}")]
     public class World
     {
-        [DebuggerDisplay("{name}")]
         public string name { get; protected set; }
         public List<Zone> Zone_List { get; set; }
         public int PointerCurrent_Zone { get; set; }
-        public int Counter_Zones {  get { return Zone_List.Count; } }
+        public int Counter_Zones { get { return Zone_List.Count; } }
 
         static World()
         {
-            
+
         }
         public World(string name)
         {

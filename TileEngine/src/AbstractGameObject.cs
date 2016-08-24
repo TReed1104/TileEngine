@@ -4,11 +4,11 @@ using System.Diagnostics;
 
 namespace TileEngine
 {
+    [DebuggerDisplay("{tag}")]
     public abstract class AbstractGameObject
     {
         // Vars
         public string src { get; set; }
-        [DebuggerDisplay("{tag}")]
         public string tag { get; set; }
         public Vector2 position_Base { get; set; }
         public Vector2 position_Grid { get; set; }

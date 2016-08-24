@@ -124,13 +124,13 @@ namespace TileEngine
         {
             try
             {
-                if (Engine.Register_Worlds.Count > 0)
+                if (Engine.Register_Worlds.Count > 0 && Engine.GetCurrentZone() != null)
                 {
-                    GetCurrentWorld().Update(gameTime);
+                    Engine.GetCurrentZone().Update(gameTime);
                 }
                 if (Engine.Register_Players.Count > 0)
                 {
-                    GetCurrentPlayer().Update(gameTime);
+                    Engine.GetCurrentPlayer().Update(gameTime);
                 }
                 Engine.MainCamera.Update(gameTime, Engine.GetCurrentPlayer());
             }
@@ -145,9 +145,9 @@ namespace TileEngine
             try
             {
                 Engine.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.Window_TransformationMatrix);
-                if (Engine.Register_Worlds.Count > 0)
+                if (Engine.Register_Worlds.Count > 0 && Engine.GetCurrentZone() != null)
                 {
-                    GetCurrentWorld().Draw();
+                    Engine.GetCurrentZone().Draw();
                 }
                 if (Engine.Register_Players.Count > 0)
                 {
@@ -180,6 +180,19 @@ namespace TileEngine
             try
             {
                 return Engine.Register_Worlds[Engine.PointerCurrent_World];
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+                return null;
+            }
+        }
+        public static Zone GetCurrentZone()
+        {
+            try
+            {
+                return Engine.Register_Worlds[Engine.PointerCurrent_World].GetCurrentZone();
             }
             catch (Exception error)
             {
@@ -335,66 +348,7 @@ namespace TileEngine
                 // If there is no save data files, create one and reload the folder.
                 if (playerSaveList.Length == 0)
                 {
-                    using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_SaveData + "data_" + Generator.RandomString(10) + ".dat"))
-                    {
-                        #region // Write a default save file
-                        xmlWriter.WriteStartDocument();
-                        xmlWriter.WriteWhitespace("\r\n");
-                        xmlWriter.WriteStartElement("save_data");
-                        xmlWriter.WriteWhitespace("\r\n\t");
-
-                        xmlWriter.WriteStartElement("tag");
-                        xmlWriter.WriteAttributeString("value", "Player");
-                        xmlWriter.WriteWhitespace("\r\n\t");
-                        xmlWriter.WriteEndElement();
-
-                        xmlWriter.WriteStartElement("src");
-                        xmlWriter.WriteAttributeString("value", "entity/player");
-                        xmlWriter.WriteWhitespace("\r\n\t");
-                        xmlWriter.WriteEndElement();
-
-                        xmlWriter.WriteStartElement("src_frame_pos_x");
-                        xmlWriter.WriteAttributeString("value", "0");
-                        xmlWriter.WriteWhitespace("\r\n\t");
-                        xmlWriter.WriteEndElement();
-
-                        xmlWriter.WriteStartElement("src_frame_pos_y");
-                        xmlWriter.WriteAttributeString("value", "0");
-                        xmlWriter.WriteWhitespace("\r\n\t");
-                        xmlWriter.WriteEndElement();
-
-                        xmlWriter.WriteStartElement("src_frame_size");
-                        xmlWriter.WriteAttributeString("value", "48");
-                        xmlWriter.WriteWhitespace("\r\n\t");
-                        xmlWriter.WriteEndElement();
-
-                        xmlWriter.WriteStartElement("position_x");
-                        xmlWriter.WriteAttributeString("value", "48");
-                        xmlWriter.WriteWhitespace("\r\n\t");
-                        xmlWriter.WriteEndElement();
-
-                        xmlWriter.WriteStartElement("position_y");
-                        xmlWriter.WriteAttributeString("value", "68");
-                        xmlWriter.WriteWhitespace("\r\n\t");
-                        xmlWriter.WriteEndElement();
-
-                        xmlWriter.WriteStartElement("hp");
-                        xmlWriter.WriteAttributeString("value", "10");
-                        xmlWriter.WriteWhitespace("\r\n\t");
-                        xmlWriter.WriteEndElement();
-
-                        xmlWriter.WriteStartElement("gold");
-                        xmlWriter.WriteAttributeString("value", "0");
-                        xmlWriter.WriteWhitespace("\r\n\t");
-                        xmlWriter.WriteEndElement();
-
-                        xmlWriter.WriteWhitespace("\r\n");
-                        xmlWriter.WriteEndElement();
-                        xmlWriter.WriteEndDocument();
-                        xmlWriter.Flush();
-                        xmlWriter.Close();
-                        #endregion
-                    }
+                    Engine.CreateBlankSave(Generator.RandomString(10));
                     playerSaveList = Directory.GetFiles(Engine.ConfigDirectory_SaveData);
                 }
                 #endregion
@@ -470,6 +424,76 @@ namespace TileEngine
                 Engine.GraphicsDevideManager.PreferredBackBufferWidth = (int)Engine.Window_DimensionsPixels_Scaled.X;
                 Engine.GraphicsDevideManager.PreferredBackBufferHeight = (int)Engine.Window_DimensionsPixels_Scaled.Y;
                 Engine.GraphicsDevideManager.ApplyChanges();
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        public static void CreateBlankSave(string playerName)
+        {
+            try
+            {
+                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_SaveData + playerName + ".dat"))
+                {
+                    #region // Write a default save file
+                    xmlWriter.WriteStartDocument();
+                    xmlWriter.WriteWhitespace("\r\n");
+                    xmlWriter.WriteStartElement("save_data");
+                    xmlWriter.WriteWhitespace("\r\n\t");
+
+                    xmlWriter.WriteStartElement("tag");
+                    xmlWriter.WriteAttributeString("value", "Player");
+                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteWhitespace("\r\n\t");
+
+                    xmlWriter.WriteStartElement("src");
+                    xmlWriter.WriteAttributeString("value", "entity/player");
+                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteWhitespace("\r\n\t");
+
+                    xmlWriter.WriteStartElement("src_frame_pos_x");
+                    xmlWriter.WriteAttributeString("value", "0");
+                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteWhitespace("\r\n\t");
+
+                    xmlWriter.WriteStartElement("src_frame_pos_y");
+                    xmlWriter.WriteAttributeString("value", "0");
+                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteWhitespace("\r\n\t");
+
+                    xmlWriter.WriteStartElement("src_frame_size");
+                    xmlWriter.WriteAttributeString("value", "48");
+                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteWhitespace("\r\n\t");
+
+                    xmlWriter.WriteStartElement("position_x");
+                    xmlWriter.WriteAttributeString("value", "48");
+                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteWhitespace("\r\n\t");
+
+                    xmlWriter.WriteStartElement("position_y");
+                    xmlWriter.WriteAttributeString("value", "68");
+                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteWhitespace("\r\n\t");
+
+                    xmlWriter.WriteStartElement("hp");
+                    xmlWriter.WriteAttributeString("value", "10");
+                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteWhitespace("\r\n\t");
+
+                    xmlWriter.WriteStartElement("gold");
+                    xmlWriter.WriteAttributeString("value", "0");
+                    xmlWriter.WriteEndElement();
+
+                    xmlWriter.WriteWhitespace("\r\n");
+                    xmlWriter.WriteEndElement();
+                    xmlWriter.WriteEndDocument();
+                    xmlWriter.Flush();
+                    xmlWriter.Close();
+                    #endregion
+                }
             }
             catch (Exception error)
             {

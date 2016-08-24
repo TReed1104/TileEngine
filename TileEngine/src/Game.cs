@@ -41,7 +41,7 @@ namespace TileEngine
         }
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Magenta);
             Engine.Draw(gameTime);
             base.Draw(gameTime);
         }

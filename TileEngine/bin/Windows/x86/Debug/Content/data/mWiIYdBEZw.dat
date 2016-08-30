@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<save_data>
+	<tag value="Player" />
+	<src value="entity/player" />
+	<src_frame_pos_x value="0" />
+	<src_frame_pos_y value="0" />
+	<src_frame_size value="48" />
+	<position_x value="48" />
+	<position_y value="68" />
+	<hp value="10" />
+	<gold value="0" />
+</save_data>

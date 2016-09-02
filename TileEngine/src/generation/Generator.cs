@@ -64,7 +64,6 @@ namespace TileEngine
                 FillZoneWithBaseTile(newZone, Engine.Register_Tiles[3]);
                 AddWorldBorder(newZone, Engine.Register_Tiles[2]);
 
-
                 // If the register does not exist, generate it.
                 string tag = zoneTypeToGenerate + "_" + Generator.RandomString(5);
                 newZone.CopyBaseTileMap();
@@ -88,7 +87,6 @@ namespace TileEngine
                 World newWorld = new World(worldName);
                 for (int i = 0; i < numberOfZones; i++)
                 {
-                    //newWorld.AddZoneToWorld(GenerateZone((ZoneType)Generator.RandomInt(0, 7), worldName));
                     newWorld.AddZoneToWorld(GenerateZone((ZoneType)Generator.RandomInt(0, 1), worldName));
                 }
 

@@ -21,13 +21,13 @@ namespace TileEngine
         public static SpriteBatch SpriteBatch { get; set; }
         #endregion
         #region // Config Vars
-        public static string ConfigFileName_Engine { get; set; }
-        public static string ConfigFileName_Tileset { get; set; }
-        public static string ConfigFileName_NpcRegister { get; set; }
+        public const string ConfigFileName_Engine = "engine.ini";
+        public const string ConfigFileName_Tileset = "tileset.ini";
+        public const string ConfigFileName_NpcRegister = "npc_register.ini";
 
-        public static string ConfigDirectory_Engine { get; private set; }
-        public static string ConfigDirectory_Worlds { get; private set; }
-        public static string ConfigDirectory_SaveData { get; private set; }
+        public const string ConfigDirectory_Engine = "config/";
+        public const string ConfigDirectory_Worlds = "content/worlds/";
+        public const string ConfigDirectory_SaveData = "content/data/";
 
         public static string ConfigFullPath_EngineConfig { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Engine; } }
         public static string ConfigFullPath_Tileset { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Tileset; } }
@@ -38,11 +38,14 @@ namespace TileEngine
         public static int FrameRate_Max { get; private set; }
         public static Matrix Window_TransformationMatrix { get; set; }
         public static float Window_Scaler { get; set; }
-        public static Vector2 Window_GameRender_Offset { get; set; }
+        public static Vector2 Window_HUD_Size_Tiles { get; set; }
+        public static Vector2 Window_HUD_Size_Pixels { get { return Window_HUD_Size_Tiles * Tile.Dimensions;  } }
         public static Vector2 Window_TileGridSize { get; private set; }
-        public static Vector2 Window_PixelGridSize { get { return (Engine.Window_TileGridSize * Tile.TileDimensions); } }
-        public static Vector2 Window_DimensionsPixels_Base { get { return (Engine.Window_TileGridSize * Tile.TileDimensions) + Engine.Window_GameRender_Offset; } }
+        public static Vector2 Window_PixelGridSize { get { return (Engine.Window_TileGridSize * Tile.Dimensions); } }
+        public static Vector2 Window_DimensionsPixels_Base { get { return (Engine.Window_TileGridSize * Tile.Dimensions); } }
         public static Vector2 Window_DimensionsPixels_Scaled { get { return Engine.Window_DimensionsPixels_Base * Engine.Window_Scaler; } }
+
+        public static Vector2 Camera_RenderGridSize_Tiles { get { return Engine.Window_TileGridSize - Engine.Window_HUD_Size_Tiles; } }
         #endregion
         #region // Register Vars
         public static List<Tile> Register_Tiles { get; set; }
@@ -61,11 +64,19 @@ namespace TileEngine
         public static int Counter_Npcs { get; set; }
         #endregion
         #region // LayerDepth Vars
-        public static float LayerDepth_Background { get; set; }
-        public static float LayerDepth_Interactive { get; set; }
-        public static float LayerDepth_NPC { get; set; }
-        public static float LayerDepth_Player { get; set; }
-        public static float LayerDepth_Foreground { get; set; }
+        public const float LayerDepth_Debugger_Background = 0.10f;
+        public const float LayerDepth_Debugger_Terrain = 0.09f;
+        public const float LayerDepth_Debugger_Interactive = 0.08f;
+        public const float LayerDepth_Debugger_NPC = 0.07f;
+        public const float LayerDepth_Debugger_Player = 0.06f;
+        public const float LayerDepth_Debugger_Foreground = 0.05f;
+
+        public const float LayerDepth_Background = 0.50f;
+        public const float LayerDepth_Terrain = 0.09f;
+        public const float LayerDepth_Interactive = 0.08f;
+        public const float LayerDepth_NPC = 0.07f;
+        public const float LayerDepth_Player = 0.06f;
+        public const float LayerDepth_Foreground = 0.05f;
         #endregion
         #region // Camera Vars
         public static Camera MainCamera { get; set; }
@@ -83,7 +94,7 @@ namespace TileEngine
             Engine.Window_Scaler = 1.0f;
             Engine.Window_Title = "NULL";
             Engine.FrameRate_Max = 30;
-            Engine.Window_GameRender_Offset = new Vector2(0, 50);
+            Engine.Window_HUD_Size_Tiles = new Vector2(0, 50);
             Engine.Window_TileGridSize = new Vector2(10, 10);
 
             Engine.Register_Tiles = new List<Tile>();
@@ -99,25 +110,11 @@ namespace TileEngine
             Engine.Counter_Players = 0;
             Engine.Counter_Npcs = 0;
 
-            Engine.LayerDepth_Background = 0.10f;
-            Engine.LayerDepth_Interactive = 0.09f;
-            Engine.LayerDepth_NPC = 0.08f;
-            Engine.LayerDepth_Player = 0.07f;
-            Engine.LayerDepth_Foreground = 0.06f;
-
             Engine.MainCamera = new Camera("Main Camera", Vector2.Zero);
-
-            Engine.ConfigFileName_Engine = "engine.ini";
-            Engine.ConfigFileName_Tileset = "tileset.ini";
-            Engine.ConfigFileName_NpcRegister = "npc_register.ini";
-
-            Engine.ConfigDirectory_Engine = "config/";
-            Engine.ConfigDirectory_Worlds = "content/worlds/";
-            Engine.ConfigDirectory_SaveData = "content/data/";
 
             Engine.VisualDebugger = false;
             Engine.Load();
-            Engine.Register_Worlds.Add(Generator.GenerateWorld(Generator.RandomSeed(6), Generator.RandomInt(1, 5)));
+            //Engine.Register_Worlds.Add(Generator.GenerateWorld(Generator.RandomSeed(6), Generator.RandomInt(1, 5)));
         }
         // XNA Methods
         public static void Update(GameTime gameTime)
@@ -243,12 +240,12 @@ namespace TileEngine
                                 Engine.Window_TileGridSize = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
                                 Engine.FrameRate_Max = int.Parse(xmlReader.GetAttribute("max_frame_rate"));
                                 Engine.Window_Scaler = float.Parse(xmlReader.GetAttribute("scaler"));
-                                Engine.Window_GameRender_Offset = new Vector2(0, int.Parse(xmlReader.GetAttribute("hud_size")));
+                                Engine.Window_HUD_Size_Tiles = new Vector2(0, int.Parse(xmlReader.GetAttribute("hud_size")));
                             }
                             if (xmlReader.Name == "tile_set")
                             {
                                 // Load the Tileset settings
-                                Tile.TileDimensions = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
+                                Tile.Dimensions = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
                                 Tile.SpritesheetSource = xmlReader.GetAttribute("src");
                             }
                         }
@@ -284,7 +281,7 @@ namespace TileEngine
                             Tile.TileType tileType = Tile.Register_ConvertTileType(xmlReader.GetAttribute("type"));
 
                             // Add the tile to the register ready for use.
-                            Engine.Register_Tiles.Add(new Tile(tag, new Vector2(src_frame_x, src_frame_y), colour, Engine.LayerDepth_Background, id, tileType));
+                            Engine.Register_Tiles.Add(new Tile(tag, new Vector2(src_frame_x, src_frame_y), colour, Engine.LayerDepth_Terrain, id, tileType));
 
                             Engine.Counter_Tiles++;
                         }
@@ -312,7 +309,7 @@ namespace TileEngine
                 for (int w = 0; w < worldList.Length; w++)
                 {
                     string[] splitWorldDir = worldList[w].Split('/');
-                    
+
                     World newWorld = new World(splitWorldDir[2]);
                     string[] zoneList = Directory.GetFiles(worldList[w]);
                     for (int z = 0; z < zoneList.Length; z++)

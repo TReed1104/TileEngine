@@ -22,8 +22,8 @@ namespace TileEngine
                 this.tag = tag;
                 this.texture = texture;
                 this.position_Base = position_Base;
-                int gridX = (int)(this.position_Base.X / Tile.TileDimensions.X);
-                int gridY = (int)(this.position_Base.Y / Tile.TileDimensions.Y);
+                int gridX = (int)(this.position_Base.X / Tile.Dimensions.X);
+                int gridY = (int)(this.position_Base.Y / Tile.Dimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);
                 this.position_Draw = position_Base + Engine.MainCamera.position_Base;
                 this.sourceRectangle_Position = sourceRectangle_Position;
@@ -48,8 +48,8 @@ namespace TileEngine
             try
             {
                 position_Draw = position_Base + Engine.MainCamera.position_Base;
-                int gridX = (int)(this.position_Base.X / Tile.TileDimensions.X);
-                int gridY = (int)(this.position_Base.Y / Tile.TileDimensions.Y);
+                int gridX = (int)(this.position_Base.X / Tile.Dimensions.X);
+                int gridY = (int)(this.position_Base.Y / Tile.Dimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);
             }
             catch (Exception error)

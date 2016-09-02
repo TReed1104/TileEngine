@@ -30,8 +30,8 @@ namespace TileEngine
                 this.tag = tag;
                 this.cameraType = CameraType.Follow;
                 this.position_Base = positionBase;
-                int gridX = (int)(this.position_Base.X / Tile.TileDimensions.X);
-                int gridY = (int)(this.position_Base.Y / Tile.TileDimensions.Y);
+                int gridX = (int)(this.position_Base.X / Tile.Dimensions.X);
+                int gridY = (int)(this.position_Base.Y / Tile.Dimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);
             }
             catch (Exception error)
@@ -48,12 +48,12 @@ namespace TileEngine
                 if (cameraType == CameraType.Follow)
                 {
                     float newCameraX = cameraTarget.position_Base.X - (Engine.Window_PixelGridSize.X / 2);
-                    float newCameraY = cameraTarget.position_Base.Y - (Engine.Window_PixelGridSize.Y / 2);
+                    float newCameraY = cameraTarget.position_Base.Y - ((Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y) / 2);
                     position_Base = new Vector2(newCameraX, newCameraY);
                 }
                 CheckBounds();
-                int gridX = (int)(this.position_Base.X / Tile.TileDimensions.X);
-                int gridY = (int)(this.position_Base.Y / Tile.TileDimensions.Y);
+                int gridX = (int)(this.position_Base.X / Tile.Dimensions.X);
+                int gridY = (int)(this.position_Base.Y / Tile.Dimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);
                 Engine.Window_TransformationMatrix = Matrix.Identity;
                 Engine.Window_TransformationMatrix = Matrix.CreateTranslation(new Vector3(-position_Base.X, -position_Base.Y, 0.0f));
@@ -87,9 +87,9 @@ namespace TileEngine
                     position_Base = new Vector2(position_Base.X, 0);
                 }
                 // Down bounds check
-                if (position_Base.Y > (Engine.GetCurrentZone().gridSize_Pixels.Y - Engine.Window_PixelGridSize.Y))
+                if (position_Base.Y > (Engine.GetCurrentZone().gridSize_Pixels.Y - (Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y)))
                 {
-                    position_Base = new Vector2(position_Base.X, (Engine.GetCurrentZone().gridSize_Pixels.Y - Engine.Window_PixelGridSize.Y));
+                    position_Base = new Vector2(position_Base.X, (Engine.GetCurrentZone().gridSize_Pixels.Y - (Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y)));
                 }
             }
             catch (Exception error)

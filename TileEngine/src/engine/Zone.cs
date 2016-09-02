@@ -18,9 +18,9 @@ namespace TileEngine
         public int index { get; protected set; }
         public ZoneType zoneType { get; protected set; }
         public Vector2 gridSize_Tiles { get; protected set; }
-        public Vector2 gridSize_Pixels { get { return gridSize_Tiles * Tile.TileDimensions; } }
+        public Vector2 gridSize_Pixels { get { return gridSize_Tiles * Tile.Dimensions; } }
         public Vector2 positionPlayerStart_Grid { get; protected set; }
-        public Vector2 positionPlayerStart_Pixel { get { return positionPlayerStart_Grid * Tile.TileDimensions; } }
+        public Vector2 positionPlayerStart_Pixel { get { return positionPlayerStart_Grid * Tile.Dimensions; } }
         protected Tile[,] map_Base { get; set; }
         public Tile[,] map_Copy { get; private set; }
         protected List<Entity> registerNPC { get; set; }
@@ -86,9 +86,9 @@ namespace TileEngine
         {
             try
             {
-                for (int y = 0; y < Engine.Window_TileGridSize.Y; y++)
+                for (int y = 0; y < Engine.Camera_RenderGridSize_Tiles.Y; y++)
                 {
-                    for (int x = 0; x < Engine.Window_TileGridSize.X; x++)
+                    for (int x = 0; x < Engine.Camera_RenderGridSize_Tiles.X; x++)
                     {
                         int drawX = (int)(Engine.MainCamera.position_Grid.X + x);
                         int drawY = (int)(Engine.MainCamera.position_Grid.Y + y);
@@ -130,10 +130,10 @@ namespace TileEngine
                 {
                     for (int x = 0; x < gridSize_Tiles.X; x++)
                     {
-                        map_Base[x, y] = new Tile("EMPTY", Vector2.Zero, Color.White, Engine.LayerDepth_Background, 00, Tile.TileType.Empty);
-                        map_Base[x, y].position_Base = new Vector2(x * Tile.TileDimensions.X, y * Tile.TileDimensions.Y);
+                        map_Base[x, y] = new Tile("EMPTY", Vector2.Zero, Color.White, Engine.LayerDepth_Terrain, 00, Tile.TileType.Empty);
+                        map_Base[x, y].position_Base = new Vector2(x * Tile.Dimensions.X, y * Tile.Dimensions.Y);
                         map_Base[x, y].position_Grid = new Vector2(x, y);
-                        map_Base[x, y].position_Draw = new Vector2(x * Tile.TileDimensions.X, y * Tile.TileDimensions.Y) + Engine.Window_GameRender_Offset;
+                        map_Base[x, y].position_Draw = new Vector2(x * Tile.Dimensions.X, y * Tile.Dimensions.Y) + Engine.Window_HUD_Size_Pixels;
                     }
                 }
             }

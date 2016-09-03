@@ -30,13 +30,13 @@ namespace TileEngine
         {
 
         }
-        public Zone()
+        public Zone(ZoneType zoneType)
         {
             try
             {
                 this.tag = "";
                 this.index = -1;
-
+                this.zoneType = zoneType;
                 this.gridSize_Tiles = Vector2.Zero;
                 this.positionPlayerStart_Grid = Vector2.Zero;
                 this.registerNPC = new List<Entity>();
@@ -136,11 +136,29 @@ namespace TileEngine
                         map_Base[x, y].position_Draw = new Vector2(x * Tile.Dimensions.X, y * Tile.Dimensions.Y) + Engine.Window_HUD_Size_Pixels;
                     }
                 }
+                CopyBaseTileMap();
             }
             catch (Exception error)
             {
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
+        }
+        public bool IsTileValid(Vector2 gridPositionToCheck)
+        {
+            try
+            {
+                if (gridPositionToCheck.X < 0) return false;
+                if (gridPositionToCheck.X >= gridSize_Tiles.X) return false;
+                if (gridPositionToCheck.Y < 0) return false;
+                if (gridPositionToCheck.Y >= gridSize_Tiles.Y) return false;
+                return true;
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+                return false;
             }
         }
         public bool IsTileSolid(Vector2 gridPositionToCheck)
@@ -160,12 +178,19 @@ namespace TileEngine
                 return false;
             }
         }
-        public bool SetTileType(Vector2 gridPositionToSet, Tile newTile)
+        public bool SetCellTile(Vector2 gridPositionToSet, Tile newTile, bool isPermenant)
         {
             try
             {
-                map_Base[(int)(gridPositionToSet.X), (int)(gridPositionToSet.Y)].Copy(newTile);
-                map_Copy = (Tile[,])map_Base.Clone();
+                if (isPermenant)
+                {
+                    map_Base[(int)(gridPositionToSet.X), (int)(gridPositionToSet.Y)].Copy(newTile);
+                    map_Copy = map_Base.Clone() as Tile[,];
+                }
+                else
+                {
+                    map_Copy[(int)(gridPositionToSet.X), (int)(gridPositionToSet.Y)].Copy(newTile);
+                }
                 return true;
             }
             catch (Exception error)
@@ -202,7 +227,7 @@ namespace TileEngine
         }
         public void CopyBaseTileMap()
         {
-            map_Copy = (Tile[,])map_Base.Clone();
+            map_Copy = map_Base.Clone() as Tile[,];
         }
         protected void Load(string levelSrc)
         {

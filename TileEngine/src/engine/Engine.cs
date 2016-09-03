@@ -114,7 +114,7 @@ namespace TileEngine
 
             Engine.VisualDebugger = false;
             Engine.Load();
-            //Engine.Register_Worlds.Add(Generator.GenerateWorld(Generator.RandomSeed(6), Generator.RandomInt(1, 5)));
+            Engine.Register_Worlds.Add(Generator.GenerateWorld(Generator.RandomSeed(6), Generator.RandomInt(1, 5)));
         }
         // XNA Methods
         public static void Update(GameTime gameTime)

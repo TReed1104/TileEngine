@@ -21,13 +21,13 @@ namespace TileEngine
         public static SpriteBatch SpriteBatch { get; set; }
         #endregion
         #region // Directory Vars
-        public const string ConfigFileName_Engine = "engine.ini";
-        public const string ConfigFileName_Tileset = "tileset.ini";
+        public const string ConfigFileName_Engine = "Engine.ini";
+        public const string ConfigFileName_Tileset = "Tileset.ini";
 
-        public const string ConfigDirectory_Engine = "config/";
-        public const string ConfigDirectory_Levels = "content/levels/";
-        public const string ConfigDirectory_SaveData = "content/data/";
-        public const string ConfigDirectory_Textures = "content/textures/";
+        public const string ConfigDirectory_Engine = "Config/";
+        public const string ConfigDirectory_Levels = "Content/Levels/";
+        public const string ConfigDirectory_SaveData = "Content/Data/";
+        public const string ConfigDirectory_Textures = "Content/Textures/";
 
         public static string ConfigFullPath_EngineConfig { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Engine; } }
         public static string ConfigFullPath_Tileset { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Tileset; } }
@@ -50,7 +50,7 @@ namespace TileEngine
         public static List<Tile> Register_Tiles { get; set; }
         public static List<Level> Register_Levels { get; set; }
         public static List<Player> Register_Players { get; set; }
-        public static List<Entity> Register_Npc { get; set; }
+        public static List<Entity> Register_Entity { get; set; }
         public static List<Texture2D> Register_Textures { get; set; }
         #endregion
         #region // Pointer Vars
@@ -61,7 +61,7 @@ namespace TileEngine
         public static int Counter_Tiles { get { return Register_Tiles.Count; } }
         public static int Counter_Levels { get { return Register_Levels.Count; } }
         public static int Counter_Players { get { return Register_Players.Count; } }
-        public static int Counter_Npcs { get { return Register_Npc.Count; } }
+        public static int Counter_Npcs { get { return Register_Entity.Count; } }
         #endregion
         #region // LayerDepth Vars
         public const float LayerDepth_Debugger_Background = 0.10f;
@@ -79,7 +79,7 @@ namespace TileEngine
         public const float LayerDepth_Foreground = 0.05f;
         #endregion
         #region // Camera Vars
-        public static Camera MainCamera { get; set; }
+        public static Camera PlayerCamera { get; set; }
         #endregion
         #region // Debugger Vars
         public static bool VisualDebugger { get; set; }
@@ -100,17 +100,17 @@ namespace TileEngine
             Engine.Register_Tiles = new List<Tile>();
             Engine.Register_Levels = new List<Level>();
             Engine.Register_Players = new List<Player>();
-            Engine.Register_Npc = new List<Entity>();
+            Engine.Register_Entity = new List<Entity>();
             Engine.Register_Textures = new List<Texture2D>();
 
             Engine.PointerCurrent_Player = 0;
             Engine.PointerCurrent_Level = 0;
 
-            Engine.MainCamera = new Camera("Main Camera", Vector2.Zero);
+            Engine.PlayerCamera = new Camera("Player Camera", Vector2.Zero);
 
             Engine.VisualDebugger = false;
 
-            Engine.Load();
+            Engine.LoadEngine();
             Engine.ClearLevelCache();   // Clear the cache for re-generation for testing.
 
             // Test generation
@@ -132,8 +132,8 @@ namespace TileEngine
                 if (Engine.Register_Players.Count > 0)
                 {
                     Engine.GetCurrentPlayer().Update(gameTime);
+                    Engine.PlayerCamera.Update(gameTime, Engine.GetCurrentPlayer());
                 }
-                Engine.MainCamera.Update(gameTime, Engine.GetCurrentPlayer());
             }
             catch (Exception error)
             {
@@ -190,20 +190,6 @@ namespace TileEngine
             }
         }
         // Engine loading methods
-        public static void Load()
-        {
-            try
-            {
-                Engine.LoadEngineConfig();
-                Engine.LoadTileset();
-                Engine.LoadLevels();
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
-            }
-        }
         public static void LoadEngineConfig()
         {
             try
@@ -308,10 +294,109 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
+        public static void LoadEngine()
+        {
+            try
+            {
+                Engine.LoadEngineConfig();
+                Engine.LoadTileset();
+                Engine.LoadLevels();
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        // Content loading methods
         public static void AssignTextures()
         {
-            int indexOfTileSet = Engine.Register_Textures.FindIndex(r => r.Name == "textures/" + Tile.TileSetTags);
+            int indexOfTileSet = Engine.Register_Textures.FindIndex(r => r.Name == "Textures/" + Tile.TileSetTags);
             Tile.TileSet = Engine.Register_Textures[indexOfTileSet];
+        }
+        public static void LoadEntities()
+        {
+            try
+            {
+
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        public static void LoadSaves()
+        {
+            try
+            {
+                #region // Check if the directory doesn't exist, if not then create it.
+                if (!Directory.Exists(Engine.ConfigDirectory_SaveData))
+                {
+                    Directory.CreateDirectory(Engine.ConfigDirectory_SaveData);
+                }
+                #endregion
+
+                #region // Find all the save data files.
+                string[] playerSaveList = Directory.GetFiles(Engine.ConfigDirectory_SaveData);
+
+                // If there is no save data files, create one and reload the folder.
+                if (playerSaveList.Length == 0)
+                {
+                    Engine.CreateBlankSave(Randomiser.RandomString(10));
+                    playerSaveList = Directory.GetFiles(Engine.ConfigDirectory_SaveData);
+                }
+                #endregion
+
+                #region // Read all the found save data files.
+                for (int i = 0; i < playerSaveList.Length; i++)
+                {
+                    XmlReader xmlReader = XmlReader.Create(playerSaveList[i]);
+                    string tag = "";
+                    int position_x = -1;
+                    int position_y = -1;
+                    int hp = -1;
+                    int gold = -1;
+
+                    while (xmlReader.Read())
+                    {
+                        if (xmlReader.NodeType == XmlNodeType.Element)
+                        {
+                            if (xmlReader.Name == "tag") { tag = xmlReader.GetAttribute("value"); }
+                            if (xmlReader.Name == "position_x") { position_x = int.Parse(xmlReader.GetAttribute("value")); }
+                            if (xmlReader.Name == "position_y") { position_y = int.Parse(xmlReader.GetAttribute("value")); }
+                            if (xmlReader.Name == "hp") { hp = int.Parse(xmlReader.GetAttribute("value")); }
+                            if (xmlReader.Name == "gold") { gold = int.Parse(xmlReader.GetAttribute("value")); }
+                        }
+                    }
+                    xmlReader.Close();
+
+                    Vector2 position = new Vector2(position_x, position_y);
+                    Player newPlayer = new Player(tag, null, position, Vector2.Zero, Vector2.Zero, Color.White, Engine.LayerDepth_Player, hp);
+
+                    Engine.Register_Players.Add(newPlayer);
+                }
+                #endregion
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        public static void LoadContent()
+        {
+            try
+            {
+                Engine.LoadEntities();
+                //Engine.LoadSaves();
+                Engine.AssignTextures();
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
         }
         // Engine Clear Cache methods
         public static void ClearLevelCache()
@@ -363,21 +448,6 @@ namespace TileEngine
 
                     xmlWriter.WriteStartElement("tag");
                     xmlWriter.WriteAttributeString("value", "Player");
-                    xmlWriter.WriteEndElement();
-                    xmlWriter.WriteWhitespace("\r\n\t");
-
-                    xmlWriter.WriteStartElement("src_frame_pos_x");
-                    xmlWriter.WriteAttributeString("value", "0");
-                    xmlWriter.WriteEndElement();
-                    xmlWriter.WriteWhitespace("\r\n\t");
-
-                    xmlWriter.WriteStartElement("src_frame_pos_y");
-                    xmlWriter.WriteAttributeString("value", "0");
-                    xmlWriter.WriteEndElement();
-                    xmlWriter.WriteWhitespace("\r\n\t");
-
-                    xmlWriter.WriteStartElement("src_frame_size");
-                    xmlWriter.WriteAttributeString("value", "48");
                     xmlWriter.WriteEndElement();
                     xmlWriter.WriteWhitespace("\r\n\t");
 

@@ -11,7 +11,7 @@ namespace TileEngine
         public Game()
         {
             Engine.GraphicsDevideManager = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "content";
+            Content.RootDirectory = "Content";
             Window.Title = Engine.Window_Title;
             TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / Engine.FrameRate_Max);
             IsFixedTimeStep = false;
@@ -31,7 +31,7 @@ namespace TileEngine
             for (int i = 0; i < rawTextureDirectories.Length; i++)
             {
                 // Load the texture into the texture register
-                string trimmedTexturePath = rawTextureDirectories[i].Replace("content/", "");
+                string trimmedTexturePath = rawTextureDirectories[i].Replace("Content/", "");
                 string[] splitTexturePath = trimmedTexturePath.Split('.');
                 Engine.Register_Textures.Add(Content.Load<Texture2D>(splitTexturePath[0]));
 
@@ -40,7 +40,7 @@ namespace TileEngine
                 Engine.Register_Textures[Engine.Register_Textures.Count - 1].Tag = splitPathForTag[1];
             }
 
-            Engine.AssignTextures();
+            Engine.LoadContent();
         }
         protected override void UnloadContent()
         {

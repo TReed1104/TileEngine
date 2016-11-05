@@ -25,7 +25,7 @@ namespace TileEngine
                 int gridX = (int)(this.position_Base.X / Tile.Dimensions.X);
                 int gridY = (int)(this.position_Base.Y / Tile.Dimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);
-                this.position_Draw = position_Base + Engine.MainCamera.position_Base;
+                this.position_Draw = position_Base + Engine.PlayerCamera.position_Base;
                 this.sourceRectangle_Position = sourceRectangle_Position;
                 this.sourceRectangle_Size = sourceRectangle_Size;
                 this.sourceRectangle_Offset = Vector2.Zero;
@@ -47,7 +47,7 @@ namespace TileEngine
         {
             try
             {
-                position_Draw = position_Base + Engine.MainCamera.position_Base;
+                position_Draw = position_Base + Engine.PlayerCamera.position_Base;
                 int gridX = (int)(this.position_Base.X / Tile.Dimensions.X);
                 int gridY = (int)(this.position_Base.Y / Tile.Dimensions.Y);
                 this.position_Grid = new Vector2(gridX, gridY);

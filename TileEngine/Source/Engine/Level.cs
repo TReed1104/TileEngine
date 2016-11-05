@@ -73,8 +73,8 @@ namespace TileEngine
                 {
                     for (int x = 0; x < Engine.Camera_RenderGridSize_Tiles.X; x++)
                     {
-                        int drawX = (int)(Engine.MainCamera.position_Grid.X + x);
-                        int drawY = (int)(Engine.MainCamera.position_Grid.Y + y);
+                        int drawX = (int)(Engine.PlayerCamera.position_Grid.X + x);
+                        int drawY = (int)(Engine.PlayerCamera.position_Grid.Y + y);
                         tilemap[drawX, drawY].Draw();
                         if (drawX + 1 < gridSize_Tiles.X)
                         {

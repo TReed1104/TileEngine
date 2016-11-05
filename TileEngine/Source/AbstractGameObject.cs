@@ -14,6 +14,7 @@ namespace TileEngine
         public Vector2 position_Grid { get; set; }
         public Vector2 position_Draw { get; set; }
         public Texture2D texture { get; set; }
+        public string textureTag { get; set; }
         public Color colour { get; set; }
         public Vector2 sourceRectangle_Position { get; set; }
         public Vector2 sourceRectangle_Size { get; set; }

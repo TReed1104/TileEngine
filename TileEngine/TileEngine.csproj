@@ -44,6 +44,7 @@
     <Compile Include="Source\Engine\Engine.cs" />
     <Compile Include="Source\Engine\Level.cs" />
     <Compile Include="Source\Engine\Randomiser.cs" />
+    <Compile Include="Source\Engine\SaveData.cs" />
     <Compile Include="Source\Engine\Tile.cs" />
     <Compile Include="Source\Entities\Entity.cs" />
     <Compile Include="Source\Entities\Player.cs" />
@@ -59,18 +60,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Config\Engine.ini">
+    <None Include="Config\Engine.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
     <Content Include="Content\Textures\Player.bmp" />
     <Content Include="Content\Textures\TileSet.bmp" />
     <Content Include="Icon.ico" />
-    <None Include="Config\Tileset.ini">
+    <None Include="Config\Tileset.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <MonoGameContentReference Include="Content\Content.mgcb" />
-    <None Include="Content\Entities\Player.conf" />
+    <None Include="Content\Entities\Player.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\Levels\" />

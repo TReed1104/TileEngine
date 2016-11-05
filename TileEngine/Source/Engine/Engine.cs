@@ -21,12 +21,13 @@ namespace TileEngine
         public static SpriteBatch SpriteBatch { get; set; }
         #endregion
         #region // Directory Vars
-        public const string ConfigFileName_Engine = "Engine.ini";
-        public const string ConfigFileName_Tileset = "Tileset.ini";
+        public const string ConfigFileName_Engine = "Engine.conf";
+        public const string ConfigFileName_Tileset = "Tileset.conf";
 
         public const string ConfigDirectory_Engine = "Config/";
         public const string ConfigDirectory_Levels = "Content/Levels/";
-        public const string ConfigDirectory_SaveData = "Content/Data/";
+        public const string ConfigDirectory_Entities = "Content/Entities/";
+        public const string ConfigDirectory_SaveData = "Content/Saves/";
         public const string ConfigDirectory_Textures = "Content/Textures/";
 
         public static string ConfigFullPath_EngineConfig { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Engine; } }
@@ -83,6 +84,7 @@ namespace TileEngine
         #endregion
         #region // Debugger Vars
         public static bool VisualDebugger { get; set; }
+        public static bool isEngineInTestMode { get; set; }
         #endregion
 
         // Constructors
@@ -109,18 +111,10 @@ namespace TileEngine
             Engine.PlayerCamera = new Camera("Player Camera", Vector2.Zero);
 
             Engine.VisualDebugger = false;
-
-            Engine.LoadEngine();
-            Engine.ClearLevelCache();   // Clear the cache for re-generation for testing.
-
-            // Test generation
-            Level temp = new Level("");
-            temp.Generate(Randomiser.RandomString(6), Engine.Register_Levels.Count);
-            Engine.Register_Levels.Add(temp);
-
-
+            Engine.isEngineInTestMode = false;
         }
-        // XNA Methods
+
+        // Runtime methods
         public static void Update(GameTime gameTime)
         {
             try
@@ -141,10 +135,11 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void Draw(GameTime gameTime)
+        public static void Draw(Game game)
         {
             try
             {
+                game.GraphicsDevice.Clear(Color.Magenta);
                 Engine.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.Window_TransformationMatrix);
                 if (Engine.Register_Levels.Count > 0 && Engine.GetCurrentLevel() != null)
                 {
@@ -162,6 +157,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
+
         // Get methods for ease of access.
         public static Player GetCurrentPlayer()
         {
@@ -189,7 +185,8 @@ namespace TileEngine
                 return null;
             }
         }
-        // Engine loading methods
+
+        // Engine setup
         public static void LoadEngineConfig()
         {
             try
@@ -234,6 +231,46 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
+        public static void InitialiseGameWindow(Game game)
+        {
+            try
+            {
+                Engine.Window_TransformationMatrix = Matrix.Identity;
+                Engine.Window_TransformationMatrix *= Matrix.CreateScale(Engine.Window_Scaler);
+                Engine.GraphicsDevideManager.PreferredBackBufferWidth = (int)Engine.Window_DimensionsPixels_Scaled.X;
+                Engine.GraphicsDevideManager.PreferredBackBufferHeight = (int)Engine.Window_DimensionsPixels_Scaled.Y;
+                game.Window.Title = Engine.Window_Title;
+                Engine.GraphicsDevideManager.ApplyChanges();
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        public static void SetupEngine(Game game)
+        {
+            try
+            {
+                #region // Default MonoGame Setup
+                Engine.GraphicsDevideManager = new GraphicsDeviceManager(game);
+                game.Content.RootDirectory = "Content";
+                game.TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / Engine.FrameRate_Max);
+                game.IsFixedTimeStep = false;
+                #endregion
+
+                // Engine Setup calls
+                Engine.LoadEngineConfig();
+                Engine.InitialiseGameWindow(game);
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+
+        // Content loading
         public static void LoadTileset()
         {
             try
@@ -245,25 +282,31 @@ namespace TileEngine
                     XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_Tileset);
                     while (xmlReader.Read())
                     {
-                        if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "tileset")
+                        if (xmlReader.NodeType == XmlNodeType.Element)
                         {
-                            Tile.TileSetTags = xmlReader.GetAttribute("tag");
-                        }
-                        if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "tile")
-                        {
-                            // Load the tile
-                            string tag = xmlReader.GetAttribute("tag");
-                            int src_frame_x = int.Parse(xmlReader.GetAttribute("src_frame_x"));
-                            int src_frame_y = int.Parse(xmlReader.GetAttribute("src_frame_y"));
-                            Color colour = Tile.Register_ConvertColour(xmlReader.GetAttribute("colour"));
-                            int id = int.Parse(xmlReader.GetAttribute("id"));
-                            Tile.TileType tileType = Tile.Register_ConvertTileType(xmlReader.GetAttribute("type"));
+                            if (xmlReader.Name == "tileset")
+                            {
+                                Tile.TileSetTags = xmlReader.GetAttribute("tag");
+                            }
+                            if (xmlReader.Name == "tile")
+                            {
+                                // Load the tile
+                                string tag = xmlReader.GetAttribute("tag");
+                                int src_frame_x = int.Parse(xmlReader.GetAttribute("src_frame_x"));
+                                int src_frame_y = int.Parse(xmlReader.GetAttribute("src_frame_y"));
+                                Color colour = Engine.ConvertStringToColour(xmlReader.GetAttribute("colour"));
+                                int id = int.Parse(xmlReader.GetAttribute("id"));
+                                Tile.TileType tileType = Tile.Register_ConvertTileType(xmlReader.GetAttribute("type"));
 
-                            // Add the tile to the register ready for use.
-                            Engine.Register_Tiles.Add(new Tile(tag, new Vector2(src_frame_x, src_frame_y), colour, Engine.LayerDepth_Terrain, id, tileType));
+                                // Add the tile to the register ready for use.
+                                Engine.Register_Tiles.Add(new Tile(tag, new Vector2(src_frame_x, src_frame_y), colour, Engine.LayerDepth_Terrain, id, tileType));
+                            }
                         }
                     }
                     xmlReader.Close();
+
+                    int indexOfTileSet = Engine.Register_Textures.FindIndex(r => r.Name == "Textures/" + Tile.TileSetTags);
+                    Tile.TileSet = Engine.Register_Textures[indexOfTileSet];
                 }
             }
             catch (Exception error)
@@ -294,116 +337,10 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void LoadEngine()
-        {
-            try
-            {
-                Engine.LoadEngineConfig();
-                Engine.LoadTileset();
-                Engine.LoadLevels();
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
-            }
-        }
-        // Content loading methods
-        public static void AssignTextures()
-        {
-            int indexOfTileSet = Engine.Register_Textures.FindIndex(r => r.Name == "Textures/" + Tile.TileSetTags);
-            Tile.TileSet = Engine.Register_Textures[indexOfTileSet];
-        }
-        public static void LoadEntities()
-        {
-            try
-            {
-
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
-            }
-        }
-        public static void LoadSaves()
-        {
-            try
-            {
-                #region // Check if the directory doesn't exist, if not then create it.
-                if (!Directory.Exists(Engine.ConfigDirectory_SaveData))
-                {
-                    Directory.CreateDirectory(Engine.ConfigDirectory_SaveData);
-                }
-                #endregion
-
-                #region // Find all the save data files.
-                string[] playerSaveList = Directory.GetFiles(Engine.ConfigDirectory_SaveData);
-
-                // If there is no save data files, create one and reload the folder.
-                if (playerSaveList.Length == 0)
-                {
-                    Engine.CreateBlankSave(Randomiser.RandomString(10));
-                    playerSaveList = Directory.GetFiles(Engine.ConfigDirectory_SaveData);
-                }
-                #endregion
-
-                #region // Read all the found save data files.
-                for (int i = 0; i < playerSaveList.Length; i++)
-                {
-                    XmlReader xmlReader = XmlReader.Create(playerSaveList[i]);
-                    string tag = "";
-                    int position_x = -1;
-                    int position_y = -1;
-                    int hp = -1;
-                    int gold = -1;
-
-                    while (xmlReader.Read())
-                    {
-                        if (xmlReader.NodeType == XmlNodeType.Element)
-                        {
-                            if (xmlReader.Name == "tag") { tag = xmlReader.GetAttribute("value"); }
-                            if (xmlReader.Name == "position_x") { position_x = int.Parse(xmlReader.GetAttribute("value")); }
-                            if (xmlReader.Name == "position_y") { position_y = int.Parse(xmlReader.GetAttribute("value")); }
-                            if (xmlReader.Name == "hp") { hp = int.Parse(xmlReader.GetAttribute("value")); }
-                            if (xmlReader.Name == "gold") { gold = int.Parse(xmlReader.GetAttribute("value")); }
-                        }
-                    }
-                    xmlReader.Close();
-
-                    Vector2 position = new Vector2(position_x, position_y);
-                    Player newPlayer = new Player(tag, null, position, Vector2.Zero, Vector2.Zero, Color.White, Engine.LayerDepth_Player, hp);
-
-                    Engine.Register_Players.Add(newPlayer);
-                }
-                #endregion
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
-            }
-        }
-        public static void LoadContent()
-        {
-            try
-            {
-                Engine.LoadEntities();
-                //Engine.LoadSaves();
-                Engine.AssignTextures();
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
-            }
-        }
-        // Engine Clear Cache methods
         public static void ClearLevelCache()
         {
             try
             {
-
                 if (Directory.Exists(Engine.ConfigDirectory_Levels))
                 {
                     Directory.Delete(Engine.ConfigDirectory_Levels, true);
@@ -417,28 +354,11 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        // Engine Setup
-        public static void InitialiseGameWindow()
+        public static void CreateBlankSave(string saveID)
         {
             try
             {
-                Engine.Window_TransformationMatrix = Matrix.Identity;
-                Engine.Window_TransformationMatrix *= Matrix.CreateScale(Engine.Window_Scaler);
-                Engine.GraphicsDevideManager.PreferredBackBufferWidth = (int)Engine.Window_DimensionsPixels_Scaled.X;
-                Engine.GraphicsDevideManager.PreferredBackBufferHeight = (int)Engine.Window_DimensionsPixels_Scaled.Y;
-                Engine.GraphicsDevideManager.ApplyChanges();
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
-            }
-        }
-        public static void CreateBlankSave(string playerName)
-        {
-            try
-            {
-                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_SaveData + playerName + ".dat"))
+                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_SaveData + saveID))
                 {
                     #region // Write a default save file
                     xmlWriter.WriteStartDocument();
@@ -447,7 +367,7 @@ namespace TileEngine
                     xmlWriter.WriteWhitespace("\r\n\t");
 
                     xmlWriter.WriteStartElement("tag");
-                    xmlWriter.WriteAttributeString("value", "Player");
+                    xmlWriter.WriteAttributeString("value", "TEMP_TAG");
                     xmlWriter.WriteEndElement();
                     xmlWriter.WriteWhitespace("\r\n\t");
 
@@ -482,6 +402,235 @@ namespace TileEngine
             {
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        public static SaveData LoadSave(string saveID)
+        {
+            try
+            {
+                #region // Check if the directory doesn't exist, if not then create it.
+                if (!Directory.Exists(Engine.ConfigDirectory_SaveData))
+                {
+                    Directory.CreateDirectory(Engine.ConfigDirectory_SaveData);
+                }
+                #endregion
+
+                #region // Check the Save exists, if not create one.
+                if (!File.Exists(Engine.ConfigDirectory_SaveData + saveID))
+                {
+                    Engine.CreateBlankSave(saveID);
+                }
+                #endregion
+
+                // Load the save
+                string tag = "";
+                int position_x = -1;
+                int position_y = -1;
+                float hp = -1;
+                int gold = -1;
+
+                // Read the save file.
+                XmlReader xmlReader = XmlReader.Create(Engine.ConfigDirectory_SaveData + saveID);
+                while (xmlReader.Read())
+                {
+                    if (xmlReader.NodeType == XmlNodeType.Element)
+                    {
+                        if (xmlReader.Name == "tag")
+                        {
+                            tag = xmlReader.GetAttribute("value");
+                        }
+                        if (xmlReader.Name == "position_x")
+                        {
+                            position_x = int.Parse(xmlReader.GetAttribute("value"));
+                        }
+                        if (xmlReader.Name == "position_y")
+                        {
+                            position_y = int.Parse(xmlReader.GetAttribute("value"));
+                        }
+                        if (xmlReader.Name == "hp")
+                        {
+                            hp = float.Parse(xmlReader.GetAttribute("value"));
+                        }
+                        if (xmlReader.Name == "gold")
+                        {
+                            gold = int.Parse(xmlReader.GetAttribute("value"));
+                        }
+                    }
+                }
+                xmlReader.Close();
+                return new SaveData(tag, new Vector2(position_x, position_y), hp, gold);
+
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+                return null;
+            }
+        }
+        public static void LoadEntities()
+        {
+            try
+            {
+                // Get a list of all the entity configs
+                string[] listOfEntityConfigs = Directory.GetFiles(Engine.ConfigDirectory_Entities);
+
+                // Go through each config and populate the entity and player registers accordingly
+                for (int i = 0; i < listOfEntityConfigs.Length; i++)
+                {
+                    // Check for the config file.
+                    if (File.Exists(listOfEntityConfigs[i]))
+                    {
+                        bool isPlayer = false;  // Stores if this entity is a player, because players are treated differently.
+                        string tag = "";
+                        string entityType = "";
+                        string textureTag = "";
+                        int sourceRectangleSize = 0;
+                        Color colour = Color.White;
+                        string saveID = "";
+
+                        // Read the config file.
+                        XmlReader xmlReader = XmlReader.Create(listOfEntityConfigs[i]);
+                        while (xmlReader.Read())
+                        {
+                            if (xmlReader.NodeType == XmlNodeType.Element)
+                            {
+                                if (xmlReader.Name == "tag")
+                                {
+                                    tag = xmlReader.GetAttribute("value");
+                                }
+                                if (xmlReader.Name == "entity_type")
+                                {
+                                    entityType = xmlReader.GetAttribute("value");
+                                    if (entityType == "Player")
+                                    {
+                                        isPlayer = true;
+                                    }
+                                }
+                                if (xmlReader.Name == "texture_tag")
+                                {
+                                    textureTag = xmlReader.GetAttribute("value");
+                                }
+                                if (xmlReader.Name == "src_frame_size")
+                                {
+                                    sourceRectangleSize = int.Parse(xmlReader.GetAttribute("value"));
+                                }
+                                if (xmlReader.Name == "colour")
+                                {
+                                    colour = Engine.ConvertStringToColour(xmlReader.GetAttribute("value"));
+                                }
+                                if (xmlReader.Name == "save_data")
+                                {
+                                    saveID = xmlReader.GetAttribute("value");
+                                }
+                            }
+                        }
+                        xmlReader.Close();
+                        if (isPlayer)
+                        {
+                            // Load the save data and create the player
+                            int indexOfTexture = Engine.Register_Textures.FindIndex(r => r.Name == "Textures/" + textureTag);   // Get the correct texture for the player
+                            SaveData loadedSave = Engine.LoadSave(saveID);
+
+                            Player player = new Player(loadedSave.tag, Engine.Register_Textures[indexOfTexture], loadedSave.position, Vector2.Zero, new Vector2(sourceRectangleSize, sourceRectangleSize), colour, Engine.LayerDepth_Player, loadedSave.hp);
+                            Engine.Register_Players.Add(player);
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        public static void LoadContent(Game game)
+        {
+            try
+            {
+                #region // Default MonoGame Setup
+                Engine.SpriteBatch = new SpriteBatch(game.GraphicsDevice);
+                #endregion
+
+
+                #region // Load textures and fonts
+                string[] rawTextureDirectories = Directory.GetFiles(Engine.ConfigDirectory_Textures);
+
+                for (int i = 0; i < rawTextureDirectories.Length; i++)
+                {
+                    // Split and trim the string to the required parts
+                    string trimmedTexturePath = rawTextureDirectories[i].Replace("Content/", "");
+                    string[] splitTexturePath = trimmedTexturePath.Split('.');
+                    // Load the texture into the texture register
+                    Engine.Register_Textures.Add(game.Content.Load<Texture2D>(splitTexturePath[0]));
+                }
+                #endregion
+
+                Engine.LoadTileset();
+                Engine.LoadLevels();
+                Engine.LoadEntities();
+
+                Engine.TestGeneration();
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        
+        // Content unloading
+        public static void UnloadContent()
+        {
+            try
+            {
+
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+
+        // Engine loading Conversion methods
+        public static Color ConvertStringToColour(string stringToConvert)
+        {
+            try
+            {
+                switch (stringToConvert)
+                {
+                    case "White":
+                        return Color.White;
+                    case "Black":
+                        return Color.Black;
+                    default:
+                        return Color.White;
+                }
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+                return Color.White;
+            }
+        }
+
+        // Testing Methods
+        private static void TestGeneration()
+        {
+            if (Engine.isEngineInTestMode)
+            {
+                Engine.ClearLevelCache();   // Clear the cache for re-generation for testing.
+
+                // Test generation
+                Level temp = new Level("");
+                temp.Generate(Randomiser.RandomString(6), Engine.Register_Levels.Count);
+                Engine.Register_Levels.Add(temp);
             }
         }
     }

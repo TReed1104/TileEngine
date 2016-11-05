@@ -175,11 +175,11 @@ namespace TileEngine
             }
         }
         // Save/loading
-        protected void Load(string levelSrc)
+        protected void Load(string levelPath)
         {
             try
             {
-                XmlReader xmlReader = XmlReader.Create(levelSrc);
+                XmlReader xmlReader = XmlReader.Create(levelPath);
                 while (xmlReader.Read())
                 {
                     if (xmlReader.NodeType == XmlNodeType.Element)
@@ -290,6 +290,21 @@ namespace TileEngine
                 for (int x = 0; x < gridSize_Tiles.X; x++)
                 {
                     SetCellTile(new Vector2(x, y), Engine.Register_Tiles[1]);
+                }
+            }
+
+            if (Engine.isEngineInTestMode)
+            {
+                // Cap the grid
+                for (int x = 0; x < gridSize_Tiles.X; x++)
+                {
+                    SetCellTile(new Vector2(x, 0), Engine.Register_Tiles[2]);
+                    SetCellTile(new Vector2(x, gridSize_Tiles.Y - 1), Engine.Register_Tiles[2]);
+                }
+                for (int y = 0; y < gridSize_Tiles.Y; y++)
+                {
+                    SetCellTile(new Vector2(0, y), Engine.Register_Tiles[2]);
+                    SetCellTile(new Vector2(gridSize_Tiles.X - 1, y), Engine.Register_Tiles[2]);
                 }
             }
             Save();

@@ -70,27 +70,6 @@ namespace TileEngine
                 return TileType.Empty;
             }
         }
-        public static Color Register_ConvertColour(string stringToConvert)
-        {
-            try
-            {
-                switch (stringToConvert)
-                {
-                    case "White":
-                        return Color.White;
-                    case "Black":
-                        return Color.Black;
-                    default:
-                        return Color.White;
-                }
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Tile", methodName, error.Message));
-                return Color.White;
-            }
-        }
         // XNA Methods
         public override void Update(GameTime gameTime)
         {

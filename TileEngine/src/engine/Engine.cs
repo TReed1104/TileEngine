@@ -20,18 +20,17 @@ namespace TileEngine
         public static GraphicsDeviceManager GraphicsDevideManager { get; set; }
         public static SpriteBatch SpriteBatch { get; set; }
         #endregion
-        #region // Config Vars
+        #region // Directory Vars
         public const string ConfigFileName_Engine = "engine.ini";
         public const string ConfigFileName_Tileset = "tileset.ini";
-        public const string ConfigFileName_NpcRegister = "npc_register.ini";
 
         public const string ConfigDirectory_Engine = "config/";
         public const string ConfigDirectory_Levels = "content/levels/";
         public const string ConfigDirectory_SaveData = "content/data/";
+        public const string ConfigDirectory_Textures = "content/textures/";
 
         public static string ConfigFullPath_EngineConfig { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Engine; } }
         public static string ConfigFullPath_Tileset { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Tileset; } }
-        public static string ConfigFullPath_NpcRegister { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_NpcRegister; } }
         #endregion
         #region // Window Vars
         public static string Window_Title { get; private set; }
@@ -52,6 +51,7 @@ namespace TileEngine
         public static List<Level> Register_Levels { get; set; }
         public static List<Player> Register_Players { get; set; }
         public static List<Entity> Register_Npc { get; set; }
+        public static List<Texture2D> Register_Textures { get; set; }
         #endregion
         #region // Pointer Vars
         public static int PointerCurrent_Player { get; set; }
@@ -101,6 +101,7 @@ namespace TileEngine
             Engine.Register_Levels = new List<Level>();
             Engine.Register_Players = new List<Player>();
             Engine.Register_Npc = new List<Entity>();
+            Engine.Register_Textures = new List<Texture2D>();
 
             Engine.PointerCurrent_Player = 0;
             Engine.PointerCurrent_Level = 0;
@@ -108,12 +109,13 @@ namespace TileEngine
             Engine.MainCamera = new Camera("Main Camera", Vector2.Zero);
 
             Engine.VisualDebugger = false;
+
             Engine.Load();
             Engine.ClearLevelCache();   // Clear the cache for re-generation for testing.
 
             // Test generation
             Level temp = new Level("");
-            temp.Generate(Randomiser.RandomString(6), Engine.Register_Levels.Count());
+            temp.Generate(Randomiser.RandomString(6), Engine.Register_Levels.Count);
             Engine.Register_Levels.Add(temp);
 
 
@@ -195,7 +197,6 @@ namespace TileEngine
                 Engine.LoadEngineConfig();
                 Engine.LoadTileset();
                 Engine.LoadLevels();
-                Engine.LoadPlayers();
             }
             catch (Exception error)
             {
@@ -231,11 +232,10 @@ namespace TileEngine
                                 Engine.Window_Scaler = float.Parse(xmlReader.GetAttribute("scaler"));
                                 Engine.Window_HUD_Size_Tiles = new Vector2(0, int.Parse(xmlReader.GetAttribute("hud_size")));
                             }
-                            if (xmlReader.Name == "tile_set")
+                            if (xmlReader.Name == "tile_settings")
                             {
                                 // Load the Tileset settings
                                 Tile.Dimensions = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
-                                Tile.SpritesheetSource = xmlReader.GetAttribute("src");
                             }
                         }
                     }
@@ -259,6 +259,10 @@ namespace TileEngine
                     XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_Tileset);
                     while (xmlReader.Read())
                     {
+                        if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "tileset")
+                        {
+                            Tile.TileSetTags = xmlReader.GetAttribute("tag");
+                        }
                         if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "tile")
                         {
                             // Load the tile
@@ -304,87 +308,10 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void LoadPlayers()
+        public static void AssignTextures()
         {
-            try
-            {
-                #region // Check if the directory doesn't exist, if not then create it.
-                if (!Directory.Exists(Engine.ConfigDirectory_SaveData))
-                {
-                    Directory.CreateDirectory(Engine.ConfigDirectory_SaveData);
-                }
-                #endregion
-
-                #region // Find all the save data files.
-                string[] playerSaveList = Directory.GetFiles(Engine.ConfigDirectory_SaveData);
-
-                // If there is no save data files, create one and reload the folder.
-                if (playerSaveList.Length == 0)
-                {
-                    Engine.CreateBlankSave(Randomiser.RandomString(10));
-                    playerSaveList = Directory.GetFiles(Engine.ConfigDirectory_SaveData);
-                }
-                #endregion
-
-                #region // Read all the found save data files.
-                for (int i = 0; i < playerSaveList.Length; i++)
-                {
-                    XmlReader xmlReader = XmlReader.Create(playerSaveList[i]);
-                    string tag = "";
-                    string src = "";
-                    int src_frame_pos_x = -1;
-                    int src_frame_pos_y = -1;
-                    int src_frame_size = -1;
-                    int position_x = -1;
-                    int position_y = -1;
-                    int hp = -1;
-                    int gold = -1;
-
-                    while (xmlReader.Read())
-                    {
-                        if (xmlReader.NodeType == XmlNodeType.Element)
-                        {
-                            if (xmlReader.Name == "tag") { tag = xmlReader.GetAttribute("value"); }
-                            if (xmlReader.Name == "src") { src = xmlReader.GetAttribute("value"); }
-                            if (xmlReader.Name == "src_frame_pos_x") { src_frame_pos_x = int.Parse(xmlReader.GetAttribute("value")); }
-                            if (xmlReader.Name == "src_frame_pos_y") { src_frame_pos_y = int.Parse(xmlReader.GetAttribute("value")); }
-                            if (xmlReader.Name == "src_frame_size") { src_frame_size = int.Parse(xmlReader.GetAttribute("value")); }
-                            if (xmlReader.Name == "position_x") { position_x = int.Parse(xmlReader.GetAttribute("value")); }
-                            if (xmlReader.Name == "position_y") { position_y = int.Parse(xmlReader.GetAttribute("value")); }
-                            if (xmlReader.Name == "hp") { hp = int.Parse(xmlReader.GetAttribute("value")); }
-                            if (xmlReader.Name == "gold") { gold = int.Parse(xmlReader.GetAttribute("value")); }
-                        }
-                    }
-                    xmlReader.Close();
-
-                    Vector2 position = new Vector2(position_x, position_y);
-                    Vector2 sourceRectangle_Position = new Vector2(src_frame_pos_x, src_frame_pos_y);
-                    Vector2 sourceRectangle_Size = new Vector2(src_frame_size, src_frame_size);
-
-                    Player newPlayer = new Player(tag, null, position, sourceRectangle_Position, sourceRectangle_Size, Color.White, Engine.LayerDepth_Player, hp);
-                    newPlayer.spriteSheetSource = src;
-
-                    Engine.Register_Players.Add(newPlayer);
-                }
-                #endregion
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
-            }
-        }
-        public static void LoadNpcRegister()
-        {
-            try
-            {
-
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
-            }
+            int indexOfTileSet = Engine.Register_Textures.FindIndex(r => r.Name == "textures/" + Tile.TileSetTags);
+            Tile.TileSet = Engine.Register_Textures[indexOfTileSet];
         }
         // Engine Clear Cache methods
         public static void ClearLevelCache()
@@ -436,11 +363,6 @@ namespace TileEngine
 
                     xmlWriter.WriteStartElement("tag");
                     xmlWriter.WriteAttributeString("value", "Player");
-                    xmlWriter.WriteEndElement();
-                    xmlWriter.WriteWhitespace("\r\n\t");
-
-                    xmlWriter.WriteStartElement("src");
-                    xmlWriter.WriteAttributeString("value", "entity/player");
                     xmlWriter.WriteEndElement();
                     xmlWriter.WriteWhitespace("\r\n\t");
 

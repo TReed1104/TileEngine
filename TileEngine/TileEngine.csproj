@@ -61,9 +61,10 @@
   <ItemGroup>
     <None Include="config\engine.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
-    <Content Include="content\entity\player.bmp" />
-    <Content Include="content\tiles\TileSet.bmp" />
+    <Content Include="content\textures\Player.bmp" />
+    <Content Include="content\textures\TileSet.bmp" />
     <Content Include="Icon.ico" />
     <None Include="config\tileset.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

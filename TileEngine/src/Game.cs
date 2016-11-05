@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.IO;
 
 namespace TileEngine
 {
@@ -25,11 +26,21 @@ namespace TileEngine
             Engine.SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Load textures and fonts
-            Tile.TileSet = Content.Load<Texture2D>(Tile.SpritesheetSource);
-            for (int i = 0; i < Engine.Register_Players.Count; i++)
+            string[] rawTextureDirectories = Directory.GetFiles(Engine.ConfigDirectory_Textures);
+
+            for (int i = 0; i < rawTextureDirectories.Length; i++)
             {
-                Engine.Register_Players[i].texture = Content.Load<Texture2D>(Engine.Register_Players[i].spriteSheetSource); ;
+                // Load the texture into the texture register
+                string trimmedTexturePath = rawTextureDirectories[i].Replace("content/", "");
+                string[] splitTexturePath = trimmedTexturePath.Split('.');
+                Engine.Register_Textures.Add(Content.Load<Texture2D>(splitTexturePath[0]));
+
+                // Assign the textures tag, used for finding the textures in the register
+                string[] splitPathForTag = splitTexturePath[0].Split('/');
+                Engine.Register_Textures[Engine.Register_Textures.Count - 1].Tag = splitPathForTag[1];
             }
+
+            Engine.AssignTextures();
         }
         protected override void UnloadContent()
         {

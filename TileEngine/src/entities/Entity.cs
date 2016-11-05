@@ -14,7 +14,6 @@ namespace TileEngine
         public enum Direction { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
         public enum WallSlide { None, WallSlideLeft, WallSlideRight, WallSlideUp, WallSlideDown, };
         // Vars
-        public string spriteSheetSource { get; set; }
         public float healthPoints { get; protected set; }
         public float damagePower { get; protected set; }
         public float movementSpeed { get; protected set; }

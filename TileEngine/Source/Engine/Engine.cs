@@ -58,12 +58,6 @@ namespace TileEngine
         public static int PointerCurrent_Player { get; set; }
         public static int PointerCurrent_Level { get; set; }
         #endregion
-        #region // Counter Vars
-        public static int Counter_Tiles { get { return Register_Tiles.Count; } }
-        public static int Counter_Levels { get { return Register_Levels.Count; } }
-        public static int Counter_Players { get { return Register_Players.Count; } }
-        public static int Counter_Npcs { get { return Register_Entity.Count; } }
-        #endregion
         #region // LayerDepth Vars
         public const float LayerDepth_Debugger_Background = 0.10f;
         public const float LayerDepth_Debugger_Terrain = 0.09f;
@@ -111,7 +105,7 @@ namespace TileEngine
             Engine.PlayerCamera = new Camera("Player Camera", Vector2.Zero);
 
             Engine.VisualDebugger = false;
-            Engine.isEngineInTestMode = false;
+            Engine.isEngineInTestMode = true;
         }
 
         // Runtime methods
@@ -187,7 +181,7 @@ namespace TileEngine
         }
 
         // Engine setup
-        public static void LoadEngineConfig()
+        private static void LoadEngineConfig()
         {
             try
             {
@@ -231,7 +225,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void InitialiseGameWindow(Game game)
+        private static void InitialiseGameWindow(Game game)
         {
             try
             {
@@ -271,7 +265,7 @@ namespace TileEngine
         }
 
         // Content loading
-        public static void LoadTileset()
+        private static void LoadTileset()
         {
             try
             {
@@ -315,7 +309,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void LoadLevels()
+        private static void LoadLevels()
         {
             try
             {
@@ -337,7 +331,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void ClearLevelCache()
+        private static void ClearLevelCache()
         {
             try
             {
@@ -354,7 +348,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static void CreateBlankSave(string saveID)
+        private static void CreateBlankSave(string saveID)
         {
             try
             {
@@ -404,7 +398,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        public static SaveData LoadSave(string saveID)
+        private static SaveData LoadSave(string saveID)
         {
             try
             {
@@ -468,7 +462,7 @@ namespace TileEngine
                 return null;
             }
         }
-        public static void LoadEntities()
+        private static void LoadEntities()
         {
             try
             {

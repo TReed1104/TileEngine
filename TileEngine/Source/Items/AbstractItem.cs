@@ -1,7 +1,7 @@
 ﻿
 namespace TileEngine
 {
-    abstract class AbstractItem : AbstractGameObject
+    public abstract class AbstractItem : AbstractGameObject
     {
         public const int minDurability = 0;
         public int maxDurability { get; private set; }
@@ -10,8 +10,7 @@ namespace TileEngine
         public int sellValue { get; private set; }
 
         public abstract void Degrade(int durabilityLoss);
-        public abstract void RepairPartial(int repairValue);
-        public abstract void RepairFull();
+        public abstract void Repair();
         public abstract void Buy();
         public abstract void Sell();
     }

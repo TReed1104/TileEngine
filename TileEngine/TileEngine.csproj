@@ -46,12 +46,12 @@
     <Compile Include="Source\Engine\Randomiser.cs" />
     <Compile Include="Source\Engine\SaveData.cs" />
     <Compile Include="Source\Engine\Tile.cs" />
-    <Compile Include="Source\Entities\Entity.cs" />
+    <Compile Include="Source\Entities\AbstractEntity.cs" />
+    <Compile Include="Source\Entities\NPC.cs" />
     <Compile Include="Source\Entities\Player.cs" />
     <Compile Include="Source\Game.cs" />
     <Compile Include="Source\GameObject.cs" />
     <Compile Include="Source\Items\AbstractItem.cs" />
-    <Compile Include="Source\Items\Bag.cs" />
     <Compile Include="Source\Items\Inventory.cs" />
     <Compile Include="Source\Program.cs" />
   </ItemGroup>
@@ -63,14 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Config\Engine.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="Icon.ico" />
-    <None Include="Config\Tileset.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup />

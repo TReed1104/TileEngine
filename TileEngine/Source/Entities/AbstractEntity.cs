@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TileEngine
 {
-    public abstract class Entity : GameObject
+    public abstract class AbstractEntity : GameObject
     {
         // Enums
         public enum Direction { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
@@ -34,11 +34,11 @@ namespace TileEngine
         protected float deltaTime { get; set; }
 
         // Constructors
-        static Entity()
+        static AbstractEntity()
         {
 
         }
-        public Entity(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
+        public AbstractEntity(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
             : base (tag, texture, position_World, sourceRectangle_Position, sourceRectangle_Size, colour, layerDepth)
         {
             deltaTime = 0;

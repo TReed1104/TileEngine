@@ -20,7 +20,7 @@ namespace TileEngine
         public Vector2 positionPlayerStart_Grid { get; protected set; }
         public Vector2 positionPlayerStart_Pixel { get { return positionPlayerStart_Grid * Tile.Dimensions; } }
         protected Tile[,] tilemap { get; set; }
-        protected List<Entity> registerNPC { get; set; }
+        protected List<NPC> NPCs { get; set; }
 
         // Constructors
         static Level()
@@ -35,7 +35,7 @@ namespace TileEngine
                 this.index = -1;
                 this.gridSize_Tiles = Vector2.Zero;
                 this.positionPlayerStart_Grid = Vector2.Zero;
-                this.registerNPC = new List<Entity>();
+                this.NPCs = new List<NPC>();
                 if (src != "")
                 {
                     Load(src);
@@ -54,9 +54,9 @@ namespace TileEngine
             try
             {
                 // Update all the Entities.
-                for (int i = 0; i < registerNPC.Count; i++)
+                for (int i = 0; i < NPCs.Count; i++)
                 {
-                    registerNPC[i].Update(gameTime);
+                    NPCs[i].Update(gameTime);
                 }
             }
             catch (Exception error)
@@ -91,9 +91,9 @@ namespace TileEngine
                     }
                 }
                 // Update all the Entities.
-                for (int i = 0; i < registerNPC.Count; i++)
+                for (int i = 0; i < NPCs.Count; i++)
                 {
-                    registerNPC[i].Draw();
+                    NPCs[i].Draw();
                 }
             }
             catch (Exception error)
@@ -174,6 +174,18 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
+        public void AddNPC(NPC newNPC)
+        {
+            try
+            {
+                NPCs.Add(newNPC);
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
+        }
         // Save/loading
         protected void Load(string levelPath)
         {
@@ -233,7 +245,7 @@ namespace TileEngine
         {
             try
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ContentDirectory_Levels + tag + ".lvl"))
+                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.FullPath_Levels + tag + ".lvl"))
                 {
                     xmlWriter.WriteStartDocument();
                     xmlWriter.WriteWhitespace("\r\n");
@@ -307,6 +319,7 @@ namespace TileEngine
                     SetCellTile(new Vector2(gridSize_Tiles.X - 1, y), Engine.Register_Tiles[2]);
                 }
             }
+
             Save();
         }
     }

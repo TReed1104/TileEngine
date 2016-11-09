@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace TileEngine
 {
-    public class Player : Entity
+    public class Player : AbstractEntity
     {
         static Player()
         {

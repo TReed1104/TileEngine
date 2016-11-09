@@ -21,19 +21,25 @@ namespace TileEngine
         public static SpriteBatch SpriteBatch { get; set; }
         #endregion
         #region // Directory Vars
-        public const string ConfigFileName_Engine = "Engine.conf";
-        public const string ConfigFileName_Tileset = "Tileset.conf";
+        public const string Directory_Content = "Content/";
+        public const string Directory_Configs = "Config/";
 
-        public const string ConfigDirectory_Engine = "Config/";
-        public const string ContentDirectory = "Content/";
-        public static string ContentDirectory_Textures { get { return Engine.ContentDirectory + "Textures/"; } }
-        public static string ContentDirectory_Items { get { return Engine.ContentDirectory + "Items/"; } }
-        public static string ContentDirectory_Levels { get { return Engine.ContentDirectory + "Levels/"; } }
-        public static string ContentDirectory_Entities { get { return Engine.ContentDirectory + "Entities/"; } }
-        public static string ContentDirectory_SaveData { get { return Engine.ContentDirectory + "Saves/"; } }
+        public const string FileName_EngineConfig = "Engine.conf";
+        public const string FileName_TilesetConfig = "Tileset.conf";
 
-        public static string ConfigFullPath_EngineConfig { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Engine; } }
-        public static string ConfigFullPath_Tileset { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Tileset; } }
+        public const string DirectoryName_Textures = "Textures/";
+        public const string DirectoryName_Items = "Items/";
+        public const string DirectoryName_Levels = "Levels/";
+        public const string DirectoryName_Entities = "Entities/";
+        public const string DirectoryName_SaveData = "SaveData/";
+
+        public static string FullPath_EngineConfig { get { return Engine.Directory_Content + Engine.Directory_Configs + Engine.FileName_EngineConfig; } }
+        public static string FullPath_TilesetConfig { get { return Engine.Directory_Content + Engine.Directory_Configs + Engine.FileName_TilesetConfig; } }
+        public static string FullPath_Textures { get { return Engine.Directory_Content + Engine.DirectoryName_Textures; } }
+        public static string FullPath_Items { get { return Engine.Directory_Content + Engine.DirectoryName_Items; } }
+        public static string FullPath_Levels { get { return Engine.Directory_Content + Engine.DirectoryName_Levels; } }
+        public static string FullPath_Entities { get { return Engine.Directory_Content + Engine.DirectoryName_Entities; } }
+        public static string FullPath_SaveData { get { return Engine.Directory_Content + Engine.DirectoryName_SaveData; } }
         #endregion
         #region // Window Vars
         public static string Window_Title { get; private set; }
@@ -52,10 +58,10 @@ namespace TileEngine
         #region // Register Vars
         public static List<Texture2D> Register_Textures { get; set; }           // Holds all the games Textures
         public static List<Tile> Register_Tiles { get; set; }                   // Holds all the games Tiles
-        //public static List<Item> Register_Items { get; set; }                   // Holds all the games Items
+        public static List<AbstractItem> Register_Items { get; set; }           // Holds all the games Items
         public static List<Level> Register_Levels { get; set; }                 // Holds all the games levels
-        public static List<Player> Register_Players { get; set; }               // Holds all the games players - Potentially might move into the entity register and then from their have the player as index 0.
-        public static List<Entity> Register_Entity { get; set; }                // Holds all the games Entities - NPCs, bosses, critters, etc.
+        public static List<Player> Register_PlayerSaves { get; set; }           // Holds all the games players - Potentially might move into the entity register and then from their have the player as index 0.
+        public static List<NPC> Register_NPCs { get; set; }                     // Holds all the games Entities - NPCs, bosses, critters, etc.
         #endregion
         #region // Pointer Vars
         public static int PointerCurrent_Player { get; set; }
@@ -96,11 +102,12 @@ namespace TileEngine
             Engine.Window_HUD_Size_Tiles = new Vector2(0, 50);
             Engine.Window_TileGridSize = new Vector2(10, 10);
 
-            Engine.Register_Tiles = new List<Tile>();
-            Engine.Register_Levels = new List<Level>();
-            Engine.Register_Players = new List<Player>();
-            Engine.Register_Entity = new List<Entity>();
             Engine.Register_Textures = new List<Texture2D>();
+            Engine.Register_Tiles = new List<Tile>();
+            Engine.Register_Items = new List<AbstractItem>();
+            Engine.Register_Levels = new List<Level>();
+            Engine.Register_PlayerSaves = new List<Player>();
+            Engine.Register_NPCs = new List<NPC>();
 
             Engine.PointerCurrent_Player = 0;
             Engine.PointerCurrent_Level = 0;
@@ -120,7 +127,7 @@ namespace TileEngine
                 {
                     Engine.GetCurrentLevel().Update(gameTime);
                 }
-                if (Engine.Register_Players.Count > 0)
+                if (Engine.Register_PlayerSaves.Count > 0)
                 {
                     Engine.GetCurrentPlayer().Update(gameTime);
                     Engine.PlayerCamera.Update(gameTime, Engine.GetCurrentPlayer());
@@ -142,7 +149,7 @@ namespace TileEngine
                 {
                     Engine.GetCurrentLevel().Draw();
                 }
-                if (Engine.Register_Players.Count > 0)
+                if (Engine.Register_PlayerSaves.Count > 0)
                 {
                     GetCurrentPlayer().Draw();
                 }
@@ -160,7 +167,7 @@ namespace TileEngine
         {
             try
             {
-                return Engine.Register_Players[Engine.PointerCurrent_Player];
+                return Engine.Register_PlayerSaves[Engine.PointerCurrent_Player];
             }
             catch (Exception error)
             {
@@ -189,10 +196,10 @@ namespace TileEngine
             try
             {
                 // Check for the config file.
-                if (File.Exists(Engine.ConfigFullPath_EngineConfig))
+                if (File.Exists(Engine.FullPath_EngineConfig))
                 {
                     // Read the config file.
-                    XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_EngineConfig);
+                    XmlReader xmlReader = XmlReader.Create(Engine.FullPath_EngineConfig);
                     while (xmlReader.Read())
                     {
                         if (xmlReader.NodeType == XmlNodeType.Element)
@@ -251,7 +258,7 @@ namespace TileEngine
             {
                 #region // Default MonoGame Setup
                 Engine.GraphicsDevideManager = new GraphicsDeviceManager(game);
-                game.Content.RootDirectory = Engine.ContentDirectory;
+                game.Content.RootDirectory = Engine.Directory_Content;
                 game.TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / Engine.FrameRate_Max);
                 game.IsFixedTimeStep = false;
                 #endregion
@@ -273,25 +280,25 @@ namespace TileEngine
             try
             {
                 // Ensure all the content directories exist.
-                if (!Directory.Exists(Engine.ContentDirectory_Textures))
+                if (!Directory.Exists(Engine.FullPath_Textures))
                 {
-                    Directory.CreateDirectory(Engine.ContentDirectory_Textures);
+                    Directory.CreateDirectory(Engine.FullPath_Textures);
                 }
-                if (!Directory.Exists(Engine.ContentDirectory_Items))
+                if (!Directory.Exists(Engine.FullPath_Items))
                 {
-                    Directory.CreateDirectory(Engine.ContentDirectory_Items);
+                    Directory.CreateDirectory(Engine.FullPath_Items);
                 }
-                if (!Directory.Exists(Engine.ContentDirectory_Levels))
+                if (!Directory.Exists(Engine.FullPath_Levels))
                 {
-                    Directory.CreateDirectory(Engine.ContentDirectory_Levels);
+                    Directory.CreateDirectory(Engine.FullPath_Levels);
                 }
-                if (!Directory.Exists(Engine.ContentDirectory_SaveData))
+                if (!Directory.Exists(Engine.FullPath_SaveData))
                 {
-                    Directory.CreateDirectory(Engine.ContentDirectory_SaveData);
+                    Directory.CreateDirectory(Engine.FullPath_SaveData);
                 }
-                if (!Directory.Exists(Engine.ContentDirectory_Entities))
+                if (!Directory.Exists(Engine.FullPath_Entities))
                 {
-                    Directory.CreateDirectory(Engine.ContentDirectory_Entities);
+                    Directory.CreateDirectory(Engine.FullPath_Entities);
                 }
             }
             catch (Exception error)
@@ -304,7 +311,7 @@ namespace TileEngine
         {
             try
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ContentDirectory_SaveData + saveID))
+                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.FullPath_SaveData + saveID))
                 {
                     #region // Write a default save file
                     xmlWriter.WriteStartDocument();
@@ -355,7 +362,7 @@ namespace TileEngine
             try
             {
                 #region // Check the Save exists, if not create one.
-                if (!File.Exists(Engine.ContentDirectory_SaveData + saveID))
+                if (!File.Exists(Engine.FullPath_SaveData + saveID))
                 {
                     Engine.CreateBlankSave(saveID);
                 }
@@ -369,7 +376,7 @@ namespace TileEngine
                 int gold = -1;
 
                 // Read the save file.
-                XmlReader xmlReader = XmlReader.Create(Engine.ContentDirectory_SaveData + saveID);
+                XmlReader xmlReader = XmlReader.Create(Engine.FullPath_SaveData + saveID);
                 while (xmlReader.Read())
                 {
                     if (xmlReader.NodeType == XmlNodeType.Element)
@@ -411,11 +418,11 @@ namespace TileEngine
         {
             try
             {
-                if (Directory.Exists(Engine.ContentDirectory_Levels))
+                if (Directory.Exists(Engine.FullPath_Levels))
                 {
-                    Directory.Delete(Engine.ContentDirectory_Levels, true);
+                    Directory.Delete(Engine.FullPath_Levels, true);
                     Engine.Register_Levels.Clear();
-                    Directory.CreateDirectory(Engine.ContentDirectory_Levels);
+                    Directory.CreateDirectory(Engine.FullPath_Levels);
                 }
             }
             catch (Exception error)
@@ -428,12 +435,12 @@ namespace TileEngine
         {
             try
             {
-                string[] rawTextureDirectories = Directory.GetFiles(Engine.ContentDirectory_Textures);
+                string[] rawTextureDirectories = Directory.GetFiles(Engine.FullPath_Textures);
 
                 for (int i = 0; i < rawTextureDirectories.Length; i++)
                 {
                     // Split and trim the string to the required parts
-                    string trimmedTexturePath = rawTextureDirectories[i].Replace(Engine.ContentDirectory, "");
+                    string trimmedTexturePath = rawTextureDirectories[i].Replace(Engine.Directory_Content, "");
                     string[] splitTexturePath = trimmedTexturePath.Split('.');
                     // Load the texture into the texture register
                     Engine.Register_Textures.Add(game.Content.Load<Texture2D>(splitTexturePath[0]));
@@ -450,10 +457,10 @@ namespace TileEngine
             try
             {
                 // Check for the config file.
-                if (File.Exists(Engine.ConfigFullPath_Tileset))
+                if (File.Exists(Engine.FullPath_TilesetConfig))
                 {
                     // Read the config file.
-                    XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_Tileset);
+                    XmlReader xmlReader = XmlReader.Create(Engine.FullPath_TilesetConfig);
                     while (xmlReader.Read())
                     {
                         if (xmlReader.NodeType == XmlNodeType.Element)
@@ -505,7 +512,7 @@ namespace TileEngine
         {
             try
             {
-                string[] levelList = Directory.GetFiles(Engine.ContentDirectory_Levels);
+                string[] levelList = Directory.GetFiles(Engine.FullPath_Levels);
 
                 for (int i = 0; i < levelList.Length; i++)
                 {
@@ -523,7 +530,7 @@ namespace TileEngine
             try
             {
                 // Get a list of all the entity configs
-                string[] listOfEntityConfigs = Directory.GetFiles(Engine.ContentDirectory_Entities);
+                string[] listOfEntityConfigs = Directory.GetFiles(Engine.FullPath_Entities);
 
                 // Go through each config and populate the entity and player registers accordingly
                 for (int i = 0; i < listOfEntityConfigs.Length; i++)
@@ -573,18 +580,20 @@ namespace TileEngine
                         }
                     }
                     xmlReader.Close();
+                    int indexOfTexture = Engine.Register_Textures.FindIndex(r => r.Name == "Textures/" + textureTag);   // Get the correct texture for the player
                     if (isPlayer)
                     {
                         // Load the save data and create the player
-                        int indexOfTexture = Engine.Register_Textures.FindIndex(r => r.Name == "Textures/" + textureTag);   // Get the correct texture for the player
                         SaveData loadedSave = Engine.LoadSave(saveID);
 
                         Player player = new Player(loadedSave.tag, Engine.Register_Textures[indexOfTexture], loadedSave.position, Vector2.Zero, new Vector2(sourceRectangleSize, sourceRectangleSize), colour, Engine.LayerDepth_Player, loadedSave.hp);
-                        Engine.Register_Players.Add(player);
+                        Engine.Register_PlayerSaves.Add(player);
                     }
                     else
                     {
-
+                        // Creates a blank instance of the NPC.
+                        NPC npc = new NPC(tag, Engine.Register_Textures[indexOfTexture], Vector2.Zero, Vector2.Zero, new Vector2(sourceRectangleSize, sourceRectangleSize), colour, Engine.LayerDepth_Player, 5.0f);
+                        Engine.Register_NPCs.Add(npc);
                     }
 
                 }

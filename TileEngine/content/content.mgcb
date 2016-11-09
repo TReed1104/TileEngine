@@ -43,3 +43,9 @@
 #begin Items/Potion.conf
 /copy:Items/Potion.conf
 
+#begin Config/Engine.conf
+/copy:Config/Engine.conf
+
+#begin Config/Tileset.conf
+/copy:Config/Tileset.conf
+

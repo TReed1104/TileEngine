@@ -8,7 +8,6 @@ namespace TileEngine
     public abstract class AbstractGameObject
     {
         // Vars
-        public string src { get; set; }
         public string tag { get; set; }
         public Vector2 position_Base { get; set; }
         public Vector2 position_Grid { get; set; }

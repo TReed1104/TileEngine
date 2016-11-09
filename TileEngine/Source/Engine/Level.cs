@@ -233,7 +233,7 @@ namespace TileEngine
         {
             try
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_Levels + tag + ".lvl"))
+                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ContentDirectory_Levels + tag + ".lvl"))
                 {
                     xmlWriter.WriteStartDocument();
                     xmlWriter.WriteWhitespace("\r\n");

@@ -37,3 +37,9 @@
 /processorParam:TextureFormat=Color
 /build:Textures/TileSet.bmp
 
+#begin Entities/Player_One.conf
+/copy:Entities/Player_One.conf
+
+#begin Items/Potion.conf
+/copy:Items/Potion.conf
+

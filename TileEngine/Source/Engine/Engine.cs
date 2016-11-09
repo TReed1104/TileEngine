@@ -25,10 +25,12 @@ namespace TileEngine
         public const string ConfigFileName_Tileset = "Tileset.conf";
 
         public const string ConfigDirectory_Engine = "Config/";
-        public const string ConfigDirectory_Levels = "Content/Levels/";
-        public const string ConfigDirectory_Entities = "Content/Entities/";
-        public const string ConfigDirectory_SaveData = "Content/Saves/";
-        public const string ConfigDirectory_Textures = "Content/Textures/";
+        public const string ContentDirectory = "Content/";
+        public static string ContentDirectory_Textures { get { return Engine.ContentDirectory + "Textures/"; } }
+        public static string ContentDirectory_Items { get { return Engine.ContentDirectory + "Items/"; } }
+        public static string ContentDirectory_Levels { get { return Engine.ContentDirectory + "Levels/"; } }
+        public static string ContentDirectory_Entities { get { return Engine.ContentDirectory + "Entities/"; } }
+        public static string ContentDirectory_SaveData { get { return Engine.ContentDirectory + "Saves/"; } }
 
         public static string ConfigFullPath_EngineConfig { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Engine; } }
         public static string ConfigFullPath_Tileset { get { return Engine.ConfigDirectory_Engine + Engine.ConfigFileName_Tileset; } }
@@ -48,11 +50,12 @@ namespace TileEngine
         public static Vector2 Camera_RenderGridSize_Tiles { get { return Engine.Window_TileGridSize - Engine.Window_HUD_Size_Tiles; } }
         #endregion
         #region // Register Vars
-        public static List<Tile> Register_Tiles { get; set; }
-        public static List<Level> Register_Levels { get; set; }
-        public static List<Player> Register_Players { get; set; }
-        public static List<Entity> Register_Entity { get; set; }
-        public static List<Texture2D> Register_Textures { get; set; }
+        public static List<Texture2D> Register_Textures { get; set; }           // Holds all the games Textures
+        public static List<Tile> Register_Tiles { get; set; }                   // Holds all the games Tiles
+        //public static List<Item> Register_Items { get; set; }                   // Holds all the games Items
+        public static List<Level> Register_Levels { get; set; }                 // Holds all the games levels
+        public static List<Player> Register_Players { get; set; }               // Holds all the games players - Potentially might move into the entity register and then from their have the player as index 0.
+        public static List<Entity> Register_Entity { get; set; }                // Holds all the games Entities - NPCs, bosses, critters, etc.
         #endregion
         #region // Pointer Vars
         public static int PointerCurrent_Player { get; set; }
@@ -248,7 +251,7 @@ namespace TileEngine
             {
                 #region // Default MonoGame Setup
                 Engine.GraphicsDevideManager = new GraphicsDeviceManager(game);
-                game.Content.RootDirectory = "Content";
+                game.Content.RootDirectory = Engine.ContentDirectory;
                 game.TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / Engine.FrameRate_Max);
                 game.IsFixedTimeStep = false;
                 #endregion
@@ -265,81 +268,30 @@ namespace TileEngine
         }
 
         // Content loading
-        private static void LoadTileset()
+        private static void CheckContentStructure()
         {
             try
             {
-                // Check for the config file.
-                if (File.Exists(Engine.ConfigFullPath_Tileset))
+                // Ensure all the content directories exist.
+                if (!Directory.Exists(Engine.ContentDirectory_Textures))
                 {
-                    // Read the config file.
-                    XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_Tileset);
-                    while (xmlReader.Read())
-                    {
-                        if (xmlReader.NodeType == XmlNodeType.Element)
-                        {
-                            if (xmlReader.Name == "tileset")
-                            {
-                                Tile.TileSetTags = xmlReader.GetAttribute("tag");
-                            }
-                            if (xmlReader.Name == "tile")
-                            {
-                                // Load the tile
-                                string tag = xmlReader.GetAttribute("tag");
-                                int src_frame_x = int.Parse(xmlReader.GetAttribute("src_frame_x"));
-                                int src_frame_y = int.Parse(xmlReader.GetAttribute("src_frame_y"));
-                                Color colour = Engine.ConvertStringToColour(xmlReader.GetAttribute("colour"));
-                                int id = int.Parse(xmlReader.GetAttribute("id"));
-                                Tile.TileType tileType = Tile.Register_ConvertTileType(xmlReader.GetAttribute("type"));
-
-                                // Add the tile to the register ready for use.
-                                Engine.Register_Tiles.Add(new Tile(tag, new Vector2(src_frame_x, src_frame_y), colour, Engine.LayerDepth_Terrain, id, tileType));
-                            }
-                        }
-                    }
-                    xmlReader.Close();
-
-                    int indexOfTileSet = Engine.Register_Textures.FindIndex(r => r.Name == "Textures/" + Tile.TileSetTags);
-                    Tile.TileSet = Engine.Register_Textures[indexOfTileSet];
+                    Directory.CreateDirectory(Engine.ContentDirectory_Textures);
                 }
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
-            }
-        }
-        private static void LoadLevels()
-        {
-            try
-            {
-
-                if (!Directory.Exists(Engine.ConfigDirectory_Levels))
+                if (!Directory.Exists(Engine.ContentDirectory_Items))
                 {
-                    Directory.CreateDirectory(Engine.ConfigDirectory_Levels);
+                    Directory.CreateDirectory(Engine.ContentDirectory_Items);
                 }
-                string[] levelList = Directory.GetFiles(Engine.ConfigDirectory_Levels);
-
-                for (int i = 0; i < levelList.Length; i++)
+                if (!Directory.Exists(Engine.ContentDirectory_Levels))
                 {
-                    Register_Levels.Add(new Level(levelList[i]));
+                    Directory.CreateDirectory(Engine.ContentDirectory_Levels);
                 }
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
-            }
-        }
-        private static void ClearLevelCache()
-        {
-            try
-            {
-                if (Directory.Exists(Engine.ConfigDirectory_Levels))
+                if (!Directory.Exists(Engine.ContentDirectory_SaveData))
                 {
-                    Directory.Delete(Engine.ConfigDirectory_Levels, true);
-                    Engine.Register_Levels.Clear();
-                    Directory.CreateDirectory(Engine.ConfigDirectory_Levels);
+                    Directory.CreateDirectory(Engine.ContentDirectory_SaveData);
+                }
+                if (!Directory.Exists(Engine.ContentDirectory_Entities))
+                {
+                    Directory.CreateDirectory(Engine.ContentDirectory_Entities);
                 }
             }
             catch (Exception error)
@@ -352,7 +304,7 @@ namespace TileEngine
         {
             try
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ConfigDirectory_SaveData + saveID))
+                using (XmlWriter xmlWriter = XmlWriter.Create(Engine.ContentDirectory_SaveData + saveID))
                 {
                     #region // Write a default save file
                     xmlWriter.WriteStartDocument();
@@ -402,15 +354,8 @@ namespace TileEngine
         {
             try
             {
-                #region // Check if the directory doesn't exist, if not then create it.
-                if (!Directory.Exists(Engine.ConfigDirectory_SaveData))
-                {
-                    Directory.CreateDirectory(Engine.ConfigDirectory_SaveData);
-                }
-                #endregion
-
                 #region // Check the Save exists, if not create one.
-                if (!File.Exists(Engine.ConfigDirectory_SaveData + saveID))
+                if (!File.Exists(Engine.ContentDirectory_SaveData + saveID))
                 {
                     Engine.CreateBlankSave(saveID);
                 }
@@ -424,7 +369,7 @@ namespace TileEngine
                 int gold = -1;
 
                 // Read the save file.
-                XmlReader xmlReader = XmlReader.Create(Engine.ConfigDirectory_SaveData + saveID);
+                XmlReader xmlReader = XmlReader.Create(Engine.ContentDirectory_SaveData + saveID);
                 while (xmlReader.Read())
                 {
                     if (xmlReader.NodeType == XmlNodeType.Element)
@@ -462,78 +407,186 @@ namespace TileEngine
                 return null;
             }
         }
+        private static void ClearLevelCache()
+        {
+            try
+            {
+                if (Directory.Exists(Engine.ContentDirectory_Levels))
+                {
+                    Directory.Delete(Engine.ContentDirectory_Levels, true);
+                    Engine.Register_Levels.Clear();
+                    Directory.CreateDirectory(Engine.ContentDirectory_Levels);
+                }
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        private static void LoadTextures(Game game)
+        {
+            try
+            {
+                string[] rawTextureDirectories = Directory.GetFiles(Engine.ContentDirectory_Textures);
+
+                for (int i = 0; i < rawTextureDirectories.Length; i++)
+                {
+                    // Split and trim the string to the required parts
+                    string trimmedTexturePath = rawTextureDirectories[i].Replace(Engine.ContentDirectory, "");
+                    string[] splitTexturePath = trimmedTexturePath.Split('.');
+                    // Load the texture into the texture register
+                    Engine.Register_Textures.Add(game.Content.Load<Texture2D>(splitTexturePath[0]));
+                }
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        private static void LoadTileset()
+        {
+            try
+            {
+                // Check for the config file.
+                if (File.Exists(Engine.ConfigFullPath_Tileset))
+                {
+                    // Read the config file.
+                    XmlReader xmlReader = XmlReader.Create(Engine.ConfigFullPath_Tileset);
+                    while (xmlReader.Read())
+                    {
+                        if (xmlReader.NodeType == XmlNodeType.Element)
+                        {
+                            if (xmlReader.Name == "tileset")
+                            {
+                                Tile.TileSetTags = xmlReader.GetAttribute("tag");
+                            }
+                            if (xmlReader.Name == "tile")
+                            {
+                                // Load the tile
+                                string tag = xmlReader.GetAttribute("tag");
+                                int src_frame_x = int.Parse(xmlReader.GetAttribute("src_frame_x"));
+                                int src_frame_y = int.Parse(xmlReader.GetAttribute("src_frame_y"));
+                                Color colour = Engine.ConvertStringToColour(xmlReader.GetAttribute("colour"));
+                                int id = int.Parse(xmlReader.GetAttribute("id"));
+                                Tile.TileType tileType = Tile.Register_ConvertTileType(xmlReader.GetAttribute("type"));
+
+                                // Add the tile to the register ready for use.
+                                Engine.Register_Tiles.Add(new Tile(tag, new Vector2(src_frame_x, src_frame_y), colour, Engine.LayerDepth_Terrain, id, tileType));
+                            }
+                        }
+                    }
+                    xmlReader.Close();
+
+                    int indexOfTileSet = Engine.Register_Textures.FindIndex(r => r.Name == "Textures/" + Tile.TileSetTags);
+                    Tile.TileSet = Engine.Register_Textures[indexOfTileSet];
+                }
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        private static void LoadItems()
+        {
+            try
+            {
+
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
+        private static void LoadLevels()
+        {
+            try
+            {
+                string[] levelList = Directory.GetFiles(Engine.ContentDirectory_Levels);
+
+                for (int i = 0; i < levelList.Length; i++)
+                {
+                    Register_Levels.Add(new Level(levelList[i]));
+                }
+            }
+            catch (Exception error)
+            {
+                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
+                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
+            }
+        }
         private static void LoadEntities()
         {
             try
             {
                 // Get a list of all the entity configs
-                string[] listOfEntityConfigs = Directory.GetFiles(Engine.ConfigDirectory_Entities);
+                string[] listOfEntityConfigs = Directory.GetFiles(Engine.ContentDirectory_Entities);
 
                 // Go through each config and populate the entity and player registers accordingly
                 for (int i = 0; i < listOfEntityConfigs.Length; i++)
                 {
-                    // Check for the config file.
-                    if (File.Exists(listOfEntityConfigs[i]))
-                    {
-                        bool isPlayer = false;  // Stores if this entity is a player, because players are treated differently.
-                        string tag = "";
-                        string entityType = "";
-                        string textureTag = "";
-                        int sourceRectangleSize = 0;
-                        Color colour = Color.White;
-                        string saveID = "";
+                    bool isPlayer = false;  // Stores if this entity is a player, because players are treated differently.
+                    string tag = "";
+                    string entityType = "";
+                    string textureTag = "";
+                    int sourceRectangleSize = 0;
+                    Color colour = Color.White;
+                    string saveID = "";
 
-                        // Read the config file.
-                        XmlReader xmlReader = XmlReader.Create(listOfEntityConfigs[i]);
-                        while (xmlReader.Read())
+                    // Read the config file.
+                    XmlReader xmlReader = XmlReader.Create(listOfEntityConfigs[i]);
+                    while (xmlReader.Read())
+                    {
+                        if (xmlReader.NodeType == XmlNodeType.Element)
                         {
-                            if (xmlReader.NodeType == XmlNodeType.Element)
+                            if (xmlReader.Name == "tag")
                             {
-                                if (xmlReader.Name == "tag")
+                                tag = xmlReader.GetAttribute("value");
+                            }
+                            if (xmlReader.Name == "entity_type")
+                            {
+                                entityType = xmlReader.GetAttribute("value");
+                                if (entityType == "Player")
                                 {
-                                    tag = xmlReader.GetAttribute("value");
-                                }
-                                if (xmlReader.Name == "entity_type")
-                                {
-                                    entityType = xmlReader.GetAttribute("value");
-                                    if (entityType == "Player")
-                                    {
-                                        isPlayer = true;
-                                    }
-                                }
-                                if (xmlReader.Name == "texture_tag")
-                                {
-                                    textureTag = xmlReader.GetAttribute("value");
-                                }
-                                if (xmlReader.Name == "src_frame_size")
-                                {
-                                    sourceRectangleSize = int.Parse(xmlReader.GetAttribute("value"));
-                                }
-                                if (xmlReader.Name == "colour")
-                                {
-                                    colour = Engine.ConvertStringToColour(xmlReader.GetAttribute("value"));
-                                }
-                                if (xmlReader.Name == "save_data")
-                                {
-                                    saveID = xmlReader.GetAttribute("value");
+                                    isPlayer = true;
                                 }
                             }
-                        }
-                        xmlReader.Close();
-                        if (isPlayer)
-                        {
-                            // Load the save data and create the player
-                            int indexOfTexture = Engine.Register_Textures.FindIndex(r => r.Name == "Textures/" + textureTag);   // Get the correct texture for the player
-                            SaveData loadedSave = Engine.LoadSave(saveID);
-
-                            Player player = new Player(loadedSave.tag, Engine.Register_Textures[indexOfTexture], loadedSave.position, Vector2.Zero, new Vector2(sourceRectangleSize, sourceRectangleSize), colour, Engine.LayerDepth_Player, loadedSave.hp);
-                            Engine.Register_Players.Add(player);
-                        }
-                        else
-                        {
-
+                            if (xmlReader.Name == "texture_tag")
+                            {
+                                textureTag = xmlReader.GetAttribute("value");
+                            }
+                            if (xmlReader.Name == "src_frame_size")
+                            {
+                                sourceRectangleSize = int.Parse(xmlReader.GetAttribute("value"));
+                            }
+                            if (xmlReader.Name == "colour")
+                            {
+                                colour = Engine.ConvertStringToColour(xmlReader.GetAttribute("value"));
+                            }
+                            if (xmlReader.Name == "save_data")
+                            {
+                                saveID = xmlReader.GetAttribute("value");
+                            }
                         }
                     }
+                    xmlReader.Close();
+                    if (isPlayer)
+                    {
+                        // Load the save data and create the player
+                        int indexOfTexture = Engine.Register_Textures.FindIndex(r => r.Name == "Textures/" + textureTag);   // Get the correct texture for the player
+                        SaveData loadedSave = Engine.LoadSave(saveID);
+
+                        Player player = new Player(loadedSave.tag, Engine.Register_Textures[indexOfTexture], loadedSave.position, Vector2.Zero, new Vector2(sourceRectangleSize, sourceRectangleSize), colour, Engine.LayerDepth_Player, loadedSave.hp);
+                        Engine.Register_Players.Add(player);
+                    }
+                    else
+                    {
+
+                    }
+
                 }
             }
             catch (Exception error)
@@ -550,21 +603,10 @@ namespace TileEngine
                 Engine.SpriteBatch = new SpriteBatch(game.GraphicsDevice);
                 #endregion
 
-
-                #region // Load textures and fonts
-                string[] rawTextureDirectories = Directory.GetFiles(Engine.ConfigDirectory_Textures);
-
-                for (int i = 0; i < rawTextureDirectories.Length; i++)
-                {
-                    // Split and trim the string to the required parts
-                    string trimmedTexturePath = rawTextureDirectories[i].Replace("Content/", "");
-                    string[] splitTexturePath = trimmedTexturePath.Split('.');
-                    // Load the texture into the texture register
-                    Engine.Register_Textures.Add(game.Content.Load<Texture2D>(splitTexturePath[0]));
-                }
-                #endregion
-
+                Engine.CheckContentStructure();
+                Engine.LoadTextures(game);
                 Engine.LoadTileset();
+                Engine.LoadItems();
                 Engine.LoadLevels();
                 Engine.LoadEntities();
 
@@ -576,7 +618,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        
+
         // Content unloading
         public static void UnloadContent()
         {

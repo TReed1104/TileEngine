@@ -60,9 +60,9 @@
             this.lbl_Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lbl_Title.Location = new System.Drawing.Point(200, 10);
             this.lbl_Title.Name = "lbl_Title";
-            this.lbl_Title.Size = new System.Drawing.Size(127, 24);
+            this.lbl_Title.Size = new System.Drawing.Size(82, 24);
             this.lbl_Title.TabIndex = 1;
-            this.lbl_Title.Text = "Item Attributes";
+            this.lbl_Title.Text = "Edit Item";
             // 
             // lbl_Tag
             // 
@@ -184,7 +184,7 @@
             this.Controls.Add(this.lbl_Title);
             this.Controls.Add(this.lst_ItemConfigs);
             this.Name = "Form_ItemEdit";
-            this.Text = "Form_ItemEdit";
+            this.Text = "Edit Item";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_ItemEdit_FormClosing);
             this.Load += new System.EventHandler(this.frm_ItemEditor_Load);
             this.ResumeLayout(false);

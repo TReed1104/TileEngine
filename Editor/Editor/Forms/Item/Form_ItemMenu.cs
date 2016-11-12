@@ -18,7 +18,9 @@ namespace Editor
         // Events
         private void btn_AddItem_Click(object sender, EventArgs e)
         {
-            
+            ConfigEditor.frmItemAdd = new Form_ItemAdd();
+            ConfigEditor.frmItemAdd.Show();
+            ConfigEditor.frmItemMenu.Hide();
         }
         private void btn_EditItem_Click(object sender, EventArgs e)
         {

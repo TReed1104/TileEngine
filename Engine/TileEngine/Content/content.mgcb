@@ -37,15 +37,3 @@
 /processorParam:TextureFormat=Color
 /build:Textures/TileSet.bmp
 
-#begin Entities/Player_One.conf
-/copy:Entities/Player_One.conf
-
-#begin Config/Engine.conf
-/copy:Config/Engine.conf
-
-#begin Config/Tileset.conf
-/copy:Config/Tileset.conf
-
-#begin Items/HealthPotion.conf
-/copy:Items/HealthPotion.conf
-

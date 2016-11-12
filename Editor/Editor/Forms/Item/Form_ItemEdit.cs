@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -115,7 +116,24 @@ namespace Editor
             }
 
             // Saves the XML file.
-            xmlDocument.Save(ConfigEditor.itemConfigDirectoryPath + configFileName + 1);
+            if (!isAttributeChanged_ItemTag)
+            {
+                xmlDocument.Save(ConfigEditor.itemConfigDirectoryPath + configFileName);
+            }
+            else
+            {
+                // Checks if the renamed Item already exists.
+                string newFileName = txt_ItemTag.Text.Replace(" ", "");
+                if (!File.Exists(ConfigEditor.itemConfigDirectoryPath + newFileName + ".conf"))
+                {
+                    xmlDocument.Save(ConfigEditor.itemConfigDirectoryPath + newFileName + ".conf");
+                    File.Delete(ConfigEditor.itemConfigDirectoryPath + configFileName);
+                }
+                else
+                {
+                    Console.WriteLine("A Item Config with that name already exists, try again.");
+                }
+            }
 
         }
         // Events
@@ -125,6 +143,7 @@ namespace Editor
         }
         private void frm_ItemEditor_Load(object sender, EventArgs e)
         {
+            ConfigEditor.LoadItemConfigs();
             lst_ItemConfigs.DataSource = ConfigEditor.ListOfItemConfigs;
         }
         private void lst_ItemConfigs_SelectedIndexChanged_1(object sender, EventArgs e)
@@ -142,6 +161,7 @@ namespace Editor
         {
             SaveItem(lst_ItemConfigs.Items[lst_ItemConfigs.SelectedIndex] as string);
             ConfigEditor.LoadItemConfigs();
+            lst_ItemConfigs.DataSource = ConfigEditor.ListOfItemConfigs;
             LoadItem(lst_ItemConfigs.Items[lst_ItemConfigs.SelectedIndex] as string);
         }
     }

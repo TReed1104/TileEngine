@@ -21,5 +21,15 @@ namespace Editor
         {
 
         }
+
+        private void btn_AddNewItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form_ItemDelete_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+        }
     }
 }

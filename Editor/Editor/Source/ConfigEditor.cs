@@ -11,7 +11,7 @@ namespace Editor
     public static class ConfigEditor
     {
         public const string itemConfigDirectoryPath = "../../../../Engine/TileEngine/Content/Items/";
-        public const string entityConfiDirectorygPath = "../../../../Engine/TileEngine/Content/Entities/";
+        public const string entityConfigDirectoryPath = "../../../../Engine/TileEngine/Content/Entities/";
         public const string itemSaveDataDirectoryPath = "../../../../Engine/TileEngine/bin/Windows/x86/Debug/Content/SaveData/";
 
         private static string[] ListOfItemConfigs_Raw { get; set; }
@@ -60,7 +60,7 @@ namespace Editor
         }
         public static void LoadEntityConfigs()
         {
-            ListOfEntityConfigs_Raw = Directory.GetFiles(entityConfiDirectorygPath);
+            ListOfEntityConfigs_Raw = Directory.GetFiles(entityConfigDirectoryPath);
             ListOfEntityConfigs = new List<string>();
 
             string[] trimmedList = new string[ListOfEntityConfigs_Raw.Length];

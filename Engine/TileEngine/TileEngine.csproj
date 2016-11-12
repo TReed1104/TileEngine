@@ -63,6 +63,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+  <Content Include="Content\Config\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+	<Content Include="Content\Entities\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Items\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+	<Content Include="Content\Textures\*"/>
     <Content Include="Icon.ico" />
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>

@@ -16,8 +16,7 @@ namespace Editor
     {        
         // Vars
         private const int minimumDurability = 0;
-
-        public string loaded_ItemTag { get; set; }
+        private string loaded_ItemTag { get; set; }
         private string loaded_TextureTag { get; set; }
         private int loaded_BaseDurability { get; set; }
         private int loaded_BuyValue { get; set; }
@@ -137,14 +136,14 @@ namespace Editor
 
         }
         // Events
-        private void Form_ItemEdit_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            ConfigEditor.frmItemMenu.Show();
-        }
         private void frm_ItemEditor_Load(object sender, EventArgs e)
         {
             ConfigEditor.LoadItemConfigs();
             lst_ItemConfigs.DataSource = ConfigEditor.ListOfItemConfigs;
+        }
+        private void Form_ItemEdit_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            ConfigEditor.frmItemMenu.Show();
         }
         private void lst_ItemConfigs_SelectedIndexChanged_1(object sender, EventArgs e)
         {

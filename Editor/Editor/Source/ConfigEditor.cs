@@ -26,6 +26,9 @@ namespace Editor
         public static Form_ItemEdit frmItemEdit { get; set; }
         public static Form_ItemDelete frmItemDelete { get; set; }
         public static Form_EntityMenu frmEntityMenu { get; set; }
+        public static Form_EntityAdd frmEntityAdd { get; set; }
+        public static Form_EntityEdit frmEntityEdit { get; set; }
+        public static Form_EntityDelete frmEntityDelete { get; set; }
 
         static ConfigEditor()
         {
@@ -40,6 +43,10 @@ namespace Editor
 
             // Entity Forms
             frmEntityMenu = new Form_EntityMenu();
+            frmEntityAdd = new Form_EntityAdd();
+            frmEntityEdit = new Form_EntityEdit();
+            frmEntityDelete = new Form_EntityDelete();
+
         }
         public static void Load()
         {

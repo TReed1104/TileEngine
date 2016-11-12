@@ -47,7 +47,7 @@
             this.btn_AddNewItem.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.btn_AddNewItem.Location = new System.Drawing.Point(0, 221);
             this.btn_AddNewItem.Name = "btn_AddNewItem";
-            this.btn_AddNewItem.Size = new System.Drawing.Size(350, 40);
+            this.btn_AddNewItem.Size = new System.Drawing.Size(344, 40);
             this.btn_AddNewItem.TabIndex = 5;
             this.btn_AddNewItem.Text = "Save Changes";
             this.btn_AddNewItem.UseVisualStyleBackColor = true;
@@ -157,7 +157,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(350, 261);
+            this.ClientSize = new System.Drawing.Size(344, 261);
             this.Controls.Add(this.btn_AddNewItem);
             this.Controls.Add(this.txt_BaseDurability);
             this.Controls.Add(this.txt_BuyValue);

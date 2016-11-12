@@ -169,6 +169,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(534, 261);
             this.Controls.Add(this.btn_SaveChanges);
             this.Controls.Add(this.txt_BaseDurability);
@@ -183,7 +185,9 @@
             this.Controls.Add(this.lbl_Tag);
             this.Controls.Add(this.lbl_Title);
             this.Controls.Add(this.lst_ItemConfigs);
+            this.MinimumSize = new System.Drawing.Size(550, 300);
             this.Name = "Form_ItemEdit";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Edit Item";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_ItemEdit_FormClosing);
             this.Load += new System.EventHandler(this.frm_ItemEditor_Load);

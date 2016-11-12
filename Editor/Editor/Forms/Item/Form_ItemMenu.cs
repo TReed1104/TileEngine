@@ -30,6 +30,9 @@ namespace Editor
         }
         private void btn_DeleteItem_Click(object sender, EventArgs e)
         {
+            ConfigEditor.frmItemDelete = new Form_ItemDelete();
+            ConfigEditor.frmItemDelete.Show();
+            ConfigEditor.frmItemMenu.Hide();
         }
 
         private void Form_ItemMenu_FormClosing(object sender, FormClosingEventArgs e)

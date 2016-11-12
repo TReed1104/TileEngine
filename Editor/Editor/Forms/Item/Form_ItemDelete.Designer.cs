@@ -28,18 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.cbo_DeleteItem = new System.Windows.Forms.ComboBox();
             this.lbl_Title = new System.Windows.Forms.Label();
-            this.btn_AddNewItem = new System.Windows.Forms.Button();
+            this.btn_DeleteItem = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // comboBox1
+            // cbo_DeleteItem
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(12, 36);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(260, 21);
-            this.comboBox1.TabIndex = 0;
+            this.cbo_DeleteItem.FormattingEnabled = true;
+            this.cbo_DeleteItem.Location = new System.Drawing.Point(12, 36);
+            this.cbo_DeleteItem.Name = "cbo_DeleteItem";
+            this.cbo_DeleteItem.Size = new System.Drawing.Size(260, 21);
+            this.cbo_DeleteItem.TabIndex = 0;
+            this.cbo_DeleteItem.SelectedIndexChanged += new System.EventHandler(this.cbo_DeleteItem_SelectedIndexChanged);
             // 
             // lbl_Title
             // 
@@ -51,25 +52,28 @@
             this.lbl_Title.TabIndex = 16;
             this.lbl_Title.Text = "Delete Item";
             // 
-            // btn_AddNewItem
+            // btn_DeleteItem
             // 
-            this.btn_AddNewItem.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btn_AddNewItem.Location = new System.Drawing.Point(0, 77);
-            this.btn_AddNewItem.Name = "btn_AddNewItem";
-            this.btn_AddNewItem.Size = new System.Drawing.Size(284, 40);
-            this.btn_AddNewItem.TabIndex = 17;
-            this.btn_AddNewItem.Text = "Delete Item";
-            this.btn_AddNewItem.UseVisualStyleBackColor = true;
-            this.btn_AddNewItem.Click += new System.EventHandler(this.btn_AddNewItem_Click);
+            this.btn_DeleteItem.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.btn_DeleteItem.Location = new System.Drawing.Point(0, 77);
+            this.btn_DeleteItem.Name = "btn_DeleteItem";
+            this.btn_DeleteItem.Size = new System.Drawing.Size(284, 40);
+            this.btn_DeleteItem.TabIndex = 17;
+            this.btn_DeleteItem.Text = "Delete Item";
+            this.btn_DeleteItem.UseVisualStyleBackColor = true;
+            this.btn_DeleteItem.Click += new System.EventHandler(this.btn_DeleteItem_Click);
             // 
             // Form_ItemDelete
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(284, 117);
-            this.Controls.Add(this.btn_AddNewItem);
+            this.Controls.Add(this.btn_DeleteItem);
             this.Controls.Add(this.lbl_Title);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.cbo_DeleteItem);
+            this.MinimumSize = new System.Drawing.Size(300, 156);
             this.Name = "Form_ItemDelete";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Delete Item";
@@ -82,8 +86,8 @@
 
         #endregion
 
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox cbo_DeleteItem;
         private System.Windows.Forms.Label lbl_Title;
-        private System.Windows.Forms.Button btn_AddNewItem;
+        private System.Windows.Forms.Button btn_DeleteItem;
     }
 }

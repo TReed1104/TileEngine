@@ -76,10 +76,10 @@
             this.Controls.Add(this.btn_DeleteItem);
             this.Controls.Add(this.btn_EditItem);
             this.Controls.Add(this.btn_AddItem);
-            this.MinimumSize = new System.Drawing.Size(300, 39);
+            this.MinimumSize = new System.Drawing.Size(300, 190);
             this.Name = "Form_ItemMenu";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ItemEditor";
+            this.Text = "Item Editor";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_ItemMenu_FormClosing);
             this.ResumeLayout(false);
 

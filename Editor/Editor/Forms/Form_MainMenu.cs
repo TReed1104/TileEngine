@@ -20,12 +20,14 @@ namespace Editor
 
         private void btn_ItemEditor_Click(object sender, EventArgs e)
         {
+            ConfigEditor.frmItemMenu = new Form_ItemMenu();
             ConfigEditor.frmItemMenu.Show();
             ConfigEditor.frmMainMenu.Hide();
         }
 
         private void btn_EntityEditor_Click(object sender, EventArgs e)
         {
+            ConfigEditor.frmEntityMenu = new Form_EntityMenu();
             ConfigEditor.frmEntityMenu.Show();
             ConfigEditor.frmMainMenu.Hide();
         }

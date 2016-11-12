@@ -35,7 +35,7 @@ namespace Editor
         }
         private void btn_SaveChanges_Click(object sender, EventArgs e)
         {
-            string itemName = txt_ItemTag.Text.Replace(" ", "");
+            string itemName = txt_ItemTag.Text;
             using (XmlWriter xmlWriter = XmlWriter.Create(ConfigEditor.itemConfigDirectoryPath + itemName + ".conf"))
             {
                 #region // Write a default save file

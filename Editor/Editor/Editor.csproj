@@ -82,9 +82,36 @@
     <Compile Include="Forms\Item\Form_ItemEdit.Designer.cs">
       <DependentUpon>Form_ItemEdit.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Entity\Form_EntityAdd.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Entity\Form_EntityAdd.Designer.cs">
+      <DependentUpon>Form_EntityAdd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Entity\Form_EntityDelete.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Entity\Form_EntityDelete.Designer.cs">
+      <DependentUpon>Form_EntityDelete.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Entity\Form_EntityEdit.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Entity\Form_EntityEdit.Designer.cs">
+      <DependentUpon>Form_EntityEdit.cs</DependentUpon>
+    </Compile>
     <Compile Include="Source\ConfigEditor.cs" />
     <Compile Include="Source\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Forms\Entity\Form_EntityAdd.resx">
+      <DependentUpon>Form_EntityAdd.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Entity\Form_EntityDelete.resx">
+      <DependentUpon>Form_EntityDelete.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Entity\Form_EntityEdit.resx">
+      <DependentUpon>Form_EntityEdit.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Entity\Form_EntityMenu.resx">
       <DependentUpon>Form_EntityMenu.cs</DependentUpon>
     </EmbeddedResource>

@@ -12,3 +12,6 @@ C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Fo
 C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_ItemEdit.resources
 C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_ItemMenu.resources
 C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_MainMenu.resources
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_EntityAdd.resources
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_EntityEdit.resources
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_EntityDelete.resources

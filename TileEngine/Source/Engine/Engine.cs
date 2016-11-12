@@ -539,7 +539,8 @@ namespace TileEngine
                     string tag = "";
                     string entityType = "";
                     string textureTag = "";
-                    int sourceRectangleSize = 0;
+                    int sourceRectangleSizeX = 0;
+                    int sourceRectangleSizeY = 0;
                     Color colour = Color.White;
                     string saveID = "";
 
@@ -565,9 +566,13 @@ namespace TileEngine
                             {
                                 textureTag = xmlReader.GetAttribute("value");
                             }
-                            if (xmlReader.Name == "src_frame_size")
+                            if (xmlReader.Name == "src_frame_size_x")
                             {
-                                sourceRectangleSize = int.Parse(xmlReader.GetAttribute("value"));
+                                sourceRectangleSizeX = int.Parse(xmlReader.GetAttribute("value"));
+                            }
+                            if (xmlReader.Name == "src_frame_size_y")
+                            {
+                                sourceRectangleSizeY = int.Parse(xmlReader.GetAttribute("value"));
                             }
                             if (xmlReader.Name == "colour")
                             {
@@ -586,13 +591,13 @@ namespace TileEngine
                         // Load the save data and create the player
                         SaveData loadedSave = Engine.LoadSave(saveID);
 
-                        Player player = new Player(loadedSave.tag, Engine.Register_Textures[indexOfTexture], loadedSave.position, Vector2.Zero, new Vector2(sourceRectangleSize, sourceRectangleSize), colour, Engine.LayerDepth_Player, loadedSave.hp);
+                        Player player = new Player(loadedSave.tag, Engine.Register_Textures[indexOfTexture], loadedSave.position, Vector2.Zero, new Vector2(sourceRectangleSizeX, sourceRectangleSizeY), colour, Engine.LayerDepth_Player, loadedSave.hp);
                         Engine.Register_PlayerSaves.Add(player);
                     }
                     else
                     {
                         // Creates a blank instance of the NPC.
-                        NPC npc = new NPC(tag, Engine.Register_Textures[indexOfTexture], Vector2.Zero, Vector2.Zero, new Vector2(sourceRectangleSize, sourceRectangleSize), colour, Engine.LayerDepth_Player, 5.0f);
+                        NPC npc = new NPC(tag, Engine.Register_Textures[indexOfTexture], Vector2.Zero, Vector2.Zero, new Vector2(sourceRectangleSizeX, sourceRectangleSizeY), colour, Engine.LayerDepth_Player, 5.0f);
                         Engine.Register_NPCs.Add(npc);
                     }
 

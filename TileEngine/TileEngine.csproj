@@ -63,10 +63,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\textures\Player.bmp" />
+    <Content Include="Content\textures\TileSet.bmp" />
     <Content Include="Icon.ico" />
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Content\Config\Engine.conf" />
+    <None Include="Content\Config\Tileset.conf" />
+    <None Include="Content\Entities\Player_One.conf" />
+    <None Include="Content\Items\Potion.conf" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

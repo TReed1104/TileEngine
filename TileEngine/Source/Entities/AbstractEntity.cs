@@ -50,8 +50,8 @@ namespace TileEngine
             wallSlide = WallSlide.None;
 
             Vector2 boundingSize = new Vector2(10, 10);
-            Vector2 boundingGridDelta = Tile.Dimensions - boundingSize;
-            boundingBox_Offset = (boundingGridDelta / 2) + Tile.Dimensions;
+            Vector2 boundingGridDelta = sourceRectangle_Size - boundingSize;
+            boundingBox_Offset = (boundingGridDelta / 2);
 
             position_Grid = new Vector2((int)(position_Draw.X / Tile.Dimensions.X), (int)(position_Draw.Y / Tile.Dimensions.Y));
             boundingBox_AABB = new Rectangle((int)(position_Grid.X * Tile.Dimensions.X) + (int)boundingBox_Offset.X, (int)(position_Grid.Y * Tile.Dimensions.Y) + (int)boundingBox_Offset.Y, (int)boundingSize.X, (int)boundingSize.Y);

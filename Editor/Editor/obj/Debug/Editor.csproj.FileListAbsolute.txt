@@ -1,0 +1,14 @@
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\bin\Debug\Editor.exe.config
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\bin\Debug\Editor.exe
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\bin\Debug\Editor.pdb
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.csprojResolveAssemblyReference.cache
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Properties.Resources.resources
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.csproj.GenerateResource.Cache
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.exe
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.pdb
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_EntityMenu.resources
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_ItemAdd.resources
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_ItemDelete.resources
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_ItemEdit.resources
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_ItemMenu.resources
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_MainMenu.resources

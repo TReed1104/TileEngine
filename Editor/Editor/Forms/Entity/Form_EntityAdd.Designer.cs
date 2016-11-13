@@ -31,8 +31,6 @@
             this.btn_AddNewEntity = new System.Windows.Forms.Button();
             this.txt_TextureTag = new System.Windows.Forms.TextBox();
             this.txt_SrcFrameX = new System.Windows.Forms.TextBox();
-            this.txt_Colour = new System.Windows.Forms.TextBox();
-            this.txt_EntityType = new System.Windows.Forms.TextBox();
             this.txt_EntityTag = new System.Windows.Forms.TextBox();
             this.lbl_Colour = new System.Windows.Forms.Label();
             this.lbl_SrcFrameSize = new System.Windows.Forms.Label();
@@ -43,6 +41,9 @@
             this.lbl_SrcFrameX = new System.Windows.Forms.Label();
             this.lbl_SrcFrameY = new System.Windows.Forms.Label();
             this.txt_SrcFrameY = new System.Windows.Forms.TextBox();
+            this.cbo_EntityType = new System.Windows.Forms.ComboBox();
+            this.cbo_Colours = new System.Windows.Forms.ComboBox();
+            this.btn_TexturePicker = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btn_AddNewEntity
@@ -61,7 +62,8 @@
             this.txt_TextureTag.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txt_TextureTag.Location = new System.Drawing.Point(142, 96);
             this.txt_TextureTag.Name = "txt_TextureTag";
-            this.txt_TextureTag.Size = new System.Drawing.Size(189, 22);
+            this.txt_TextureTag.ReadOnly = true;
+            this.txt_TextureTag.Size = new System.Drawing.Size(168, 22);
             this.txt_TextureTag.TabIndex = 2;
             // 
             // txt_SrcFrameX
@@ -72,22 +74,6 @@
             this.txt_SrcFrameX.Size = new System.Drawing.Size(71, 22);
             this.txt_SrcFrameX.TabIndex = 3;
             this.txt_SrcFrameX.Text = "64";
-            // 
-            // txt_Colour
-            // 
-            this.txt_Colour.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txt_Colour.Location = new System.Drawing.Point(142, 146);
-            this.txt_Colour.Name = "txt_Colour";
-            this.txt_Colour.Size = new System.Drawing.Size(189, 22);
-            this.txt_Colour.TabIndex = 5;
-            // 
-            // txt_EntityType
-            // 
-            this.txt_EntityType.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txt_EntityType.Location = new System.Drawing.Point(142, 71);
-            this.txt_EntityType.Name = "txt_EntityType";
-            this.txt_EntityType.Size = new System.Drawing.Size(189, 22);
-            this.txt_EntityType.TabIndex = 1;
             // 
             // txt_EntityTag
             // 
@@ -186,19 +172,51 @@
             this.txt_SrcFrameY.TabIndex = 4;
             this.txt_SrcFrameY.Text = "64";
             // 
+            // cbo_EntityType
+            // 
+            this.cbo_EntityType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbo_EntityType.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbo_EntityType.FormattingEnabled = true;
+            this.cbo_EntityType.Location = new System.Drawing.Point(142, 70);
+            this.cbo_EntityType.MaxDropDownItems = 10;
+            this.cbo_EntityType.Name = "cbo_EntityType";
+            this.cbo_EntityType.Size = new System.Drawing.Size(189, 24);
+            this.cbo_EntityType.TabIndex = 35;
+            // 
+            // cbo_Colours
+            // 
+            this.cbo_Colours.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbo_Colours.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbo_Colours.FormattingEnabled = true;
+            this.cbo_Colours.Location = new System.Drawing.Point(142, 145);
+            this.cbo_Colours.Name = "cbo_Colours";
+            this.cbo_Colours.Size = new System.Drawing.Size(189, 24);
+            this.cbo_Colours.TabIndex = 36;
+            // 
+            // btn_TexturePicker
+            // 
+            this.btn_TexturePicker.Location = new System.Drawing.Point(305, 95);
+            this.btn_TexturePicker.Name = "btn_TexturePicker";
+            this.btn_TexturePicker.Size = new System.Drawing.Size(26, 23);
+            this.btn_TexturePicker.TabIndex = 37;
+            this.btn_TexturePicker.Text = "...";
+            this.btn_TexturePicker.UseVisualStyleBackColor = true;
+            this.btn_TexturePicker.Click += new System.EventHandler(this.btn_TexturePicker_Click);
+            // 
             // Form_EntityAdd
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(344, 261);
+            this.Controls.Add(this.btn_TexturePicker);
+            this.Controls.Add(this.cbo_Colours);
+            this.Controls.Add(this.cbo_EntityType);
             this.Controls.Add(this.txt_SrcFrameY);
             this.Controls.Add(this.lbl_SrcFrameY);
             this.Controls.Add(this.lbl_SrcFrameX);
             this.Controls.Add(this.btn_AddNewEntity);
             this.Controls.Add(this.txt_TextureTag);
             this.Controls.Add(this.txt_SrcFrameX);
-            this.Controls.Add(this.txt_Colour);
-            this.Controls.Add(this.txt_EntityType);
             this.Controls.Add(this.txt_EntityTag);
             this.Controls.Add(this.lbl_Colour);
             this.Controls.Add(this.lbl_SrcFrameSize);
@@ -221,8 +239,6 @@
         private System.Windows.Forms.Button btn_AddNewEntity;
         private System.Windows.Forms.TextBox txt_TextureTag;
         private System.Windows.Forms.TextBox txt_SrcFrameX;
-        private System.Windows.Forms.TextBox txt_Colour;
-        private System.Windows.Forms.TextBox txt_EntityType;
         private System.Windows.Forms.TextBox txt_EntityTag;
         private System.Windows.Forms.Label lbl_Colour;
         private System.Windows.Forms.Label lbl_SrcFrameSize;
@@ -233,5 +249,8 @@
         private System.Windows.Forms.Label lbl_SrcFrameX;
         private System.Windows.Forms.Label lbl_SrcFrameY;
         private System.Windows.Forms.TextBox txt_SrcFrameY;
+        private System.Windows.Forms.ComboBox cbo_EntityType;
+        private System.Windows.Forms.ComboBox cbo_Colours;
+        private System.Windows.Forms.Button btn_TexturePicker;
     }
 }

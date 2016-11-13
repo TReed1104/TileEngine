@@ -32,7 +32,6 @@
             this.txt_BaseDurability = new System.Windows.Forms.TextBox();
             this.txt_BuyValue = new System.Windows.Forms.TextBox();
             this.txt_SellValue = new System.Windows.Forms.TextBox();
-            this.txt_TextureTag = new System.Windows.Forms.TextBox();
             this.txt_ItemTag = new System.Windows.Forms.TextBox();
             this.lbl_SellValue = new System.Windows.Forms.Label();
             this.lbl_BuyValue = new System.Windows.Forms.Label();
@@ -40,6 +39,8 @@
             this.lbl_TextureTag = new System.Windows.Forms.Label();
             this.lbl_Tag = new System.Windows.Forms.Label();
             this.lbl_Title = new System.Windows.Forms.Label();
+            this.btn_TexturePicker = new System.Windows.Forms.Button();
+            this.txt_TextureTag = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // btn_AddNewItem
@@ -76,14 +77,6 @@
             this.txt_SellValue.Name = "txt_SellValue";
             this.txt_SellValue.Size = new System.Drawing.Size(189, 22);
             this.txt_SellValue.TabIndex = 4;
-            // 
-            // txt_TextureTag
-            // 
-            this.txt_TextureTag.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txt_TextureTag.Location = new System.Drawing.Point(142, 71);
-            this.txt_TextureTag.Name = "txt_TextureTag";
-            this.txt_TextureTag.Size = new System.Drawing.Size(189, 22);
-            this.txt_TextureTag.TabIndex = 1;
             // 
             // txt_ItemTag
             // 
@@ -153,16 +146,36 @@
             this.lbl_Title.TabIndex = 15;
             this.lbl_Title.Text = "Add Item";
             // 
+            // btn_TexturePicker
+            // 
+            this.btn_TexturePicker.Location = new System.Drawing.Point(305, 70);
+            this.btn_TexturePicker.Name = "btn_TexturePicker";
+            this.btn_TexturePicker.Size = new System.Drawing.Size(26, 23);
+            this.btn_TexturePicker.TabIndex = 58;
+            this.btn_TexturePicker.Text = "...";
+            this.btn_TexturePicker.UseVisualStyleBackColor = true;
+            this.btn_TexturePicker.Click += new System.EventHandler(this.btn_TexturePicker_Click);
+            // 
+            // txt_TextureTag
+            // 
+            this.txt_TextureTag.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txt_TextureTag.Location = new System.Drawing.Point(142, 71);
+            this.txt_TextureTag.Name = "txt_TextureTag";
+            this.txt_TextureTag.ReadOnly = true;
+            this.txt_TextureTag.Size = new System.Drawing.Size(168, 22);
+            this.txt_TextureTag.TabIndex = 57;
+            // 
             // Form_ItemAdd
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(344, 261);
+            this.Controls.Add(this.btn_TexturePicker);
+            this.Controls.Add(this.txt_TextureTag);
             this.Controls.Add(this.btn_AddNewItem);
             this.Controls.Add(this.txt_BaseDurability);
             this.Controls.Add(this.txt_BuyValue);
             this.Controls.Add(this.txt_SellValue);
-            this.Controls.Add(this.txt_TextureTag);
             this.Controls.Add(this.txt_ItemTag);
             this.Controls.Add(this.lbl_SellValue);
             this.Controls.Add(this.lbl_BuyValue);
@@ -186,7 +199,6 @@
         private System.Windows.Forms.TextBox txt_BaseDurability;
         private System.Windows.Forms.TextBox txt_BuyValue;
         private System.Windows.Forms.TextBox txt_SellValue;
-        private System.Windows.Forms.TextBox txt_TextureTag;
         private System.Windows.Forms.TextBox txt_ItemTag;
         private System.Windows.Forms.Label lbl_SellValue;
         private System.Windows.Forms.Label lbl_BuyValue;
@@ -194,5 +206,7 @@
         private System.Windows.Forms.Label lbl_TextureTag;
         private System.Windows.Forms.Label lbl_Tag;
         private System.Windows.Forms.Label lbl_Title;
+        private System.Windows.Forms.Button btn_TexturePicker;
+        private System.Windows.Forms.TextBox txt_TextureTag;
     }
 }

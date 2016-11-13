@@ -11,9 +11,6 @@ namespace TileEngine
 {
     public class NPC : AbstractEntity
     {
-        public enum NPCType { Rookie, Champion, Boss, Critter, }
-        public NPCType entityType { get; set; }
-
         static NPC()
         {
 

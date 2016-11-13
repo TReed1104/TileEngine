@@ -13,11 +13,14 @@ namespace Editor
         public const string itemConfigDirectoryPath = "../../../../Engine/TileEngine/Content/Items/";
         public const string entityConfigDirectoryPath = "../../../../Engine/TileEngine/Content/Entities/";
         public const string itemSaveDataDirectoryPath = "../../../../Engine/TileEngine/bin/Windows/x86/Debug/Content/SaveData/";
+        public const string textureDirectoryPath = @"\Engine\TileEngine\Content\Textures";
 
         private static string[] ListOfItemConfigs_Raw { get; set; }
         private static string[] ListOfEntityConfigs_Raw { get; set; }
         public static List<string> ListOfItemConfigs { get; set; }
         public static List<string> ListOfEntityConfigs { get; set; }
+        public static List<string> ListOfEntityTypes { get; set; }
+        public static List<string> ListOfColours { get; set; }
 
         // Forms
         public static Form_MainMenu frmMainMenu { get; set; }
@@ -32,6 +35,12 @@ namespace Editor
 
         static ConfigEditor()
         {
+            // Initialise the lists top prevent errors.
+            ListOfItemConfigs = new List<string>();
+            ListOfEntityTypes = new List<string>();
+            ListOfEntityConfigs = new List<string>();
+            ListOfColours = new List<string>();
+
             // Main Forms
             frmMainMenu = new Form_MainMenu();
 
@@ -51,7 +60,9 @@ namespace Editor
         public static void Load()
         {
             ConfigEditor.LoadItemConfigs();
+            ConfigEditor.LoadEntityTypes();
             ConfigEditor.LoadEntityConfigs();
+            ConfigEditor.LoadColours();
         }
         public static void LoadItemConfigs()
         {
@@ -77,5 +88,42 @@ namespace Editor
                 ListOfEntityConfigs.Add(splitList[8]);
             }
         }
+        public static void LoadEntityTypes()
+        {
+            ListOfEntityTypes = new List<string>();
+
+            // Read the config file.
+            XmlReader xmlReader = XmlReader.Create("Content/EntityTypes.conf");
+            while (xmlReader.Read())
+            {
+                if (xmlReader.NodeType == XmlNodeType.Element)
+                {
+                    if (xmlReader.Name == "entity_type")
+                    {
+                        ListOfEntityTypes.Add(xmlReader.GetAttribute("value"));
+                    }
+                }
+            }
+            xmlReader.Close();
+        }
+        public static void LoadColours()
+        {
+            ListOfColours = new List<string>();
+
+            // Read the config file.
+            XmlReader xmlReader = XmlReader.Create("Content/Colours.conf");
+            while (xmlReader.Read())
+            {
+                if (xmlReader.NodeType == XmlNodeType.Element)
+                {
+                    if (xmlReader.Name == "colour")
+                    {
+                        ListOfColours.Add(xmlReader.GetAttribute("value"));
+                    }
+                }
+            }
+            xmlReader.Close();
+        }
+        
     }
 }

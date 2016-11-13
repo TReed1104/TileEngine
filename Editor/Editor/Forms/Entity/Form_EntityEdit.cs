@@ -73,11 +73,11 @@ namespace Editor
         public void SaveEntity(string configFileName)
         {
             bool isAttributeChanged_EntityTag = (loaded_EntityTag != txt_EntityTag.Text);
-            bool isAttributeChanged_EntityType = (loaded_EntityType != txt_EntityType.Text);
+            bool isAttributeChanged_EntityType = (loaded_EntityType != cbo_EntityType.Items[cbo_EntityType.SelectedIndex] as string);
             bool isAttributeChanged_TextureTag = (loaded_TextureTag != txt_TextureTag.Text);
             bool isAttributeChanged_SrcFrameX = (loaded_SrcFrameSizeX != int.Parse(txt_SrcFrameX.Text));
             bool isAttributeChanged_SrcFrameY = (loaded_SrcFrameSizeY != int.Parse(txt_SrcFrameY.Text));
-            bool isAttributeChanged_Colour = (loaded_Colour != txt_Colour.Text);
+            bool isAttributeChanged_Colour = (loaded_Colour != cbo_Colours.Items[cbo_Colours.SelectedIndex] as string);
             bool isAttributeChanged_SaveData = (loaded_SaveData != txt_SaveData.Text);
 
             XmlDocument xmlDocument = new XmlDocument();
@@ -98,11 +98,11 @@ namespace Editor
             {
                 XmlNode xmlNode_ToEdit = xmlNode_Root.SelectSingleNode("entity_type");
                 XmlAttribute xmlAttribute_ToEdit = xmlNode_ToEdit.Attributes["value"];
-                xmlAttribute_ToEdit.Value = txt_EntityType.Text.ToString();
+                xmlAttribute_ToEdit.Value = (cbo_EntityType.Items[cbo_EntityType.SelectedIndex] as string);
             }
             if (isAttributeChanged_TextureTag)
             {
-                XmlNode xmlNode_ToEdit = xmlNode_Root.SelectSingleNode("texture_Tag");
+                XmlNode xmlNode_ToEdit = xmlNode_Root.SelectSingleNode("texture_tag");
                 XmlAttribute xmlAttribute_ToEdit = xmlNode_ToEdit.Attributes["value"];
                 xmlAttribute_ToEdit.Value = txt_TextureTag.Text.ToString();
             }
@@ -122,7 +122,7 @@ namespace Editor
             {
                 XmlNode xmlNode_ToEdit = xmlNode_Root.SelectSingleNode("colour");
                 XmlAttribute xmlAttribute_ToEdit = xmlNode_ToEdit.Attributes["value"];
-                xmlAttribute_ToEdit.Value = txt_Colour.Text.ToString();
+                xmlAttribute_ToEdit.Value = cbo_Colours.Items[cbo_Colours.SelectedIndex].ToString();
             }
             if (isAttributeChanged_SaveData)
             {
@@ -157,6 +157,20 @@ namespace Editor
         {
             ConfigEditor.LoadEntityConfigs();
             lst_EntityConfigs.DataSource = ConfigEditor.ListOfEntityConfigs;
+            cbo_EntityType.DataSource = ConfigEditor.ListOfEntityTypes;
+            cbo_Colours.DataSource = ConfigEditor.ListOfColours;
+
+            // Load the Entities
+            LoadEntity(lst_EntityConfigs.Items[lst_EntityConfigs.SelectedIndex] as string);
+
+            // Display the Items attributes.
+            txt_EntityTag.Text = loaded_EntityTag;
+            cbo_EntityType.SelectedIndex = cbo_EntityType.FindStringExact(loaded_EntityType);
+            txt_TextureTag.Text = loaded_TextureTag;
+            txt_SrcFrameX.Text = loaded_SrcFrameSizeX.ToString();
+            txt_SrcFrameY.Text = loaded_SrcFrameSizeY.ToString();
+            cbo_Colours.SelectedIndex = cbo_Colours.FindStringExact(loaded_Colour);
+            txt_SaveData.Text = loaded_SaveData;
         }
         private void Form_EntityEdit_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -168,11 +182,11 @@ namespace Editor
 
             // Display the Items attributes.
             txt_EntityTag.Text = loaded_EntityTag;
-            txt_EntityType.Text = loaded_EntityType;
+            cbo_EntityType.SelectedIndex = cbo_EntityType.FindStringExact(loaded_EntityType);
             txt_TextureTag.Text = loaded_TextureTag;
             txt_SrcFrameX.Text = loaded_SrcFrameSizeX.ToString();
             txt_SrcFrameY.Text = loaded_SrcFrameSizeY.ToString();
-            txt_Colour.Text = loaded_Colour;
+            cbo_Colours.SelectedIndex = cbo_Colours.FindStringExact(loaded_Colour);
             txt_SaveData.Text = loaded_SaveData;
 
         }
@@ -182,6 +196,25 @@ namespace Editor
             ConfigEditor.LoadEntityConfigs();
             lst_EntityConfigs.DataSource = ConfigEditor.ListOfEntityConfigs;
             LoadEntity(lst_EntityConfigs.Items[lst_EntityConfigs.SelectedIndex] as string);
+        }
+        private void btn_TexturePicker_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog filePickerDialog = new OpenFileDialog();
+            string basePath = Application.StartupPath;
+            string trimmedPath = basePath.Replace(@"\Editor\Editor\bin\Debug", "");
+
+            string textureDirectoryPath = trimmedPath + ConfigEditor.textureDirectoryPath;
+
+            filePickerDialog.InitialDirectory = textureDirectoryPath;
+            if (filePickerDialog.ShowDialog() == DialogResult.OK)
+            {
+                string rawFilePath = filePickerDialog.FileName;
+                string[] splitFilePath = rawFilePath.Split('\\');
+                string fullFileName = splitFilePath[splitFilePath.Length - 1];
+                string[] fileNameSplit = fullFileName.Split('.');
+                string finalTextureTag = fileNameSplit[0];
+                txt_TextureTag.Text = finalTextureTag;
+            }
         }
     }
 }

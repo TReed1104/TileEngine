@@ -77,5 +77,25 @@ namespace Editor
             }
             this.Close();
         }
+
+        private void btn_TexturePicker_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog filePickerDialog = new OpenFileDialog();
+            string basePath = Application.StartupPath;
+            string trimmedPath = basePath.Replace(@"\Editor\Editor\bin\Debug", "");
+
+            string textureDirectoryPath = trimmedPath + ConfigEditor.textureDirectoryPath;
+
+            filePickerDialog.InitialDirectory = textureDirectoryPath;
+            if (filePickerDialog.ShowDialog() == DialogResult.OK)
+            {
+                string rawFilePath = filePickerDialog.FileName;
+                string[] splitFilePath = rawFilePath.Split('\\');
+                string fullFileName = splitFilePath[splitFilePath.Length - 1];
+                string[] fileNameSplit = fullFileName.Split('.');
+                string finalTextureTag = fileNameSplit[0];
+                txt_TextureTag.Text = finalTextureTag;
+            }
+        }
     }
 }

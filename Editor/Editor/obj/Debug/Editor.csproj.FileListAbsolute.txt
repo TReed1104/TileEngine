@@ -15,3 +15,5 @@ C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Fo
 C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_EntityAdd.resources
 C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_EntityEdit.resources
 C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\obj\Debug\Editor.Form_EntityDelete.resources
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\bin\Debug\Content\EntityTypes.conf
+C:\Users\Computing\Documents\GitHub\TileEngine\Editor\Editor\bin\Debug\Content\Colours.conf

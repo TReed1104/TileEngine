@@ -140,6 +140,16 @@ namespace Editor
         {
             ConfigEditor.LoadItemConfigs();
             lst_ItemConfigs.DataSource = ConfigEditor.ListOfItemConfigs;
+
+            // Load the Items
+            LoadItem(lst_ItemConfigs.Items[lst_ItemConfigs.SelectedIndex] as string);
+
+            // Display the Items attributes.
+            txt_ItemTag.Text = loaded_ItemTag;
+            txt_TextureTag.Text = loaded_TextureTag;
+            txt_BaseDurability.Text = loaded_BaseDurability.ToString();
+            txt_BuyValue.Text = loaded_BuyValue.ToString();
+            txt_SellValue.Text = loaded_SellValue.ToString();
         }
         private void Form_ItemEdit_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -162,6 +172,26 @@ namespace Editor
             ConfigEditor.LoadItemConfigs();
             lst_ItemConfigs.DataSource = ConfigEditor.ListOfItemConfigs;
             LoadItem(lst_ItemConfigs.Items[lst_ItemConfigs.SelectedIndex] as string);
+        }
+
+        private void btn_TexturePicker_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog filePickerDialog = new OpenFileDialog();
+            string basePath = Application.StartupPath;
+            string trimmedPath = basePath.Replace(@"\Editor\Editor\bin\Debug", "");
+
+            string textureDirectoryPath = trimmedPath + ConfigEditor.textureDirectoryPath;
+
+            filePickerDialog.InitialDirectory = textureDirectoryPath;
+            if (filePickerDialog.ShowDialog() == DialogResult.OK)
+            {
+                string rawFilePath = filePickerDialog.FileName;
+                string[] splitFilePath = rawFilePath.Split('\\');
+                string fullFileName = splitFilePath[splitFilePath.Length - 1];
+                string[] fileNameSplit = fullFileName.Split('.');
+                string finalTextureTag = fileNameSplit[0];
+                txt_TextureTag.Text = finalTextureTag;
+            }
         }
     }
 }

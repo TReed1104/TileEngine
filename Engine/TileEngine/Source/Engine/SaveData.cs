@@ -7,7 +7,7 @@ namespace TileEngine
         // Vars
         public string tag { get; set; }
         public Vector2 position { get; set; }
-        public float hp { get; set; }
+        public float health { get; set; }
         public int gold { get; set; }
 
         // Constructors
@@ -15,7 +15,7 @@ namespace TileEngine
         {
             this.tag = tag;
             this.position = position;
-            this.hp = hp;
+            this.health = hp;
             this.gold = gold;
         }
     }

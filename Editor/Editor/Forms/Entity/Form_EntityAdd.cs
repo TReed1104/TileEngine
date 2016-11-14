@@ -52,13 +52,9 @@ namespace Editor
                 xmlWriter.WriteEndElement();
                 xmlWriter.WriteWhitespace("\r\n\t");
 
-                xmlWriter.WriteStartElement("src_frame_size_x");
-                xmlWriter.WriteAttributeString("value", txt_SrcFrameX.Text);
-                xmlWriter.WriteEndElement();
-                xmlWriter.WriteWhitespace("\r\n\t");
-
-                xmlWriter.WriteStartElement("src_frame_size_y");
-                xmlWriter.WriteAttributeString("value", txt_SrcFrameY.Text);
+                xmlWriter.WriteStartElement("src_frame_size");
+                xmlWriter.WriteAttributeString("x", txt_SrcFrameX.Text);
+                xmlWriter.WriteAttributeString("y", txt_SrcFrameY.Text);
                 xmlWriter.WriteEndElement();
                 xmlWriter.WriteWhitespace("\r\n\t");
 
@@ -76,6 +72,20 @@ namespace Editor
                 }
                 xmlWriter.WriteAttributeString("value", saveName);
                 xmlWriter.WriteEndElement();
+                xmlWriter.WriteWhitespace("\r\n\t");
+
+
+                xmlWriter.WriteStartElement("base_health");
+                xmlWriter.WriteAttributeString("value", txt_health.Text);
+                xmlWriter.WriteEndElement();
+                xmlWriter.WriteWhitespace("\r\n\t");
+
+                xmlWriter.WriteStartElement("base_damage");
+                xmlWriter.WriteAttributeString("value", txt_damage.Text);
+                xmlWriter.WriteEndElement();
+                xmlWriter.WriteWhitespace("\r\n\t");
+
+                xmlWriter.WriteElementString("animations", "");
 
                 xmlWriter.WriteWhitespace("\r\n");
                 xmlWriter.WriteEndElement();
@@ -102,7 +112,7 @@ namespace Editor
             OpenFileDialog filePickerDialog = new OpenFileDialog();
             string basePath = Application.StartupPath;
             string trimmedPath = basePath.Replace(@"\Editor\Editor\bin\Debug", "");
-            
+
 
             string textureDirectoryPath = trimmedPath + ConfigEditor.textureDirectoryPath;
 

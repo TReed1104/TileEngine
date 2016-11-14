@@ -307,7 +307,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
             }
         }
-        private static void CreateBlankSave(string saveID)
+        private static void CreateBlankSave(string saveID, float baseHealth)
         {
             try
             {
@@ -334,8 +334,8 @@ namespace TileEngine
                     xmlWriter.WriteEndElement();
                     xmlWriter.WriteWhitespace("\r\n\t");
 
-                    xmlWriter.WriteStartElement("hp");
-                    xmlWriter.WriteAttributeString("value", "10");
+                    xmlWriter.WriteStartElement("health");
+                    xmlWriter.WriteAttributeString("value", baseHealth.ToString());
                     xmlWriter.WriteEndElement();
                     xmlWriter.WriteWhitespace("\r\n\t");
 
@@ -361,18 +361,11 @@ namespace TileEngine
         {
             try
             {
-                #region // Check the Save exists, if not create one.
-                if (!File.Exists(Engine.FullPath_SaveData + saveID))
-                {
-                    Engine.CreateBlankSave(saveID);
-                }
-                #endregion
-
                 // Load the save
                 string tag = "";
                 int position_x = -1;
                 int position_y = -1;
-                float hp = -1;
+                float health = -1;
                 int gold = -1;
 
                 // Read the save file.
@@ -393,9 +386,9 @@ namespace TileEngine
                         {
                             position_y = int.Parse(xmlReader.GetAttribute("value"));
                         }
-                        if (xmlReader.Name == "hp")
+                        if (xmlReader.Name == "health")
                         {
-                            hp = float.Parse(xmlReader.GetAttribute("value"));
+                            health = float.Parse(xmlReader.GetAttribute("value"));
                         }
                         if (xmlReader.Name == "gold")
                         {
@@ -404,7 +397,7 @@ namespace TileEngine
                     }
                 }
                 xmlReader.Close();
-                return new SaveData(tag, new Vector2(position_x, position_y), hp, gold);
+                return new SaveData(tag, new Vector2(position_x, position_y), health, gold);
 
             }
             catch (Exception error)
@@ -539,10 +532,11 @@ namespace TileEngine
                     string tag = "";
                     string entityType = "";
                     string textureTag = "";
-                    int sourceRectangleSizeX = 0;
-                    int sourceRectangleSizeY = 0;
+                    Vector2 SourceRectangleSize = new Vector2();
                     Color colour = Color.White;
                     string saveID = "";
+                    float baseHealth = 0.0f;
+                    float damage = 0.0f;
 
                     // Read the config file.
                     XmlReader xmlReader = XmlReader.Create(listOfEntityConfigs[i]);
@@ -566,13 +560,11 @@ namespace TileEngine
                             {
                                 textureTag = xmlReader.GetAttribute("value");
                             }
-                            if (xmlReader.Name == "src_frame_size_x")
+                            if (xmlReader.Name == "src_frame_size")
                             {
-                                sourceRectangleSizeX = int.Parse(xmlReader.GetAttribute("value"));
-                            }
-                            if (xmlReader.Name == "src_frame_size_y")
-                            {
-                                sourceRectangleSizeY = int.Parse(xmlReader.GetAttribute("value"));
+                                int sizeX = int.Parse(xmlReader.GetAttribute("x"));
+                                int sizeY = int.Parse(xmlReader.GetAttribute("y"));
+                                SourceRectangleSize = new Vector2(sizeX, sizeY);
                             }
                             if (xmlReader.Name == "colour")
                             {
@@ -582,22 +574,45 @@ namespace TileEngine
                             {
                                 saveID = xmlReader.GetAttribute("value");
                             }
+                            if (xmlReader.Name == "base_health")
+                            {
+                                baseHealth = int.Parse(xmlReader.GetAttribute("value"));
+                            }
+                            if (xmlReader.Name == "base_damage")
+                            {
+                                damage = int.Parse(xmlReader.GetAttribute("value"));
+                            }
                         }
                     }
                     xmlReader.Close();
                     int indexOfTexture = Engine.Register_Textures.FindIndex(r => r.Name == "Textures/" + textureTag);   // Get the correct texture for the player
                     if (isPlayer)
                     {
+                        // Check the Save exists, if not create one.
+                        if (!File.Exists(Engine.FullPath_SaveData + saveID))
+                        {
+                            Engine.CreateBlankSave(saveID, baseHealth);
+                        }
                         // Load the save data and create the player
                         SaveData loadedSave = Engine.LoadSave(saveID);
+                        
+                        Player player;
 
-                        Player player = new Player(loadedSave.tag, Engine.Register_Textures[indexOfTexture], loadedSave.position, Vector2.Zero, new Vector2(sourceRectangleSizeX, sourceRectangleSizeY), colour, Engine.LayerDepth_Player, loadedSave.hp);
+                        if (loadedSave.health != baseHealth)
+                        {
+                            player = new Player(loadedSave.tag, Engine.Register_Textures[indexOfTexture], loadedSave.position, Vector2.Zero, SourceRectangleSize, colour, Engine.LayerDepth_Player, loadedSave.health);
+                        }
+                        else
+                        {
+                            player = new Player(loadedSave.tag, Engine.Register_Textures[indexOfTexture], loadedSave.position, Vector2.Zero, SourceRectangleSize, colour, Engine.LayerDepth_Player, baseHealth);
+                        }
+                        
                         Engine.Register_PlayerSaves.Add(player);
                     }
                     else
                     {
                         // Creates a blank instance of the NPC.
-                        NPC npc = new NPC(tag, Engine.Register_Textures[indexOfTexture], Vector2.Zero, Vector2.Zero, new Vector2(sourceRectangleSizeX, sourceRectangleSizeY), colour, Engine.LayerDepth_Player, 5.0f);
+                        NPC npc = new NPC(tag, Engine.Register_Textures[indexOfTexture], Vector2.Zero, Vector2.Zero, SourceRectangleSize, colour, Engine.LayerDepth_Player, baseHealth);
                         Engine.Register_NPCs.Add(npc);
                     }
 

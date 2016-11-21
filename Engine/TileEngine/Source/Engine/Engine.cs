@@ -535,6 +535,7 @@ namespace TileEngine
                     string saveID = "";
                     float baseHealth = 0.0f;
                     float damage = 0.0f;
+                    List<Animation> animations = new List<Animation>();
 
                     // Read the config file.
                     XmlReader xmlReader = XmlReader.Create(listOfAgentConfigs[i]);
@@ -580,6 +581,15 @@ namespace TileEngine
                             {
                                 damage = int.Parse(xmlReader.GetAttribute("value"));
                             }
+                            if (xmlReader.Name == "animation")
+                            {
+                                string animation_Tag = xmlReader.GetAttribute("tag");
+                                int animation_StartX = int.Parse(xmlReader.GetAttribute("start_x"));
+                                int animation_StartY = int.Parse(xmlReader.GetAttribute("start_y"));
+                                int animation_NumberOfFrames = int.Parse(xmlReader.GetAttribute("number_of_frame"));
+                                int animation_Speed = int.Parse(xmlReader.GetAttribute("speed"));
+                                animations.Add(new Animation(animation_Tag, animation_StartX, animation_StartY, animation_NumberOfFrames, animation_Speed));
+                            }
                         }
                     }
                     xmlReader.Close();
@@ -593,7 +603,7 @@ namespace TileEngine
                         }
                         // Load the save data and create the player
                         SaveData loadedSave = Engine.LoadSave(saveID);
-                        
+
                         PlayerAgent player;
 
                         if (loadedSave.health != baseHealth)
@@ -604,13 +614,14 @@ namespace TileEngine
                         {
                             player = new PlayerAgent(loadedSave.tag, Engine.Register_Textures[indexOfTexture], loadedSave.position, Vector2.Zero, SourceRectangleSize, colour, Engine.LayerDepth_Player, baseHealth);
                         }
-                        
+                        player.AttachAnimations(animations);
                         Engine.Register_PlayerSaves.Add(player);
                     }
                     else
                     {
                         // Creates a blank instance of the NPC.
                         NpcAgent npc = new NpcAgent(tag, Engine.Register_Textures[indexOfTexture], Vector2.Zero, Vector2.Zero, SourceRectangleSize, colour, Engine.LayerDepth_Player, baseHealth);
+                        npc.AttachAnimations(animations);
                         Engine.Register_NPCs.Add(npc);
                     }
 

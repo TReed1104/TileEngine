@@ -14,12 +14,9 @@ namespace TileEngine
     {
         // Vars
         public string tag { get; set; }
-        #region // Position Vars
         public Vector2 position_Base { get; set; }
         public Vector2 position_Grid { get { return new Vector2((int)(position_Base.X / Tile.Dimensions.X), (int)(position_Base.Y / Tile.Dimensions.Y)); } }
         public Vector2 position_Draw { get { return position_Base + Engine.Window_HUD_Size_Pixels; } }
-        #endregion
-        #region // Bounding box Vars
         protected Vector2 boundingBox_Offset { get; set; }
         public Vector2 boundingBox_Size { get; set; }
         public Rectangle boundingBox_AABB { get { return new Rectangle((int)position_Base.X + (int)boundingBox_Offset.X, (int)position_Base.Y + (int)boundingBox_Offset.Y, (int)boundingBox_Size.X, (int)boundingBox_Size.Y); } }
@@ -28,18 +25,15 @@ namespace TileEngine
         protected Vector2 AABB_BottomLeft_GridPosition { get { return new Vector2((int)(boundingBox_AABB.X / Tile.Dimensions.X), (int)((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.Dimensions.Y)); } }
         protected Vector2 AABB_BottomRight_GridPosition { get { return new Vector2((int)((boundingBox_AABB.X + (boundingBox_AABB.Width - 1)) / Tile.Dimensions.X), (int)((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.Dimensions.Y)); } }
         protected Vector2 AABB_Center_GridPosition { get { return new Vector2((int)((boundingBox_AABB.X + (boundingBox_AABB.Width / 2) - 1) / Tile.Dimensions.X), (int)((boundingBox_AABB.Y + (boundingBox_AABB.Height / 2) - 1) / Tile.Dimensions.Y)); } }
-        #endregion
-        #region // Collision Vars
         protected Vector2 newGridPosition { get; set; }
         protected Vector2 newGridPositionOffset { get; set; }
         protected Vector2 newGridPositionOffsetDiagonal { get; set; }
-        #endregion
-        #region // Physics Vars
         public Vector2 velocity { get; set; }
         public float movementSpeed { get; protected set; }
-        #endregion
+        public float healthPoints { get; protected set; }
+        public bool isAlive {  get { return healthPoints > 0.0f;  } }
+        public float damagePower { get; protected set; }
         protected float deltaTime { get; set; }
-        #region // Rendering Vars
         public Texture2D texture { get; set; }
         public string textureTag { get; set; }
         public Color colour { get; set; }
@@ -62,13 +56,9 @@ namespace TileEngine
         public float scale { get; set; }
         public SpriteEffects spriteEffect { get; set; }
         public float layerDepth { get; set; }
-        #endregion
+        public List<Animation> animations { get; set; }
 
         // Constructors
-        static BaseGameObject()
-        {
-
-        }
         public BaseGameObject(string tag, Texture2D texture, Vector2 position_Base, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth)
         {
             try
@@ -80,7 +70,17 @@ namespace TileEngine
                 boundingBox_Size = Vector2.Zero;
                 boundingBox_Offset = Vector2.Zero;
 
-                // Rendering
+                newGridPosition = Vector2.Zero;
+                newGridPositionOffset = Vector2.Zero;
+                newGridPositionOffsetDiagonal = Vector2.Zero;
+
+                healthPoints = 1.0f;
+                velocity = Vector2.Zero;
+                movementSpeed = 0.0f;
+                damagePower = 1.0f;
+
+                deltaTime = 0;
+
                 this.sourceRectangle_Position = sourceRectangle_Position;
                 this.sourceRectangle_Size = sourceRectangle_Size;
                 this.sourceRectangle_Offset = Vector2.Zero;
@@ -90,6 +90,8 @@ namespace TileEngine
                 this.scale = 1.0f;
                 this.spriteEffect = SpriteEffects.None;
                 this.layerDepth = layerDepth;
+
+                animations = new List<Animation>();
             }
             catch (Exception error)
             {
@@ -97,18 +99,29 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        // XNA Methods
+
+        // Methods
         public abstract void Update(GameTime gameTime);
         public virtual void Draw()
         {
             try
             {
-                Engine.SpriteBatch.Draw(texture, position_Draw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
+                if (isAlive)
+                {
+                    Engine.SpriteBatch.Draw(texture, position_Draw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
+                }
             }
             catch (Exception error)
             {
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+            }
+        }
+        public void AttachAnimations(List<Animation> newAnimations)
+        {
+            for (int i = 0; i < newAnimations.Count(); i++)
+            {
+                animations.Add(newAnimations[i]);
             }
         }
     }

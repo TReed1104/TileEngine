@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\Engine\Animation.cs" />
     <Compile Include="Source\Engine\Camera.cs" />
     <Compile Include="Source\Engine\Engine.cs" />
     <Compile Include="Source\Engine\TileMap\Level.cs" />

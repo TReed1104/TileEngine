@@ -31,7 +31,6 @@ namespace TileEngine
                 {
                     velocity = new Vector2(-movementSpeed, 0);     // Sets the Player's Velocity.
                     direction = Direction.Left;
-                    spriteDirection = Direction.Left;
                     newPosition = new Vector2(boundingBox_AABB.X + (velocity.X * deltaTime), boundingBox_AABB.Y);
                     keyPressed = true;
                 }
@@ -41,7 +40,6 @@ namespace TileEngine
                 {
                     velocity = new Vector2(movementSpeed, 0);     // Sets the Player's Velocity.
                     direction = Direction.Right;
-                    spriteDirection = Direction.Right;
                     newPosition = new Vector2((boundingBox_AABB.X + boundingBox_AABB.Width) + (velocity.X * deltaTime), boundingBox_AABB.Y);
                     keyPressed = true;
                 }
@@ -51,7 +49,6 @@ namespace TileEngine
                 {
                     velocity = new Vector2(0, -movementSpeed);     // Sets the Player's Velocity.
                     direction = Direction.Up;
-                    spriteDirection = Direction.Up;
                     newPosition = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
@@ -61,7 +58,6 @@ namespace TileEngine
                 {
                     velocity = new Vector2(0, movementSpeed);     // Sets the Player's Velocity.
                     direction = Direction.Down;
-                    spriteDirection = Direction.Down;
                     newPosition = new Vector2(boundingBox_AABB.X, (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
@@ -71,7 +67,6 @@ namespace TileEngine
                 {
                     velocity = new Vector2(-movementSpeed, -movementSpeed);
                     direction = Direction.UpLeft;
-                    spriteDirection = Direction.UpLeft;
                     newPosition = new Vector2(boundingBox_AABB.X + (velocity.X * deltaTime), boundingBox_AABB.Y + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
@@ -81,7 +76,6 @@ namespace TileEngine
                 {
                     velocity = new Vector2(movementSpeed, -movementSpeed);
                     direction = Direction.UpRight;
-                    spriteDirection = Direction.UpRight;
                     newPosition = new Vector2((boundingBox_AABB.X + boundingBox_AABB.Width) + (velocity.X * deltaTime), boundingBox_AABB.Y + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
@@ -91,7 +85,6 @@ namespace TileEngine
                 {
                     velocity = new Vector2(-movementSpeed, movementSpeed);
                     direction = Direction.DownLeft;
-                    spriteDirection = Direction.DownLeft;
                     newPosition = new Vector2(boundingBox_AABB.X + (velocity.X * deltaTime), (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
@@ -101,7 +94,6 @@ namespace TileEngine
                 {
                     velocity = new Vector2(movementSpeed, movementSpeed);
                     direction = Direction.DownRight;
-                    spriteDirection = Direction.DownRight;
                     newPosition = new Vector2((boundingBox_AABB.X + boundingBox_AABB.Width) + (velocity.X * deltaTime), (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
@@ -109,6 +101,7 @@ namespace TileEngine
 
                 if (keyPressed)                 // If a movement key has been pressed.
                 {
+                    isMoving = true;
                     CollisionCheckTileMap(newPosition);    // Calls the method for setting the next position.
                 }
             }

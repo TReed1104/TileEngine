@@ -15,32 +15,23 @@ namespace TileEngine
         public enum Direction { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
         public enum WallSlide { None, WallSlideLeft, WallSlideRight, WallSlideUp, WallSlideDown, };
         // Vars
-        public float healthPoints { get; protected set; }
-        public float damagePower { get; protected set; }
+        public bool isMoving { get; set; }
         public Direction direction { get; protected set; }
-        public Direction spriteDirection { get; protected set; }
         public WallSlide wallSlide { get; set; }
         
         // Constructors
         public BaseAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
             : base (tag, texture, position_World, sourceRectangle_Position, sourceRectangle_Size, colour, layerDepth)
         {
-            deltaTime = 0;
+            
             this.healthPoints = healthPoints;
-            velocity = Vector2.Zero;
             movementSpeed = 1.0f;
-            damagePower = 1.0f;
             direction = Direction.Down;
             wallSlide = WallSlide.None;
 
             boundingBox_Size = new Vector2(10, 10);
             Vector2 boundingGridDelta = sourceRectangle_Size - boundingBox_Size;
             boundingBox_Offset = (boundingGridDelta / 2);
-            
-
-            newGridPosition = Vector2.Zero;
-            newGridPositionOffset = Vector2.Zero;
-            newGridPositionOffsetDiagonal = Vector2.Zero;
         }
 
         // Delegates
@@ -52,31 +43,73 @@ namespace TileEngine
         // Methods
         public override void Update(GameTime gameTime)
         {
-            deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
 
             // Movement
             MovementController();
-            velocity = Vector2.Zero;
-            UpdateSpriteDirection();
 
             // Behaviour
             BehaviourController(gameTime);
+
+            // Animations
+            AnimationController(gameTime);
+
+            // Reset the Agent to its base mode.
+            velocity = Vector2.Zero;
+            isMoving = false;
         }
-        protected void UpdateSpriteDirection()
+        protected void AnimationFinder(string animationTag, GameTime gameTime)
+        {
+            if (animations.Exists(r => r.tag == animationTag))
+            {
+                int indexOfAnimation = animations.FindIndex(r => r.tag == animationTag);
+                animations[indexOfAnimation].Run(gameTime, sourceRectangle_Position);
+            }
+        }
+        protected void AnimationController(GameTime gameTime)
         {
             try
             {
-                float sourceY = sourceRectangle_Position.Y;
-                switch (spriteDirection)
+                switch (direction)
                 {
-                    case Direction.Down: { sourceRectangle_Position = new Vector2(1, sourceY); break; }
-                    case Direction.Up: { sourceRectangle_Position = new Vector2(0, sourceY); break; }
-                    case Direction.Right: { sourceRectangle_Position = new Vector2(3, sourceY); break; }
-                    case Direction.Left: { sourceRectangle_Position = new Vector2(2, sourceY); break; }
-                    case Direction.DownRight: { sourceRectangle_Position = new Vector2(7, sourceY); break; }
-                    case Direction.DownLeft: { sourceRectangle_Position = new Vector2(6, sourceY); break; }
-                    case Direction.UpRight: { sourceRectangle_Position = new Vector2(5, sourceY); break; }
-                    case Direction.UpLeft: { sourceRectangle_Position = new Vector2(4, sourceY); break; }
+                    case Direction.Down:
+                        if (isMoving)
+                        {
+                            AnimationFinder("Walking Down", gameTime);
+                        }
+                        break;
+                    case Direction.Up:
+                        if (isMoving)
+                        {
+                            AnimationFinder("Walking Up", gameTime);
+                        }
+                        break;
+                    case Direction.Left:
+                        if (isMoving)
+                        {
+                            AnimationFinder("Walking Left", gameTime);
+                        }
+                        break;
+                    case Direction.Right:
+                        if (isMoving)
+                        {
+                            AnimationFinder("Walking Right", gameTime);
+                        }
+                        break;
+                    case Direction.UpLeft:
+
+                        break;
+                    case Direction.UpRight:
+
+                        break;
+                    case Direction.DownLeft:
+
+                        break;
+                    case Direction.DownRight:
+
+                        break;
+                    default:
+                        break;
                 }
             }
             catch (Exception error)

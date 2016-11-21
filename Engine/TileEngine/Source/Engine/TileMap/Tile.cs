@@ -34,6 +34,7 @@ namespace TileEngine
                 this.id = id;
                 this.type = type;
                 texture = TileSet;
+                boundingBox_Size = new Vector2(Tile.Dimensions.X, Tile.Dimensions.Y);
             }
             catch (Exception error)
             {

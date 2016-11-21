@@ -14,9 +14,32 @@ namespace TileEngine
     {
         // Vars
         public string tag { get; set; }
+        #region // Position Vars
         public Vector2 position_Base { get; set; }
-        public Vector2 position_Grid { get; set; }
-        public Vector2 position_Draw { get; set; }
+        public Vector2 position_Grid { get { return new Vector2((int)(position_Base.X / Tile.Dimensions.X), (int)(position_Base.Y / Tile.Dimensions.Y)); } }
+        public Vector2 position_Draw { get { return position_Base + Engine.Window_HUD_Size_Pixels; } }
+        #endregion
+        #region // Bounding box Vars
+        protected Vector2 boundingBox_Offset { get; set; }
+        public Vector2 boundingBox_Size { get; set; }
+        public Rectangle boundingBox_AABB { get { return new Rectangle((int)position_Base.X + (int)boundingBox_Offset.X, (int)position_Base.Y + (int)boundingBox_Offset.Y, (int)boundingBox_Size.X, (int)boundingBox_Size.Y); } }
+        protected Vector2 AABB_TopLeft_GridPosition { get { return new Vector2((int)(boundingBox_AABB.X / Tile.Dimensions.X), (int)(boundingBox_AABB.Y / Tile.Dimensions.Y)); } }
+        protected Vector2 AABB_TopRight_GridPosition { get { return new Vector2((int)((boundingBox_AABB.X + (boundingBox_AABB.Width - 1)) / Tile.Dimensions.X), (int)(boundingBox_AABB.Y / Tile.Dimensions.Y)); } }
+        protected Vector2 AABB_BottomLeft_GridPosition { get { return new Vector2((int)(boundingBox_AABB.X / Tile.Dimensions.X), (int)((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.Dimensions.Y)); } }
+        protected Vector2 AABB_BottomRight_GridPosition { get { return new Vector2((int)((boundingBox_AABB.X + (boundingBox_AABB.Width - 1)) / Tile.Dimensions.X), (int)((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.Dimensions.Y)); } }
+        protected Vector2 AABB_Center_GridPosition { get { return new Vector2((int)((boundingBox_AABB.X + (boundingBox_AABB.Width / 2) - 1) / Tile.Dimensions.X), (int)((boundingBox_AABB.Y + (boundingBox_AABB.Height / 2) - 1) / Tile.Dimensions.Y)); } }
+        #endregion
+        #region // Collision Vars
+        protected Vector2 newGridPosition { get; set; }
+        protected Vector2 newGridPositionOffset { get; set; }
+        protected Vector2 newGridPositionOffsetDiagonal { get; set; }
+        #endregion
+        #region // Physics Vars
+        public Vector2 velocity { get; set; }
+        public float movementSpeed { get; protected set; }
+        #endregion
+        protected float deltaTime { get; set; }
+        #region // Rendering Vars
         public Texture2D texture { get; set; }
         public string textureTag { get; set; }
         public Color colour { get; set; }
@@ -39,6 +62,7 @@ namespace TileEngine
         public float scale { get; set; }
         public SpriteEffects spriteEffect { get; set; }
         public float layerDepth { get; set; }
+        #endregion
 
         // Constructors
         static BaseGameObject()
@@ -51,11 +75,12 @@ namespace TileEngine
             {
                 this.tag = tag;
                 this.texture = texture;
+
                 this.position_Base = position_Base;
-                int gridX = (int)(this.position_Base.X / Tile.Dimensions.X);
-                int gridY = (int)(this.position_Base.Y / Tile.Dimensions.Y);
-                this.position_Grid = new Vector2(gridX, gridY);
-                this.position_Draw = position_Base + Engine.PlayerCamera.position_Base;
+                boundingBox_Size = Vector2.Zero;
+                boundingBox_Offset = Vector2.Zero;
+
+                // Rendering
                 this.sourceRectangle_Position = sourceRectangle_Position;
                 this.sourceRectangle_Size = sourceRectangle_Size;
                 this.sourceRectangle_Offset = Vector2.Zero;

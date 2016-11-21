@@ -17,22 +17,9 @@ namespace TileEngine
         // Vars
         public float healthPoints { get; protected set; }
         public float damagePower { get; protected set; }
-        public float movementSpeed { get; protected set; }
-        public Vector2 velocity { get; set; }
         public Direction direction { get; protected set; }
         public Direction spriteDirection { get; protected set; }
         public WallSlide wallSlide { get; set; }
-        protected Vector2 boundingBox_Offset { get; set; }
-        public Rectangle boundingBox_AABB { get; set; }
-        protected Vector2 AABB_TopLeft_GridPosition;
-        protected Vector2 AABB_TopRight_GridPosition;
-        protected Vector2 AABB_BottomLeft_GridPosition;
-        protected Vector2 AABB_BottomRight_GridPosition;
-        protected Vector2 AABB_Center_GridPosition;
-        protected Vector2 newGridPosition;
-        protected Vector2 newGridPositionOffset;
-        protected Vector2 newGridPositionOffsetDiagonal;
-        protected float deltaTime { get; set; }
         
         // Constructors
         public BaseAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
@@ -46,12 +33,11 @@ namespace TileEngine
             direction = Direction.Down;
             wallSlide = WallSlide.None;
 
-            Vector2 boundingSize = new Vector2(10, 10);
-            Vector2 boundingGridDelta = sourceRectangle_Size - boundingSize;
+            boundingBox_Size = new Vector2(10, 10);
+            Vector2 boundingGridDelta = sourceRectangle_Size - boundingBox_Size;
             boundingBox_Offset = (boundingGridDelta / 2);
+            
 
-            position_Grid = new Vector2((int)(position_Draw.X / Tile.Dimensions.X), (int)(position_Draw.Y / Tile.Dimensions.Y));
-            boundingBox_AABB = new Rectangle((int)(position_Grid.X * Tile.Dimensions.X) + (int)boundingBox_Offset.X, (int)(position_Grid.Y * Tile.Dimensions.Y) + (int)boundingBox_Offset.Y, (int)boundingSize.X, (int)boundingSize.Y);
             newGridPosition = Vector2.Zero;
             newGridPositionOffset = Vector2.Zero;
             newGridPositionOffsetDiagonal = Vector2.Zero;
@@ -69,12 +55,9 @@ namespace TileEngine
             deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             // Movement
-            UpdateAABBCorners();
             MovementController();
             velocity = Vector2.Zero;
             UpdateSpriteDirection();
-            position_Draw = new Vector2(boundingBox_AABB.X - boundingBox_Offset.X, boundingBox_AABB.Y - boundingBox_Offset.Y) + Engine.Window_HUD_Size_Pixels;
-            position_Base = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y);
 
             // Behaviour
             BehaviourController(gameTime);
@@ -95,22 +78,6 @@ namespace TileEngine
                     case Direction.UpRight: { sourceRectangle_Position = new Vector2(5, sourceY); break; }
                     case Direction.UpLeft: { sourceRectangle_Position = new Vector2(4, sourceY); break; }
                 }
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
-            }
-        }
-        protected void UpdateAABBCorners()
-        {
-            try
-            {
-                AABB_TopLeft_GridPosition = new Vector2((float)Math.Floor(boundingBox_AABB.X / Tile.Dimensions.X), (float)Math.Floor(boundingBox_AABB.Y / Tile.Dimensions.Y));
-                AABB_TopRight_GridPosition = new Vector2((float)Math.Floor((boundingBox_AABB.X + (boundingBox_AABB.Width - 1)) / Tile.Dimensions.X), (float)Math.Floor(boundingBox_AABB.Y / Tile.Dimensions.Y));
-                AABB_BottomLeft_GridPosition = new Vector2((float)Math.Floor(boundingBox_AABB.X / Tile.Dimensions.X), (float)Math.Floor((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.Dimensions.Y));
-                AABB_BottomRight_GridPosition = new Vector2((float)Math.Floor((boundingBox_AABB.X + (boundingBox_AABB.Width - 1)) / Tile.Dimensions.X), (float)Math.Floor((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.Dimensions.Y));
-                AABB_Center_GridPosition = new Vector2((float)Math.Floor((boundingBox_AABB.X + (boundingBox_AABB.Width / 2) - 1) / Tile.Dimensions.X), (float)Math.Floor((boundingBox_AABB.Y + (boundingBox_AABB.Height / 2) - 1) / Tile.Dimensions.Y));
             }
             catch (Exception error)
             {
@@ -446,8 +413,7 @@ namespace TileEngine
                     Engine.GetCurrentLevel().IsTileSolid(newGridPositionOffset) &&
                     Engine.GetCurrentLevel().IsTileSolid(newGridPositionOffsetDiagonal))
                 {
-                    boundingBox_AABB = new Rectangle((int)(boundingBox_AABB.X + velocity.X), (int)(boundingBox_AABB.Y + velocity.Y), boundingBox_AABB.Width, boundingBox_AABB.Height);
-                    position_Grid = new Vector2((float)Math.Floor(boundingBox_AABB.X / Tile.Dimensions.X), (float)Math.Floor(boundingBox_AABB.Y / Tile.Dimensions.Y));
+                    position_Base += velocity;
                 }
                 // If there are collisions, check if the movement is diagonal.
                 else if (direction == Direction.UpLeft || direction == Direction.UpRight || direction == Direction.DownLeft || direction == Direction.DownRight)

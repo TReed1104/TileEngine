@@ -20,7 +20,7 @@ namespace TileEngine
         public Vector2 positionPlayerStart_Grid { get; protected set; }
         public Vector2 positionPlayerStart_Pixel { get { return positionPlayerStart_Grid * Tile.Dimensions; } }
         protected Tile[,] tilemap { get; set; }
-        protected List<NPC> NPCs { get; set; }
+        protected List<NpcAgent> NPCs { get; set; }
 
         // Constructors
         static Level()
@@ -35,7 +35,7 @@ namespace TileEngine
                 this.index = -1;
                 this.gridSize_Tiles = Vector2.Zero;
                 this.positionPlayerStart_Grid = Vector2.Zero;
-                this.NPCs = new List<NPC>();
+                this.NPCs = new List<NpcAgent>();
                 if (src != "")
                 {
                     Load(src);
@@ -73,8 +73,8 @@ namespace TileEngine
                 {
                     for (int x = 0; x < Engine.Camera_RenderGridSize_Tiles.X; x++)
                     {
-                        int drawX = (int)(Engine.PlayerCamera.position_Grid.X + x);
-                        int drawY = (int)(Engine.PlayerCamera.position_Grid.Y + y);
+                        int drawX = (int)(Engine.MainCamera.position_Grid.X + x);
+                        int drawY = (int)(Engine.MainCamera.position_Grid.Y + y);
                         tilemap[drawX, drawY].Draw();
                         if (drawX + 1 < gridSize_Tiles.X)
                         {
@@ -114,9 +114,9 @@ namespace TileEngine
                     for (int x = 0; x < gridSize_Tiles.X; x++)
                     {
                         tilemap[x, y] = new Tile("EMPTY", Vector2.Zero, Color.White, Engine.LayerDepth_Terrain, 00, Tile.TileType.Empty);
-                        tilemap[x, y].position_Base = new Vector2(x * Tile.Dimensions.X, y * Tile.Dimensions.Y);
-                        tilemap[x, y].position_Grid = new Vector2(x, y);
-                        tilemap[x, y].position_Draw = new Vector2(x * Tile.Dimensions.X, y * Tile.Dimensions.Y) + Engine.Window_HUD_Size_Pixels;
+                        tilemap[x, y].positionComponent.position_Base = new Vector2(x * Tile.Dimensions.X, y * Tile.Dimensions.Y);
+                        tilemap[x, y].positionComponent.position_Grid = new Vector2(x, y);
+                        tilemap[x, y].positionComponent.position_Draw = new Vector2(x * Tile.Dimensions.X, y * Tile.Dimensions.Y) + Engine.Window_HUD_Size_Pixels;
                     }
                 }
             }
@@ -174,7 +174,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        public void AddNPC(NPC newNPC)
+        public void AddNPC(NpcAgent newNPC)
         {
             try
             {

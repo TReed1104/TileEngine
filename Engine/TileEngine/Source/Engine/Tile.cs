@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TileEngine
 {
-    public class Tile : GameObject
+    public class Tile : BaseGameObject
     {
         // Enums
         public enum TileType { Empty, Solid, Water, Ice, Fire, Pitfall, }
@@ -33,6 +33,8 @@ namespace TileEngine
             {
                 this.id = id;
                 this.type = type;
+                this.renderComponent.texture = TileSet;
+                
             }
             catch (Exception error)
             {
@@ -87,7 +89,7 @@ namespace TileEngine
         {
             try
             {
-                Engine.SpriteBatch.Draw(Tile.TileSet, position_Draw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
+                base.Draw();
 
                 #region // Debugging
                 // Ready for debugging implementation
@@ -107,9 +109,8 @@ namespace TileEngine
         // Copy Method
         public void Copy(Tile tileToCopy)
         {
-            this.tag = tileToCopy.tag;
-            this.sourceRectangle_Position = tileToCopy.sourceRectangle_Position;
-            this.colour = tileToCopy.colour;
+            renderComponent.sourceRectangle_Position = tileToCopy.renderComponent.sourceRectangle_Position;
+            renderComponent.colour = tileToCopy.renderComponent.colour;
             this.id = tileToCopy.id;
             this.type = tileToCopy.type;
         }

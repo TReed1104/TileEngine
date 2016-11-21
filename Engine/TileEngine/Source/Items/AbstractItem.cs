@@ -1,7 +1,7 @@
 ﻿
 namespace TileEngine
 {
-    public abstract class AbstractItem : AbstractGameObjectMethods
+    public abstract class AbstractItem : AbstractGameObject
     {
         public const int minDurability = 0;
         public int currentDurability { get; private set; }

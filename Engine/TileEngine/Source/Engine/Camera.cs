@@ -40,16 +40,15 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-
         // XNA methods
-        public void Update(GameTime gameTime, BaseGameObject cameraTarget)
+        public void Update(GameTime gameTime, GameObject cameraTarget)
         {
             try
             {
                 if (cameraType == CameraType.Follow)
                 {
-                    float newCameraX = cameraTarget.positionComponent.position_Base.X - (Engine.Window_PixelGridSize.X / 2);
-                    float newCameraY = cameraTarget.positionComponent.position_Base.Y - ((Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y) / 2);
+                    float newCameraX = cameraTarget.position_Base.X - (Engine.Window_PixelGridSize.X / 2);
+                    float newCameraY = cameraTarget.position_Base.Y - ((Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y) / 2);
                     position_Base = new Vector2(newCameraX, newCameraY);
                 }
                 CheckBounds();

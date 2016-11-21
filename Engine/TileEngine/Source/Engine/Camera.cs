@@ -41,7 +41,7 @@ namespace TileEngine
             }
         }
         // XNA methods
-        public void Update(GameTime gameTime, GameObject cameraTarget)
+        public void Update(GameTime gameTime, BaseGameObject cameraTarget)
         {
             try
             {

@@ -57,6 +57,7 @@ namespace TileEngine
         public SpriteEffects spriteEffect { get; set; }
         public float layerDepth { get; set; }
         public List<Animation> animations { get; set; }
+        public string previousAnimationTag { get; set; }
 
         // Constructors
         public BaseGameObject(string tag, Texture2D texture, Vector2 position_Base, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth)
@@ -92,6 +93,7 @@ namespace TileEngine
                 this.layerDepth = layerDepth;
 
                 animations = new List<Animation>();
+                previousAnimationTag = "";
             }
             catch (Exception error)
             {

@@ -18,12 +18,12 @@ namespace TileEngine
         public bool isMoving { get; set; }
         public Direction direction { get; protected set; }
         public WallSlide wallSlide { get; set; }
-        
+
         // Constructors
         public BaseAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
-            : base (tag, texture, position_World, sourceRectangle_Position, sourceRectangle_Size, colour, layerDepth)
+            : base(tag, texture, position_World, sourceRectangle_Position, sourceRectangle_Size, colour, layerDepth)
         {
-            
+
             this.healthPoints = healthPoints;
             movementSpeed = 1.0f;
             direction = Direction.Down;
@@ -63,7 +63,12 @@ namespace TileEngine
             if (animations.Exists(r => r.tag == animationTag))
             {
                 int indexOfAnimation = animations.FindIndex(r => r.tag == animationTag);
-                animations[indexOfAnimation].Run(gameTime, sourceRectangle_Position);
+                if (previousAnimationTag != animationTag || !isMoving)
+                {
+                    animations[indexOfAnimation].Reset();
+                    previousAnimationTag = animationTag;
+                }
+                sourceRectangle_Position = animations[indexOfAnimation].Run(gameTime);
             }
         }
         protected void AnimationController(GameTime gameTime)
@@ -73,40 +78,28 @@ namespace TileEngine
                 switch (direction)
                 {
                     case Direction.Down:
-                        if (isMoving)
-                        {
-                            AnimationFinder("Walking Down", gameTime);
-                        }
+                        AnimationFinder("Walking Down", gameTime);
                         break;
                     case Direction.Up:
-                        if (isMoving)
-                        {
-                            AnimationFinder("Walking Up", gameTime);
-                        }
+                        AnimationFinder("Walking Up", gameTime);
                         break;
                     case Direction.Left:
-                        if (isMoving)
-                        {
-                            AnimationFinder("Walking Left", gameTime);
-                        }
+                        AnimationFinder("Walking Left", gameTime);
                         break;
                     case Direction.Right:
-                        if (isMoving)
-                        {
-                            AnimationFinder("Walking Right", gameTime);
-                        }
+                        AnimationFinder("Walking Right", gameTime);
                         break;
                     case Direction.UpLeft:
-
+                        AnimationFinder("Walking Left", gameTime);
                         break;
                     case Direction.UpRight:
-
+                        AnimationFinder("Walking Right", gameTime);
                         break;
                     case Direction.DownLeft:
-
+                        AnimationFinder("Walking Left", gameTime);
                         break;
                     case Direction.DownRight:
-
+                        AnimationFinder("Walking Right", gameTime);
                         break;
                     default:
                         break;

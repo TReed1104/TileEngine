@@ -15,36 +15,40 @@ namespace TileEngine
         public int currentX { get; protected set; }
         public int currentY { get; protected set; }
         public int numberOfFrames { get; protected set; }
-        public int animationSpeed { get; protected set; }
+        public float animationSpeed { get; protected set; }
         protected float animationTimer { get; set; }
-        protected bool isAnimationActive { get; set; }
 
-        public Animation(string tag, int startX, int startY, int numberOfFrames, int animationSpeed)
+        public Animation(string tag, int startX, int startY, int numberOfFrames, float animationSpeed)
         {
             this.tag = tag;
             this.startX = startX;
             this.startY = startY;
+            this.currentX = this.startX;
+            this.currentY = this.startY;
             this.numberOfFrames = numberOfFrames;
             this.animationSpeed = animationSpeed;
             this.animationTimer = 0.0f;
         }
 
-        public void Run(GameTime gameTime, Vector2 framePosition)
+        public Vector2 Run(GameTime gameTime)
         {
+            Vector2 newFramePositon = new Vector2(currentX, currentY);
             animationTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            framePosition.Y = startY;
+            newFramePositon.Y = startY;
             if (animationTimer >= animationSpeed)
             {
-                framePosition = new Vector2(currentX, currentY);
-
-                //frameX = (frameX + 1) % numberOfFrame;  //Calculates the frame to use
-                //frameX += startFrame;   //Changes the frame
-                //frameTimer = 0; //Resets the timer
+                currentX = (currentX + 1) % numberOfFrames;
+                currentX += startX;
+                animationTimer = 0;
+                newFramePositon.X = currentX;
             }
+            return newFramePositon;
         }
         public void Reset()
         {
-
+            currentX = startX;
+            currentY = startY;
+            animationTimer = 0;
         }
     }
 }

@@ -587,7 +587,7 @@ namespace TileEngine
                                 int animation_StartX = int.Parse(xmlReader.GetAttribute("start_x"));
                                 int animation_StartY = int.Parse(xmlReader.GetAttribute("start_y"));
                                 int animation_NumberOfFrames = int.Parse(xmlReader.GetAttribute("number_of_frame"));
-                                int animation_Speed = int.Parse(xmlReader.GetAttribute("speed"));
+                                float animation_Speed = float.Parse(xmlReader.GetAttribute("speed"));
                                 animations.Add(new Animation(animation_Tag, animation_StartX, animation_StartY, animation_NumberOfFrames, animation_Speed));
                             }
                         }

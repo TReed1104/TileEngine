@@ -16,6 +16,9 @@ namespace TileEngine
         {
             MovementController += PlayerMovement;
             BehaviourController += PlayerBehaviour;
+            isMoving = false;
+            isAttacking = false;
+            isDefending = false;
         }
 
         protected void PlayerMovement()
@@ -26,6 +29,24 @@ namespace TileEngine
                 Vector2 newPosition = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y);        // Takes a copy of the current position.
                 bool keyPressed = false;
 
+                #region // Down
+                if (Keyboard.GetState().IsKeyDown(Keys.Down) && Keyboard.GetState().IsKeyUp(Keys.Up))
+                {
+                    velocity = new Vector2(0, movementSpeed);     // Sets the Player's Velocity.
+                    direction = Direction.Down;
+                    newPosition = new Vector2(boundingBox_AABB.X, (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
+                    keyPressed = true;
+                }
+                #endregion
+                #region // Up
+                if (Keyboard.GetState().IsKeyDown(Keys.Up) && Keyboard.GetState().IsKeyUp(Keys.Down))
+                {
+                    velocity = new Vector2(0, -movementSpeed);     // Sets the Player's Velocity.
+                    direction = Direction.Up;
+                    newPosition = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y + (velocity.Y * deltaTime));
+                    keyPressed = true;
+                }
+                #endregion
                 #region // Left
                 if (Keyboard.GetState().IsKeyDown(Keys.Left) && Keyboard.GetState().IsKeyUp(Keys.Right))
                 {
@@ -41,24 +62,6 @@ namespace TileEngine
                     velocity = new Vector2(movementSpeed, 0);     // Sets the Player's Velocity.
                     direction = Direction.Right;
                     newPosition = new Vector2((boundingBox_AABB.X + boundingBox_AABB.Width) + (velocity.X * deltaTime), boundingBox_AABB.Y);
-                    keyPressed = true;
-                }
-                #endregion
-                #region // Up
-                if (Keyboard.GetState().IsKeyDown(Keys.Up) && Keyboard.GetState().IsKeyUp(Keys.Down))
-                {
-                    velocity = new Vector2(0, -movementSpeed);     // Sets the Player's Velocity.
-                    direction = Direction.Up;
-                    newPosition = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y + (velocity.Y * deltaTime));
-                    keyPressed = true;
-                }
-                #endregion
-                #region // Down
-                if (Keyboard.GetState().IsKeyDown(Keys.Down) && Keyboard.GetState().IsKeyUp(Keys.Up))
-                {
-                    velocity = new Vector2(0, movementSpeed);     // Sets the Player's Velocity.
-                    direction = Direction.Down;
-                    newPosition = new Vector2(boundingBox_AABB.X, (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
                     keyPressed = true;
                 }
                 #endregion

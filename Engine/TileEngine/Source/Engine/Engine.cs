@@ -115,7 +115,7 @@ namespace TileEngine
             Engine.PlayerCamera = new Camera("Player Camera", Vector2.Zero);
 
             Engine.VisualDebugger = false;
-            Engine.isEngineInTestMode = true;
+            Engine.isEngineInTestMode = false;
         }
 
         // Runtime methods

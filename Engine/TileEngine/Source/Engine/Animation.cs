@@ -30,7 +30,7 @@ namespace TileEngine
             this.animationTimer = 0.0f;
         }
 
-        public Vector2 Run(GameTime gameTime)
+        public void Run(GameTime gameTime, BaseGameObject objectToAnimate)
         {
             Vector2 newFramePositon = new Vector2(currentX, currentY);
             animationTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -42,7 +42,7 @@ namespace TileEngine
                 animationTimer = 0;
                 newFramePositon.X = currentX;
             }
-            return newFramePositon;
+            objectToAnimate.sourceRectangle_Position = newFramePositon;
         }
         public void Reset()
         {

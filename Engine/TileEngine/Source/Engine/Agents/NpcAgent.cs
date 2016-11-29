@@ -16,6 +16,9 @@ namespace TileEngine
         {
             MovementController += NpcMovement;
             BehaviourController += NpcBehaviour;
+            isMoving = false;
+            isAttacking = false;
+            isDefending = false;
         }
 
         protected void NpcMovement()

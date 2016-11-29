@@ -70,6 +70,9 @@
     <Content Include="Content\Items\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Levels\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Textures\*" />
     <Content Include="Icon.ico" />
     <MonoGameContentReference Include="Content\Content.mgcb" />

@@ -16,6 +16,8 @@ namespace TileEngine
         public enum WallSlide { None, WallSlideLeft, WallSlideRight, WallSlideUp, WallSlideDown, };
         // Vars
         public bool isMoving { get; set; }
+        public bool isAttacking { get; set; }
+        public bool isDefending { get; set; }
         public Direction direction { get; protected set; }
         public WallSlide wallSlide { get; set; }
 
@@ -60,46 +62,66 @@ namespace TileEngine
         }
         protected void AnimationFinder(string animationTag, GameTime gameTime)
         {
+            // Work out which version of that directions animation to play
+            string animationModifier = "Idle ";
+            if (isMoving)
+            {
+                animationModifier = "Walking ";
+            }
+            if (isAttacking)
+            {
+                animationModifier = "Attacking ";
+            }
+            else if (isDefending)
+            {
+                animationModifier = "Defending ";
+            }
+            animationTag = animationModifier + animationTag;
+
+            // Check the animation exists
             if (animations.Exists(r => r.tag == animationTag))
             {
-                int indexOfAnimation = animations.FindIndex(r => r.tag == animationTag);
-                if (previousAnimationTag != animationTag || !isMoving)
+                int indexOfAnimation = animations.FindIndex(r => r.tag == animationTag);    // Find the animation
+                if (previousAnimationTag != animationTag)                                   // If the animation was not the previous animation, reset its progress to prevent strange behaviour
                 {
                     animations[indexOfAnimation].Reset();
                     previousAnimationTag = animationTag;
                 }
-                sourceRectangle_Position = animations[indexOfAnimation].Run(gameTime);
+
+                // Play the animation
+                animations[indexOfAnimation].Run(gameTime, this);
             }
         }
         protected void AnimationController(GameTime gameTime)
         {
             try
             {
+                // Works out what direction variation of a animation to play.
                 switch (direction)
                 {
                     case Direction.Down:
-                        AnimationFinder("Walking Down", gameTime);
+                        AnimationFinder("Towards", gameTime);
                         break;
                     case Direction.Up:
-                        AnimationFinder("Walking Up", gameTime);
+                        AnimationFinder("Away", gameTime);
                         break;
                     case Direction.Left:
-                        AnimationFinder("Walking Left", gameTime);
+                        AnimationFinder("Left", gameTime);
                         break;
                     case Direction.Right:
-                        AnimationFinder("Walking Right", gameTime);
+                        AnimationFinder("Right", gameTime);
                         break;
                     case Direction.UpLeft:
-                        AnimationFinder("Walking Left", gameTime);
+                        AnimationFinder("Left", gameTime);
                         break;
                     case Direction.UpRight:
-                        AnimationFinder("Walking Right", gameTime);
+                        AnimationFinder("Right", gameTime);
                         break;
                     case Direction.DownLeft:
-                        AnimationFinder("Walking Left", gameTime);
+                        AnimationFinder("Left", gameTime);
                         break;
                     case Direction.DownRight:
-                        AnimationFinder("Walking Right", gameTime);
+                        AnimationFinder("Right", gameTime);
                         break;
                     default:
                         break;
@@ -115,7 +137,6 @@ namespace TileEngine
         {
             try
             {
-                // The method which sets the next grid position of the Player.
                 // The new position post movement.
                 newGridPosition = new Vector2((float)Math.Floor(newPosition.X / Tile.Dimensions.X), (float)Math.Floor(newPosition.Y / Tile.Dimensions.Y));
 

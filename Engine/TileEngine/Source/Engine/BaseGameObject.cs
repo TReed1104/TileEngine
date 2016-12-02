@@ -15,19 +15,12 @@ namespace TileEngine
         // Vars
         public string tag { get; set; }
         public Vector2 position_Base { get; set; }
-        public Vector2 position_Grid { get { return new Vector2((int)(position_Base.X / Tile.Dimensions.X), (int)(position_Base.Y / Tile.Dimensions.Y)); } }
+        public Vector2 position_Grid { get { return Engine.ConvertPosition_PixelToGrid(position_Base); } }
         public Vector2 position_Draw { get { return position_Base + Engine.Window_HUD_Size_Pixels; } }
         protected Vector2 boundingBox_Offset { get; set; }
         public Vector2 boundingBox_Size { get; set; }
-        public Rectangle boundingBox_AABB { get { return new Rectangle((int)position_Base.X + (int)boundingBox_Offset.X, (int)position_Base.Y + (int)boundingBox_Offset.Y, (int)boundingBox_Size.X, (int)boundingBox_Size.Y); } }
-        protected Vector2 AABB_TopLeft_GridPosition { get { return new Vector2((int)(boundingBox_AABB.X / Tile.Dimensions.X), (int)(boundingBox_AABB.Y / Tile.Dimensions.Y)); } }
-        protected Vector2 AABB_TopRight_GridPosition { get { return new Vector2((int)((boundingBox_AABB.X + (boundingBox_AABB.Width - 1)) / Tile.Dimensions.X), (int)(boundingBox_AABB.Y / Tile.Dimensions.Y)); } }
-        protected Vector2 AABB_BottomLeft_GridPosition { get { return new Vector2((int)(boundingBox_AABB.X / Tile.Dimensions.X), (int)((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.Dimensions.Y)); } }
-        protected Vector2 AABB_BottomRight_GridPosition { get { return new Vector2((int)((boundingBox_AABB.X + (boundingBox_AABB.Width - 1)) / Tile.Dimensions.X), (int)((boundingBox_AABB.Y + (boundingBox_AABB.Height - 1)) / Tile.Dimensions.Y)); } }
-        protected Vector2 AABB_Center_GridPosition { get { return new Vector2((int)((boundingBox_AABB.X + (boundingBox_AABB.Width / 2) - 1) / Tile.Dimensions.X), (int)((boundingBox_AABB.Y + (boundingBox_AABB.Height / 2) - 1) / Tile.Dimensions.Y)); } }
-        protected Vector2 newGridPosition { get; set; }
-        protected Vector2 newGridPositionOffset { get; set; }
-        protected Vector2 newGridPositionOffsetDiagonal { get; set; }
+        public Vector2 boundingBox_Position { get { return new Vector2(boundingBox.X, boundingBox.Y); } }
+        public AABB boundingBox { get { return new AABB((int)position_Base.X + (int)boundingBox_Offset.X, (int)position_Base.Y + (int)boundingBox_Offset.Y, (int)boundingBox_Size.X, (int)boundingBox_Size.Y); } }
         public Vector2 velocity { get; set; }
         public float movementSpeed { get; protected set; }
         public float healthPoints { get; protected set; }
@@ -70,10 +63,6 @@ namespace TileEngine
                 this.position_Base = position_Base;
                 boundingBox_Size = Vector2.Zero;
                 boundingBox_Offset = Vector2.Zero;
-
-                newGridPosition = Vector2.Zero;
-                newGridPositionOffset = Vector2.Zero;
-                newGridPositionOffsetDiagonal = Vector2.Zero;
 
                 healthPoints = 1.0f;
                 velocity = Vector2.Zero;

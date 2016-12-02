@@ -671,7 +671,7 @@ namespace TileEngine
             }
         }
 
-        // Engine loading Conversion methods
+        // Engine Conversion methods
         public static Color ConvertStringToColour(string stringToConvert)
         {
             try
@@ -692,6 +692,10 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", "Engine", methodName, error.Message));
                 return Color.White;
             }
+        }
+        public static Vector2 ConvertPosition_PixelToGrid(Vector2 pixelPosition)
+        {
+            return new Vector2((int)(pixelPosition.X / Tile.Dimensions.X), (int)(pixelPosition.Y / Tile.Dimensions.Y));
         }
 
         // Testing Methods

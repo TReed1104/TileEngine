@@ -18,7 +18,7 @@ namespace TileEngine
         public bool isMoving { get; set; }
         public bool isAttacking { get; set; }
         public bool isDefending { get; set; }
-        public Direction direction { get; protected set; }
+        public Direction movementDirection { get; protected set; }
         public WallSlide wallSlide { get; set; }
 
         // Constructors
@@ -28,7 +28,7 @@ namespace TileEngine
 
             this.healthPoints = healthPoints;
             movementSpeed = 1.0f;
-            direction = Direction.Down;
+            movementDirection = Direction.Down;
             wallSlide = WallSlide.None;
 
             boundingBox_Size = new Vector2(10, 10);
@@ -38,9 +38,9 @@ namespace TileEngine
 
         // Delegates
         protected delegate void MovementControl();
-        protected MovementControl MovementController;
+        protected MovementControl MovementHandler;
         protected delegate void AgentBehaviour(GameTime gameTime);
-        protected AgentBehaviour BehaviourController;
+        protected AgentBehaviour BehaviourHandler;
 
         // Methods
         public override void Update(GameTime gameTime)
@@ -48,15 +48,24 @@ namespace TileEngine
             deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
 
             // Movement
-            MovementController();
+            if (Keyboard.GetState().IsKeyDown(Keys.LeftShift))
+            {
+                movementSpeed = 2.0f;
+            }
+            else
+            {
+                movementSpeed = 1.0f;
+            }
+            MovementHandler();
 
             // Behaviour
-            BehaviourController(gameTime);
+            BehaviourHandler(gameTime);
 
             // Animations
-            AnimationController(gameTime);
+            AnimationHandler(gameTime);
 
             // Reset the Agent to its base mode.
+            position_Base += velocity;
             velocity = Vector2.Zero;
             isMoving = false;
         }
@@ -92,12 +101,12 @@ namespace TileEngine
                 animations[indexOfAnimation].Run(gameTime, this);
             }
         }
-        protected void AnimationController(GameTime gameTime)
+        protected void AnimationHandler(GameTime gameTime)
         {
             try
             {
                 // Works out what direction variation of a animation to play.
-                switch (direction)
+                switch (movementDirection)
                 {
                     case Direction.Down:
                         AnimationFinder("Towards", gameTime);
@@ -133,374 +142,119 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        protected virtual void CollisionCheckTileMap(Vector2 newPosition)
+        protected void CollisionHandler_Movement()
         {
             try
             {
-                // The new position post movement.
-                newGridPosition = new Vector2((float)Math.Floor(newPosition.X / Tile.Dimensions.X), (float)Math.Floor(newPosition.Y / Tile.Dimensions.Y));
+                Vector2 minVelocity = new Vector2(0, 0);
+                Vector2 maxVelocity = new Vector2(0, 0);
+                Vector2 velocityIncrement = new Vector2(0, 0);
+                switch (movementDirection)
+                {
+                    case Direction.Down:
+                        minVelocity = new Vector2(0, 1);
+                        maxVelocity = new Vector2(0, movementSpeed);
+                        velocityIncrement = new Vector2(0, 1);
+                        break;
+                    case Direction.Up:
+                        minVelocity = new Vector2(0, -1);
+                        maxVelocity = new Vector2(0, -movementSpeed);
+                        velocityIncrement = new Vector2(0, -1);
+                        break;
+                    case Direction.Left:
+                        minVelocity = new Vector2(-1, 0);
+                        maxVelocity = new Vector2(-movementSpeed, 0);
+                        velocityIncrement = new Vector2(-1, 0);
+                        break;
+                    case Direction.Right:
+                        minVelocity = new Vector2(1, 0);
+                        maxVelocity = new Vector2(movementSpeed, 0);
+                        velocityIncrement = new Vector2(1, 0);
+                        break;
+                    default:
+                        break;
+                }
 
-                // The Offset of the overlapped cells compared to the new position.
-                Vector2 cellOffSet = Vector2.Zero;
-                Vector2 cellOffSetDiagonal = Vector2.Zero;
+                Vector2 currentVelocity = new Vector2(0, 0);
+                Vector2 previousVelocity = new Vector2(0, 0);
 
-                // Cell Overlap handling.
-                #region Left and Right Overlap Checks hidden here.
-                if ((direction == Direction.Left || direction == Direction.Right))
+                bool isComplete = false;
+                while (!isComplete)
                 {
-                    if (AABB_TopLeft_GridPosition.Y != AABB_BottomLeft_GridPosition.Y)
+                    bool isColliding = false;
+                    // Check for collision
+                    AABB newBoundingBox = new AABB(boundingBox.position, boundingBox.size);
+                    newBoundingBox.SetPosition(newBoundingBox.position + currentVelocity);
+
+                    Vector2 gridPositionToCheck_0 = new Vector2(-1, -1);
+                    Vector2 gridPositionToCheck_1 = new Vector2(-1, -1);
+
+                    if (newBoundingBox.gridPosition_TopLeft != newBoundingBox.gridPosition_BottomLeft)
                     {
-                        cellOffSet = new Vector2(0, 1);
+                        gridPositionToCheck_1 = newBoundingBox.gridPosition_BottomLeft;
                     }
 
-                }
-                #endregion
-                #region Up and Down Overlap Checks hidden here.
-                if ((direction == Direction.Up || direction == Direction.Down))
-                {
-                    if (AABB_TopLeft_GridPosition.X != AABB_TopRight_GridPosition.X)
+                    switch (movementDirection)
                     {
-                        cellOffSet = new Vector2(1, 0);
+                        case Direction.Down:
+                            gridPositionToCheck_0 = newBoundingBox.gridPosition_BottomLeft;
+                            gridPositionToCheck_1 = newBoundingBox.gridPosition_BottomLeft;
+                            if (newBoundingBox.gridPosition_BottomLeft != newBoundingBox.gridPosition_BottomRight)
+                            {
+                                gridPositionToCheck_1 = newBoundingBox.gridPosition_BottomRight;
+                            }
+                            break;
+                        case Direction.Up:
+                            gridPositionToCheck_0 = newBoundingBox.gridPosition_TopLeft;
+                            gridPositionToCheck_1 = newBoundingBox.gridPosition_TopLeft;
+                            if (newBoundingBox.gridPosition_TopLeft != newBoundingBox.gridPosition_TopRight)
+                            {
+                                gridPositionToCheck_1 = newBoundingBox.gridPosition_TopRight;
+                            }
+                            break;
+                        case Direction.Left:
+                            gridPositionToCheck_0 = newBoundingBox.gridPosition_TopLeft;
+                            gridPositionToCheck_1 = newBoundingBox.gridPosition_TopLeft;
+                            if (newBoundingBox.gridPosition_TopLeft != newBoundingBox.gridPosition_BottomLeft)
+                            {
+                                gridPositionToCheck_1 = newBoundingBox.gridPosition_BottomLeft;
+                            }
+                            break;
+                        case Direction.Right:
+                            gridPositionToCheck_0 = newBoundingBox.gridPosition_TopRight;
+                            gridPositionToCheck_1 = newBoundingBox.gridPosition_TopRight;
+                            if (newBoundingBox.gridPosition_TopRight != newBoundingBox.gridPosition_BottomRight)
+                            {
+                                gridPositionToCheck_1 = newBoundingBox.gridPosition_BottomRight;
+                            }
+                            break;
+                        default:
+                            break;
                     }
-                }
-                #endregion
 
-                // Wall Sliding.
-                #region Up-Left Overlap Checks hidden here.
-                // Up-Left
-                if (direction == Direction.UpLeft)
-                {
-                    if (AABB_TopLeft_GridPosition.X == AABB_TopRight_GridPosition.X && AABB_TopLeft_GridPosition.Y == AABB_BottomLeft_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_TopLeft_GridPosition + new Vector2(0, -1)))
-                        {
-                            cellOffSet = new Vector2(-1, 0);
-                            cellOffSetDiagonal = new Vector2(-1, 1);
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
-                            {
-                                wallSlide = WallSlide.WallSlideUp;
-                            }
-                            else
-                            {
-                                wallSlide = WallSlide.WallSlideLeft;
-                            }
-                        }
-                        if (newGridPosition == (AABB_TopLeft_GridPosition + new Vector2(-1, -1)))
-                        {
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(1, 0)) &&
-                                !Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, 1)))
-                            {
-                                cellOffSet = new Vector2(1, 0);
-                                cellOffSetDiagonal = new Vector2(0, 1);
-                                wallSlide = WallSlide.WallSlideUp;
-                            }
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, 1)))
-                            {
-                                cellOffSet = new Vector2(1, 0);
-                                cellOffSetDiagonal = new Vector2(0, 1);
-                                wallSlide = WallSlide.WallSlideLeft;
-                            }
-                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(1, 0)) &&
-                                !Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, 1)))
-                            {
-                                cellOffSet = new Vector2(1, 0);
-                                cellOffSetDiagonal = new Vector2(0, 1);
-                                wallSlide = WallSlide.WallSlideLeft;
-                            }
-                        }
-                        if (newGridPosition == (AABB_TopLeft_GridPosition + new Vector2(-1, 0)))
-                        {
-                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
-                            {
-                                cellOffSet = new Vector2(0, -1);
-                                cellOffSetDiagonal = new Vector2(1, -1);
-                                wallSlide = WallSlide.WallSlideUp;
-                            }
-                        }
-                    }
-                    if (AABB_TopLeft_GridPosition.X != AABB_TopRight_GridPosition.X && AABB_TopLeft_GridPosition.Y == AABB_BottomLeft_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_TopLeft_GridPosition + new Vector2(0, -1)))
-                        {
-                            cellOffSet = new Vector2(1, 0);
-                            cellOffSetDiagonal = new Vector2(0, 1);
-                            wallSlide = WallSlide.WallSlideLeft;
-                        }
-                    }
-                    if (AABB_TopLeft_GridPosition.X == AABB_TopRight_GridPosition.X && AABB_TopLeft_GridPosition.Y != AABB_BottomLeft_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_TopLeft_GridPosition + new Vector2(-1, 0)))
-                        {
-                            cellOffSet = new Vector2(1, 0);
-                            cellOffSetDiagonal = new Vector2(0, 1);
-                            wallSlide = WallSlide.WallSlideUp;
-                        }
-                    }
-                }
-                #endregion
-                #region Up-Right Overlap Checks hidden here.
-                // Up-Right
-                if (direction == Direction.UpRight)
-                {
-                    if (AABB_TopLeft_GridPosition.X == AABB_TopRight_GridPosition.X && AABB_TopRight_GridPosition.Y == AABB_BottomRight_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_TopRight_GridPosition + new Vector2(0, -1)))
-                        {
-                            cellOffSet = new Vector2(1, 0);
-                            cellOffSetDiagonal = new Vector2(1, 1);
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
-                            {
-                                wallSlide = WallSlide.WallSlideUp;
-                            }
-                            else
-                            {
-                                wallSlide = WallSlide.WallSlideRight;
-                            }
-                        }
-                        if (newGridPosition == (AABB_TopRight_GridPosition + new Vector2(1, -1)))
-                        {
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(-1, 0)))
-                            {
-                                cellOffSet = new Vector2(-1, 0);
-                                cellOffSetDiagonal = new Vector2(0, 1);
-                                wallSlide = WallSlide.WallSlideUp;
-                            }
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, 1)))
-                            {
-                                cellOffSet = new Vector2(-1, 0);
-                                cellOffSetDiagonal = new Vector2(0, 1);
-                                wallSlide = WallSlide.WallSlideRight;
-                            }
-                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(-1, 0)) &&
-                                !Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, 1)))
-                            {
-                                cellOffSet = new Vector2(-1, 0);
-                                cellOffSetDiagonal = new Vector2(0, 1);
-                                wallSlide = WallSlide.WallSlideRight;
-                            }
-                        }
-                        if (newGridPosition == (AABB_TopRight_GridPosition + new Vector2(1, 0)))
-                        {
-                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
-                            {
-                                cellOffSet = new Vector2(0, -1);
-                                cellOffSetDiagonal = new Vector2(-1, -1);
-                                wallSlide = WallSlide.WallSlideUp;
-                            }
-                        }
-                    }
-                    if (AABB_TopLeft_GridPosition.X != AABB_TopRight_GridPosition.X && AABB_TopRight_GridPosition.Y == AABB_BottomRight_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_TopRight_GridPosition + new Vector2(0, -1)))
-                        {
-                            cellOffSet = new Vector2(-1, 0);
-                            cellOffSetDiagonal = new Vector2(0, 1);
-                            wallSlide = WallSlide.WallSlideRight;
-                        }
-                    }
-                    if (AABB_TopLeft_GridPosition.X == AABB_TopRight_GridPosition.X && AABB_TopRight_GridPosition.Y != AABB_BottomRight_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_TopRight_GridPosition + new Vector2(1, 0)))
-                        {
-                            cellOffSet = new Vector2(-1, 0);
-                            cellOffSetDiagonal = new Vector2(0, 1);
-                            wallSlide = WallSlide.WallSlideUp;
-                        }
-                    }
-                }
-                #endregion
-                #region Down-Left Overlap Checks hidden here.
-                // Down-Left
-                if (direction == Direction.DownLeft)
-                {
-                    if (AABB_TopLeft_GridPosition.X == AABB_TopRight_GridPosition.X && AABB_TopLeft_GridPosition.Y == AABB_BottomLeft_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_BottomLeft_GridPosition + new Vector2(0, 1)))
-                        {
-                            cellOffSet = new Vector2(-1, 0);
-                            cellOffSetDiagonal = new Vector2(-1, -1);
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
-                            {
-                                wallSlide = WallSlide.WallSlideDown;
-                            }
-                            else
-                            {
-                                wallSlide = WallSlide.WallSlideLeft;
-                            }
-                        }
-                        if (newGridPosition == (AABB_BottomLeft_GridPosition + new Vector2(-1, 1)))
-                        {
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(1, 0)))
-                            {
-                                cellOffSet = new Vector2(1, 0);
-                                cellOffSetDiagonal = new Vector2(0, -1);
-                                wallSlide = WallSlide.WallSlideDown;
-                            }
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, -1)))
-                            {
-                                cellOffSet = new Vector2(1, 0);
-                                cellOffSetDiagonal = new Vector2(0, -1);
-                                wallSlide = WallSlide.WallSlideLeft;
-                            }
-                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(1, 0)) &&
-                                !Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, -1)))
-                            {
-                                cellOffSet = new Vector2(1, 0);
-                                cellOffSetDiagonal = new Vector2(0, -1);
-                                wallSlide = WallSlide.WallSlideLeft;
-                            }
-                        }
-                        if (newGridPosition == (AABB_BottomLeft_GridPosition + new Vector2(-1, 0)))
-                        {
-                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
-                            {
-                                cellOffSet = new Vector2(0, 1);
-                                cellOffSetDiagonal = new Vector2(1, -1);
-                                wallSlide = WallSlide.WallSlideDown;
-                            }
-                        }
-                    }
-                    if (AABB_TopLeft_GridPosition.X != AABB_TopRight_GridPosition.X && AABB_TopLeft_GridPosition.Y == AABB_BottomLeft_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_BottomLeft_GridPosition + new Vector2(0, 1)))
-                        {
-                            cellOffSet = new Vector2(1, 0);
-                            cellOffSetDiagonal = new Vector2(0, -1);
-                            wallSlide = WallSlide.WallSlideLeft;
-                        }
-                    }
-                    if (AABB_TopLeft_GridPosition.X == AABB_TopRight_GridPosition.X && AABB_TopLeft_GridPosition.Y != AABB_BottomLeft_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_BottomLeft_GridPosition + new Vector2(-1, 0)))
-                        {
-                            cellOffSet = new Vector2(1, 0);
-                            cellOffSetDiagonal = new Vector2(0, -1);
-                            wallSlide = WallSlide.WallSlideDown;
-                        }
-                    }
-                }
-                #endregion
-                #region Down-Right Overlap Checks hidden here.
-                // Down-Right
-                if (direction == Direction.DownRight)
-                {
-                    if (AABB_TopLeft_GridPosition.X == AABB_TopRight_GridPosition.X && AABB_TopRight_GridPosition.Y == AABB_BottomRight_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_BottomRight_GridPosition + new Vector2(0, 1)))
-                        {
-                            cellOffSet = new Vector2(1, 0);
-                            cellOffSetDiagonal = new Vector2(1, -1);
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
-                            {
-                                wallSlide = WallSlide.WallSlideDown;
-                            }
-                            else
-                            {
-                                wallSlide = WallSlide.WallSlideRight;
-                            }
-                        }
-                        if (newGridPosition == (AABB_BottomRight_GridPosition + new Vector2(1, 1)))
-                        {
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(-1, 0)))
-                            {
-                                cellOffSet = new Vector2(-1, 0);
-                                cellOffSetDiagonal = new Vector2(0, -1);
-                                wallSlide = WallSlide.WallSlideDown;
-                            }
-                            if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, -1)))
-                            {
-                                cellOffSet = new Vector2(-1, 0);
-                                cellOffSetDiagonal = new Vector2(0, -1);
-                                wallSlide = WallSlide.WallSlideRight;
-                            }
-                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(-1, 0)) &&
-                                !Engine.GetCurrentLevel().IsTileSolid(newGridPosition + new Vector2(0, -1)))
-                            {
-                                cellOffSet = new Vector2(-1, 0);
-                                cellOffSetDiagonal = new Vector2(0, -1);
-                                wallSlide = WallSlide.WallSlideRight;
-                            }
-                        }
-                        if (newGridPosition == (AABB_BottomRight_GridPosition + new Vector2(1, 0)))
-                        {
-                            if (!Engine.GetCurrentLevel().IsTileSolid(newGridPosition))
-                            {
-                                cellOffSet = new Vector2(0, 1);
-                                cellOffSetDiagonal = new Vector2(-1, 1);
-                                wallSlide = WallSlide.WallSlideDown;
-                            }
-                        }
-                    }
-                    if (AABB_TopLeft_GridPosition.X != AABB_TopRight_GridPosition.X && AABB_TopRight_GridPosition.Y == AABB_BottomRight_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_BottomRight_GridPosition + new Vector2(0, 1)))
-                        {
-                            cellOffSet = new Vector2(-1, 0);
-                            cellOffSetDiagonal = new Vector2(0, -1);
-                            wallSlide = WallSlide.WallSlideRight;
-                        }
-                    }
-                    if (AABB_TopLeft_GridPosition.X == AABB_TopRight_GridPosition.X && AABB_TopRight_GridPosition.Y != AABB_BottomRight_GridPosition.Y)
-                    {
-                        if (newGridPosition == (AABB_BottomRight_GridPosition + new Vector2(1, 0)))
-                        {
-                            cellOffSet = new Vector2(-1, 0);
-                            cellOffSetDiagonal = new Vector2(0, -1);
-                            wallSlide = WallSlide.WallSlideDown;
-                        }
-                    }
-                }
-                #endregion
+                    AABB boundingToCheck_0 = Engine.GetCurrentLevel().GetTileBoundingBox(gridPositionToCheck_0);
+                    AABB boundingToCheck_1 = Engine.GetCurrentLevel().GetTileBoundingBox(gridPositionToCheck_1);
 
-                newGridPositionOffset = newGridPosition + cellOffSet;
-                newGridPositionOffsetDiagonal = newGridPosition + cellOffSetDiagonal;
+                    isColliding = newBoundingBox.Intersects(boundingToCheck_0) || newBoundingBox.Intersects(boundingToCheck_1);
 
-                // Check the collisions.
-                if (Engine.GetCurrentLevel().IsTileSolid(newGridPosition) &&
-                    Engine.GetCurrentLevel().IsTileSolid(newGridPositionOffset) &&
-                    Engine.GetCurrentLevel().IsTileSolid(newGridPositionOffsetDiagonal))
-                {
-                    position_Base += velocity;
-                }
-                // If there are collisions, check if the movement is diagonal.
-                else if (direction == Direction.UpLeft || direction == Direction.UpRight || direction == Direction.DownLeft || direction == Direction.DownRight)
-                {
-                    #region // Diagonal movement
-                    // Handles wallsliding method calls
-                    Vector2 newPositionWallslide = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y);
-                    if (wallSlide == WallSlide.WallSlideLeft)
+                    if (isColliding)
                     {
-                        velocity = new Vector2(-movementSpeed, 0);     // Sets the Player's Velocity.
-                        direction = Direction.Left;
-                        newPositionWallslide = new Vector2(boundingBox_AABB.X + (velocity.X * deltaTime), boundingBox_AABB.Y);
-                        wallSlide = WallSlide.None;
-                        CollisionCheckTileMap(newPositionWallslide);
+                        velocity = previousVelocity;
+                        isComplete = true;
                     }
-                    if (wallSlide == WallSlide.WallSlideRight)
+                    else
                     {
-                        velocity = new Vector2(movementSpeed, 0);     // Sets the Player's Velocity.
-                        direction = Direction.Right;
-                        newPositionWallslide = new Vector2((boundingBox_AABB.X + boundingBox_AABB.Width) + (velocity.X * deltaTime), boundingBox_AABB.Y);
-                        wallSlide = WallSlide.None;
-                        CollisionCheckTileMap(newPositionWallslide);
+                        if (currentVelocity == maxVelocity)
+                        {
+                            velocity = currentVelocity;
+                            isComplete = true;
+                        }
+                        else
+                        {
+                            previousVelocity = currentVelocity;
+                            currentVelocity += velocityIncrement;
+                        }
                     }
-                    if (wallSlide == WallSlide.WallSlideUp)
-                    {
-                        velocity = new Vector2(0, -movementSpeed);     // Sets the Player's Velocity.
-                        direction = Direction.Up;
-                        newPositionWallslide = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y + (velocity.Y * deltaTime));
-                        wallSlide = WallSlide.None;
-                        CollisionCheckTileMap(newPositionWallslide);
-                    }
-                    if (wallSlide == WallSlide.WallSlideDown)
-                    {
-                        velocity = new Vector2(0, movementSpeed);     // Sets the Player's Velocity.
-                        direction = Direction.Down;
-                        newPositionWallslide = new Vector2(boundingBox_AABB.X, (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
-                        wallSlide = WallSlide.None;
-                        CollisionCheckTileMap(newPositionWallslide);
-                    }
-                    #endregion
                 }
             }
             catch (Exception error)

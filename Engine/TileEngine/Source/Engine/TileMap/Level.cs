@@ -140,7 +140,7 @@ namespace TileEngine
                 return false;
             }
         }
-        public bool IsTileSolid(Vector2 gridPositionToCheck)
+        public bool IsTileEmpty(Vector2 gridPositionToCheck)
         {
             try
             {
@@ -156,6 +156,10 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
                 return false;
             }
+        }
+        public AABB GetTileBoundingBox(Vector2 gridPositionOfTile)
+        {
+            return tilemap[(int)gridPositionOfTile.X, (int)gridPositionOfTile.Y].boundingBox;
         }
         public void SetCellTile(Vector2 gridPositionToSet, Tile newTile)
         {

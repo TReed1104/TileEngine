@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source\Engine\AABB.cs" />
     <Compile Include="Source\Engine\Animation.cs" />
     <Compile Include="Source\Engine\Camera.cs" />
     <Compile Include="Source\Engine\Engine.cs" />
@@ -72,6 +73,7 @@
     </Content>
     <Content Include="Content\Levels\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\Textures\*" />
     <Content Include="Icon.ico" />

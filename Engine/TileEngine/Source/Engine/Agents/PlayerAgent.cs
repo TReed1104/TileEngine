@@ -11,102 +11,101 @@ namespace TileEngine
 {
     public class PlayerAgent : BaseAgent
     {
+        public Keys movementKey_Down { get; set; }
+        public Keys movementKey_Up { get; set; }
+        public Keys movementKey_Right { get; set; }
+        public Keys movementKey_Left { get; set; }
+        bool isXboxControllerModeActive { get; set; }
+
         public PlayerAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
             : base(tag, texture, position_World, sourceRectangle_Position, sourceRectangle_Size, colour, layerDepth, healthPoints)
         {
-            MovementController += PlayerMovement;
-            BehaviourController += PlayerBehaviour;
+            MovementHandler += PlayerMovementHandler;
+            BehaviourHandler += PlayerBehaviourHandler;
             isMoving = false;
             isAttacking = false;
             isDefending = false;
+
+            // Set the controls
+            isXboxControllerModeActive = false;
+            movementKey_Down = Keys.Down;
+            movementKey_Up = Keys.Up;
+            movementKey_Right = Keys.Right;
+            movementKey_Left = Keys.Left;
         }
 
-        protected void PlayerMovement()
+        protected void PlayerMovementHandler()
         {
             // The method handling the Keyboard press used for the Player's movement.
             try
             {
-                Vector2 newPosition = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y);        // Takes a copy of the current position.
-                bool keyPressed = false;
+                if (!isXboxControllerModeActive)
+                {
+                    #region // Keyboard movement handling
+                    KeyboardState keyboardState = Keyboard.GetState();
+                    bool isMovementKeyPressed = keyboardState.IsKeyDown(movementKey_Down) || keyboardState.IsKeyDown(movementKey_Up) || keyboardState.IsKeyDown(movementKey_Right) || keyboardState.IsKeyDown(movementKey_Left);
 
-                #region // Down
-                if (Keyboard.GetState().IsKeyDown(Keys.Down) && Keyboard.GetState().IsKeyUp(Keys.Up))
-                {
-                    velocity = new Vector2(0, movementSpeed);     // Sets the Player's Velocity.
-                    direction = Direction.Down;
-                    newPosition = new Vector2(boundingBox_AABB.X, (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
-                    keyPressed = true;
-                }
-                #endregion
-                #region // Up
-                if (Keyboard.GetState().IsKeyDown(Keys.Up) && Keyboard.GetState().IsKeyUp(Keys.Down))
-                {
-                    velocity = new Vector2(0, -movementSpeed);     // Sets the Player's Velocity.
-                    direction = Direction.Up;
-                    newPosition = new Vector2(boundingBox_AABB.X, boundingBox_AABB.Y + (velocity.Y * deltaTime));
-                    keyPressed = true;
-                }
-                #endregion
-                #region // Left
-                if (Keyboard.GetState().IsKeyDown(Keys.Left) && Keyboard.GetState().IsKeyUp(Keys.Right))
-                {
-                    velocity = new Vector2(-movementSpeed, 0);     // Sets the Player's Velocity.
-                    direction = Direction.Left;
-                    newPosition = new Vector2(boundingBox_AABB.X + (velocity.X * deltaTime), boundingBox_AABB.Y);
-                    keyPressed = true;
-                }
-                #endregion
-                #region // Right
-                if (Keyboard.GetState().IsKeyDown(Keys.Right) && Keyboard.GetState().IsKeyUp(Keys.Left))
-                {
-                    velocity = new Vector2(movementSpeed, 0);     // Sets the Player's Velocity.
-                    direction = Direction.Right;
-                    newPosition = new Vector2((boundingBox_AABB.X + boundingBox_AABB.Width) + (velocity.X * deltaTime), boundingBox_AABB.Y);
-                    keyPressed = true;
-                }
-                #endregion
-                #region // Up-Left
-                if (Keyboard.GetState().IsKeyDown(Keys.Up) && Keyboard.GetState().IsKeyDown(Keys.Left))
-                {
-                    velocity = new Vector2(-movementSpeed, -movementSpeed);
-                    direction = Direction.UpLeft;
-                    newPosition = new Vector2(boundingBox_AABB.X + (velocity.X * deltaTime), boundingBox_AABB.Y + (velocity.Y * deltaTime));
-                    keyPressed = true;
-                }
-                #endregion
-                #region // Up-Right
-                if (Keyboard.GetState().IsKeyDown(Keys.Up) && Keyboard.GetState().IsKeyDown(Keys.Right))
-                {
-                    velocity = new Vector2(movementSpeed, -movementSpeed);
-                    direction = Direction.UpRight;
-                    newPosition = new Vector2((boundingBox_AABB.X + boundingBox_AABB.Width) + (velocity.X * deltaTime), boundingBox_AABB.Y + (velocity.Y * deltaTime));
-                    keyPressed = true;
-                }
-                #endregion
-                #region // Down-Left
-                if (Keyboard.GetState().IsKeyDown(Keys.Down) && Keyboard.GetState().IsKeyDown(Keys.Left))
-                {
-                    velocity = new Vector2(-movementSpeed, movementSpeed);
-                    direction = Direction.DownLeft;
-                    newPosition = new Vector2(boundingBox_AABB.X + (velocity.X * deltaTime), (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
-                    keyPressed = true;
-                }
-                #endregion
-                #region // Down-Right
-                if (Keyboard.GetState().IsKeyDown(Keys.Down) && Keyboard.GetState().IsKeyDown(Keys.Right))
-                {
-                    velocity = new Vector2(movementSpeed, movementSpeed);
-                    direction = Direction.DownRight;
-                    newPosition = new Vector2((boundingBox_AABB.X + boundingBox_AABB.Width) + (velocity.X * deltaTime), (boundingBox_AABB.Y + boundingBox_AABB.Height) + (velocity.Y * deltaTime));
-                    keyPressed = true;
-                }
-                #endregion
+                    // If a movement key is pressed...
+                    if (isMovementKeyPressed)
+                    {
+                        bool isMovementDown = keyboardState.IsKeyDown(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Right);
+                        bool isMovementUp = keyboardState.IsKeyDown(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Right);
+                        bool isMovementLeft = keyboardState.IsKeyDown(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Right);
+                        bool isMovementRight = keyboardState.IsKeyDown(movementKey_Right) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Left);
 
-                if (keyPressed)                 // If a movement key has been pressed.
-                {
-                    isMoving = true;
-                    CollisionCheckTileMap(newPosition);    // Calls the method for setting the next position.
+                        bool isMovementDownLeft = keyboardState.IsKeyDown(movementKey_Down) && keyboardState.IsKeyDown(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Right);
+                        bool isMovementDownRight = keyboardState.IsKeyDown(movementKey_Down) && keyboardState.IsKeyDown(movementKey_Right) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Left);
+                        bool isMovementUpLeft = keyboardState.IsKeyDown(movementKey_Up) && keyboardState.IsKeyDown(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Right);
+                        bool isMovementUpRight = keyboardState.IsKeyDown(movementKey_Up) && keyboardState.IsKeyDown(movementKey_Right) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Left);
+
+                        isMoving = isMovementDown || isMovementUp || isMovementLeft || isMovementRight || isMovementDownLeft || isMovementDownRight || isMovementUpLeft || isMovementUpRight;
+
+                        if (isMovementDown)
+                        {
+                            movementDirection = Direction.Down;
+                        }
+                        else if (isMovementUp)
+                        {
+                            movementDirection = Direction.Up;
+                        }
+                        else if (isMovementLeft)
+                        {
+                            movementDirection = Direction.Left;
+                        }
+                        else if (isMovementRight)
+                        {
+                            movementDirection = Direction.Right;
+                        }
+                        //else if (isMovementDownLeft)
+                        //{
+                        //    movementDirection = Direction.DownLeft;
+                        //}
+                        //else if (isMovementDownRight)
+                        //{
+                        //    movementDirection = Direction.DownRight;
+                        //}
+                        //else if (isMovementUpLeft)
+                        //{
+                        //    movementDirection = Direction.UpLeft;
+                        //}
+                        //else if (isMovementUpRight)
+                        //{
+                        //    movementDirection = Direction.UpRight;
+                        //}
+
+                        // If movement is occuring, check for collisions
+                        if (isMoving)
+                        {
+                            CollisionHandler_Movement();
+                        }
+                    }
+                    #endregion
                 }
+                //else
+                //{
+                //    #region // Xbox Controller movement handling
+                //    #endregion
+                //}
             }
             catch (Exception error)
             {
@@ -114,7 +113,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        protected void PlayerBehaviour(GameTime gameTime)
+        protected void PlayerBehaviourHandler(GameTime gameTime)
         {
 
         }

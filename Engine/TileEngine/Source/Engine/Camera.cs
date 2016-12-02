@@ -23,16 +23,14 @@ namespace TileEngine
         {
 
         }
-        public Camera(string tag, Vector2 positionBase)
+        public Camera(string tag, Vector2 positon)
         {
             try
             {
                 this.tag = tag;
                 this.cameraType = CameraType.Follow;
-                this.position_Base = positionBase;
-                int gridX = (int)(this.position_Base.X / Tile.Dimensions.X);
-                int gridY = (int)(this.position_Base.Y / Tile.Dimensions.Y);
-                this.position_Grid = new Vector2(gridX, gridY);
+                this.position_Base = positon;
+                this.position_Grid = Engine.ConvertPosition_PixelToGrid(position_Base);
             }
             catch (Exception error)
             {
@@ -52,9 +50,7 @@ namespace TileEngine
                     position_Base = new Vector2(newCameraX, newCameraY);
                 }
                 CheckBounds();
-                int gridX = (int)(this.position_Base.X / Tile.Dimensions.X);
-                int gridY = (int)(this.position_Base.Y / Tile.Dimensions.Y);
-                this.position_Grid = new Vector2(gridX, gridY);
+                position_Grid = Engine.ConvertPosition_PixelToGrid(position_Base);
                 Engine.Window_TransformationMatrix = Matrix.Identity;
                 Engine.Window_TransformationMatrix = Matrix.CreateTranslation(new Vector3(-position_Base.X, -position_Base.Y, 0.0f));
                 Engine.Window_TransformationMatrix *= Matrix.CreateScale(Engine.Window_Scaler);

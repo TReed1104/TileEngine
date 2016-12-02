@@ -34,7 +34,14 @@ namespace TileEngine
                 this.id = id;
                 this.type = type;
                 texture = TileSet;
-                boundingBox_Size = new Vector2(Tile.Dimensions.X, Tile.Dimensions.Y);
+                if (type == TileType.Solid)
+                {
+                    boundingBox_Size = new Vector2(Tile.Dimensions.X, Tile.Dimensions.Y);
+                }
+                else
+                {
+                    boundingBox_Size = new Vector2(0, 0);
+                }
             }
             catch (Exception error)
             {
@@ -83,6 +90,14 @@ namespace TileEngine
             this.colour = tileToCopy.colour;
             this.id = tileToCopy.id;
             this.type = tileToCopy.type;
+            if (type == TileType.Solid)
+            {
+                boundingBox_Size = new Vector2(Tile.Dimensions.X, Tile.Dimensions.Y);
+            }
+            else
+            {
+                boundingBox_Size = new Vector2(0, 0);
+            }
         }
 
     }

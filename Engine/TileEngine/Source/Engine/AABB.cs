@@ -12,18 +12,28 @@ namespace TileEngine
     public class AABB
     {
         // Raw Data of the AABB.
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
+        private Rectangle baseRectangle { get; set; }
+        public int X { get { return baseRectangle.X; } }
+        public int Y { get { return baseRectangle.Y; } }
+        public int Width { get { return baseRectangle.Width; } }
+        public int Height { get { return baseRectangle.Height; } }
+        public int LeftPixel { get { return baseRectangle.Left; } }
+        public int RightPixel { get { return baseRectangle.Right; } }
+        public int TopPixel { get { return baseRectangle.Top; } }
+        public int BottomPixel { get { return baseRectangle.Bottom; } }
+        public bool isEmpty { get { return baseRectangle.IsEmpty; } }
+        
 
-        // Useful self-calculating Vars of the AABB.
+        // Vector versions of the raw data
         public Vector2 size { get { return new Vector2(Width, Height); } }
         public Vector2 position { get { return new Vector2(X, Y); } }
+
+        // Pixel Positions
         public Vector2 position_TopLeft { get { return position; } }
-        public Vector2 position_TopRight { get { return position + new Vector2((Width - 1), 0); } }
-        public Vector2 position_BottomLeft { get { return position + new Vector2(0, (Height - 1)); } }
-        public Vector2 position_BottomRight { get { return position + new Vector2((Width - 1), (Height - 1)); } }
+        public Vector2 position_TopRight { get { return position + new Vector2(Width - 1, 0); } }
+        public Vector2 position_BottomLeft { get { return position + new Vector2(0, Height - 1); } }
+        public Vector2 position_BottomRight { get { return position + new Vector2(Width - 1, Height - 1); } }
+        // Grid Positions
         public Vector2 gridPosition { get { return Engine.ConvertPosition_PixelToGrid(position); } }
         public Vector2 gridPosition_TopLeft { get { return Engine.ConvertPosition_PixelToGrid(position_TopLeft); } }
         public Vector2 gridPosition_TopRight { get { return Engine.ConvertPosition_PixelToGrid(position_TopRight); } }
@@ -33,66 +43,39 @@ namespace TileEngine
         // Constructors
         public AABB(int x, int y, int width, int height)
         {
-            this.X = x;
-            this.Y = y;
-            this.Width = width;
-            this.Height = height;
+            baseRectangle = new Rectangle(x, y, width, height);
         }
         public AABB(Vector2 position, Vector2 size)
         {
-            this.X = (int)position.X;
-            this.Y = (int)position.Y;
-            this.Width = (int)size.X;
-            this.Height = (int)size.Y;
+            baseRectangle = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
         }
 
         // Methods
         public void SetPosition(int newX, int newY)
         {
-            X = newX;
-            Y = newY;
+            baseRectangle = new Rectangle(newX, newY, baseRectangle.Width, baseRectangle.Height);
         }
         public void SetPosition(Vector2 newPosition)
         {
-            X = (int)newPosition.X;
-            Y = (int)newPosition.Y;
+            baseRectangle = new Rectangle((int)Math.Round(newPosition.X), (int)Math.Round(newPosition.Y), baseRectangle.Width, baseRectangle.Height);
         }
         public void SetSize(int newWidth, int newHeight)
         {
-            Width = newWidth;
-            Height = newHeight;
+            baseRectangle = new Rectangle(baseRectangle.X, baseRectangle.Y, newWidth, newHeight);
         }
         public void SetSize(Vector2 newSize)
         {
-            Width = (int)newSize.X;
-            Height = (int)newSize.Y;
+            baseRectangle = new Rectangle(baseRectangle.X, baseRectangle.Y, (int)newSize.X, (int)newSize.Y);
         }
         public bool Intersects(AABB otherAABB)
         {
             try
             {
-                if (otherAABB.size == Vector2.Zero)
+                if (Engine.GetCurrentLevel().IsTileEmpty(otherAABB.gridPosition))
                 {
                     return false;
                 }
-
-                int deltaX = X - otherAABB.X;
-                int deltaY = Y - otherAABB.Y;
-                if (deltaY <= otherAABB.Height &&
-                    deltaX <= otherAABB.Width)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-
-                //Rectangle thisRect = new Rectangle(X, Y, Width, Height);
-                //Rectangle otherRect = new Rectangle(otherAABB.X, otherAABB.Y, otherAABB.Width, otherAABB.Height);
-                //bool isColliding = thisRect.Intersects(otherRect);
-
-                //return isColliding;
+                return baseRectangle.Intersects(otherAABB.baseRectangle);
             }
             catch (Exception error)
             {

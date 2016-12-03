@@ -76,22 +76,22 @@ namespace TileEngine
                         {
                             movementDirection = Direction.Right;
                         }
-                        //else if (isMovementDownLeft)
-                        //{
-                        //    movementDirection = Direction.DownLeft;
-                        //}
-                        //else if (isMovementDownRight)
-                        //{
-                        //    movementDirection = Direction.DownRight;
-                        //}
-                        //else if (isMovementUpLeft)
-                        //{
-                        //    movementDirection = Direction.UpLeft;
-                        //}
-                        //else if (isMovementUpRight)
-                        //{
-                        //    movementDirection = Direction.UpRight;
-                        //}
+                        else if (isMovementDownLeft)
+                        {
+                            movementDirection = Direction.DownLeft;
+                        }
+                        else if (isMovementDownRight)
+                        {
+                            movementDirection = Direction.DownRight;
+                        }
+                        else if (isMovementUpLeft)
+                        {
+                            movementDirection = Direction.UpLeft;
+                        }
+                        else if (isMovementUpRight)
+                        {
+                            movementDirection = Direction.UpRight;
+                        }
 
                         // If movement is occuring, check for collisions
                         if (isMoving)
@@ -101,11 +101,11 @@ namespace TileEngine
                     }
                     #endregion
                 }
-                //else
-                //{
-                //    #region // Xbox Controller movement handling
-                //    #endregion
-                //}
+                else
+                {
+                    #region // Xbox Controller movement handling
+                    #endregion
+                }
             }
             catch (Exception error)
             {

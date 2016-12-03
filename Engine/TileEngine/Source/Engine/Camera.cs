@@ -45,8 +45,8 @@ namespace TileEngine
             {
                 if (cameraType == CameraType.Follow)
                 {
-                    float newCameraX = cameraTarget.position_Base.X - (Engine.Window_PixelGridSize.X / 2);
-                    float newCameraY = cameraTarget.position_Base.Y - ((Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y) / 2);
+                    float newCameraX = cameraTarget.boundingBox.X - (Engine.Window_PixelGridSize.X / 2);
+                    float newCameraY = cameraTarget.boundingBox.Y - ((Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y) / 2);
                     position_Base = new Vector2(newCameraX, newCameraY);
                 }
                 CheckBounds();

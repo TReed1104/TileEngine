@@ -27,13 +27,13 @@ namespace TileEngine
         {
 
             this.healthPoints = healthPoints;
-            movementSpeed = 1.0f;
+            movementSpeed = 48.0f;
             movementDirection = Direction.Down;
             wallSlide = WallSlide.None;
 
-            boundingBox_Size = new Vector2(10, 10);
-            Vector2 boundingGridDelta = sourceRectangle_Size - boundingBox_Size;
+            Vector2 boundingGridDelta = sourceRectangle_Size - new Vector2(10, 10);
             boundingBox_Offset = (boundingGridDelta / 2);
+            boundingBox_Size = new Vector2(10, 10);
         }
 
         // Delegates
@@ -46,16 +46,8 @@ namespace TileEngine
         public override void Update(GameTime gameTime)
         {
             deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
-
+            
             // Movement
-            if (Keyboard.GetState().IsKeyDown(Keys.LeftShift))
-            {
-                movementSpeed = 2.0f;
-            }
-            else
-            {
-                movementSpeed = 1.0f;
-            }
             MovementHandler();
 
             // Behaviour
@@ -65,9 +57,10 @@ namespace TileEngine
             AnimationHandler(gameTime);
 
             // Reset the Agent to its base mode.
-            position_Base += velocity;
-            velocity = Vector2.Zero;
+            position += velocity;
+            this.velocity = Vector2.Zero;
             isMoving = false;
+            
         }
         protected void AnimationFinder(string animationTag, GameTime gameTime)
         {
@@ -146,116 +139,55 @@ namespace TileEngine
         {
             try
             {
-                Vector2 minVelocity = new Vector2(0, 0);
-                Vector2 maxVelocity = new Vector2(0, 0);
-                Vector2 velocityIncrement = new Vector2(0, 0);
+                Vector2 newVelocity = new Vector2(0, 0);
                 switch (movementDirection)
                 {
                     case Direction.Down:
-                        minVelocity = new Vector2(0, 1);
-                        maxVelocity = new Vector2(0, movementSpeed);
-                        velocityIncrement = new Vector2(0, 1);
+                        newVelocity = new Vector2(0, movementSpeed * deltaTime);
                         break;
                     case Direction.Up:
-                        minVelocity = new Vector2(0, -1);
-                        maxVelocity = new Vector2(0, -movementSpeed);
-                        velocityIncrement = new Vector2(0, -1);
+                        newVelocity = new Vector2(0, -movementSpeed * deltaTime);
                         break;
                     case Direction.Left:
-                        minVelocity = new Vector2(-1, 0);
-                        maxVelocity = new Vector2(-movementSpeed, 0);
-                        velocityIncrement = new Vector2(-1, 0);
+                        newVelocity = new Vector2(-movementSpeed * deltaTime, 0);
                         break;
                     case Direction.Right:
-                        minVelocity = new Vector2(1, 0);
-                        maxVelocity = new Vector2(movementSpeed, 0);
-                        velocityIncrement = new Vector2(1, 0);
+                        newVelocity = new Vector2(movementSpeed * deltaTime, 0);
+                        break;
+                    case Direction.UpLeft:
+                        newVelocity = new Vector2(-movementSpeed * deltaTime, -movementSpeed * deltaTime);
+                        break;
+                    case Direction.UpRight:
+                        newVelocity = new Vector2(movementSpeed * deltaTime, -movementSpeed * deltaTime);
+                        break;
+                    case Direction.DownLeft:
+                        newVelocity = new Vector2(-movementSpeed * deltaTime, movementSpeed * deltaTime);
+                        break;
+                    case Direction.DownRight:
+                        newVelocity = new Vector2(movementSpeed * deltaTime, movementSpeed * deltaTime);
                         break;
                     default:
                         break;
                 }
 
-                Vector2 currentVelocity = new Vector2(0, 0);
-                Vector2 previousVelocity = new Vector2(0, 0);
 
-                bool isComplete = false;
-                while (!isComplete)
+                AABB newBounding = new AABB(boundingBox.position, boundingBox.size);
+                newBounding.SetPosition(newBounding.position + newVelocity);
+
+                AABB boundingToCheck_0 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_TopLeft);
+                AABB boundingToCheck_1 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_TopRight);
+                AABB boundingToCheck_2 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_BottomLeft);
+                AABB boundingToCheck_3 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_BottomRight);
+
+                bool isColliding = newBounding.Intersects(boundingToCheck_0) || newBounding.Intersects(boundingToCheck_1) || newBounding.Intersects(boundingToCheck_2) || newBounding.Intersects(boundingToCheck_3);
+
+                if(!isColliding)
                 {
-                    bool isColliding = false;
-                    // Check for collision
-                    AABB newBoundingBox = new AABB(boundingBox.position, boundingBox.size);
-                    newBoundingBox.SetPosition(newBoundingBox.position + currentVelocity);
-
-                    Vector2 gridPositionToCheck_0 = new Vector2(-1, -1);
-                    Vector2 gridPositionToCheck_1 = new Vector2(-1, -1);
-
-                    if (newBoundingBox.gridPosition_TopLeft != newBoundingBox.gridPosition_BottomLeft)
-                    {
-                        gridPositionToCheck_1 = newBoundingBox.gridPosition_BottomLeft;
-                    }
-
-                    switch (movementDirection)
-                    {
-                        case Direction.Down:
-                            gridPositionToCheck_0 = newBoundingBox.gridPosition_BottomLeft;
-                            gridPositionToCheck_1 = newBoundingBox.gridPosition_BottomLeft;
-                            if (newBoundingBox.gridPosition_BottomLeft != newBoundingBox.gridPosition_BottomRight)
-                            {
-                                gridPositionToCheck_1 = newBoundingBox.gridPosition_BottomRight;
-                            }
-                            break;
-                        case Direction.Up:
-                            gridPositionToCheck_0 = newBoundingBox.gridPosition_TopLeft;
-                            gridPositionToCheck_1 = newBoundingBox.gridPosition_TopLeft;
-                            if (newBoundingBox.gridPosition_TopLeft != newBoundingBox.gridPosition_TopRight)
-                            {
-                                gridPositionToCheck_1 = newBoundingBox.gridPosition_TopRight;
-                            }
-                            break;
-                        case Direction.Left:
-                            gridPositionToCheck_0 = newBoundingBox.gridPosition_TopLeft;
-                            gridPositionToCheck_1 = newBoundingBox.gridPosition_TopLeft;
-                            if (newBoundingBox.gridPosition_TopLeft != newBoundingBox.gridPosition_BottomLeft)
-                            {
-                                gridPositionToCheck_1 = newBoundingBox.gridPosition_BottomLeft;
-                            }
-                            break;
-                        case Direction.Right:
-                            gridPositionToCheck_0 = newBoundingBox.gridPosition_TopRight;
-                            gridPositionToCheck_1 = newBoundingBox.gridPosition_TopRight;
-                            if (newBoundingBox.gridPosition_TopRight != newBoundingBox.gridPosition_BottomRight)
-                            {
-                                gridPositionToCheck_1 = newBoundingBox.gridPosition_BottomRight;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-
-                    AABB boundingToCheck_0 = Engine.GetCurrentLevel().GetTileBoundingBox(gridPositionToCheck_0);
-                    AABB boundingToCheck_1 = Engine.GetCurrentLevel().GetTileBoundingBox(gridPositionToCheck_1);
-
-                    isColliding = newBoundingBox.Intersects(boundingToCheck_0) || newBoundingBox.Intersects(boundingToCheck_1);
-
-                    if (isColliding)
-                    {
-                        velocity = previousVelocity;
-                        isComplete = true;
-                    }
-                    else
-                    {
-                        if (currentVelocity == maxVelocity)
-                        {
-                            velocity = currentVelocity;
-                            isComplete = true;
-                        }
-                        else
-                        {
-                            previousVelocity = currentVelocity;
-                            currentVelocity += velocityIncrement;
-                        }
-                    }
+                    velocity = newVelocity;
                 }
+
+
+
             }
             catch (Exception error)
             {

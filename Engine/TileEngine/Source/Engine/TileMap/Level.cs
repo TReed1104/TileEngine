@@ -113,7 +113,7 @@ namespace TileEngine
                     for (int x = 0; x < gridSize_Tiles.X; x++)
                     {
                         tilemap[x, y] = new Tile("EMPTY", Vector2.Zero, Color.White, Engine.LayerDepth_Terrain, 00, Tile.TileType.Empty);
-                        tilemap[x, y].position_Base = new Vector2((int)(x * Tile.Dimensions.X), (int)(y * Tile.Dimensions.Y));
+                        tilemap[x, y].position = new Vector2((int)(x * Tile.Dimensions.X), (int)(y * Tile.Dimensions.Y));
                     }
                 }
             }

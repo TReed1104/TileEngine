@@ -14,13 +14,15 @@ namespace TileEngine
     {
         // Vars
         public string tag { get; set; }
-        public Vector2 position_Base { get; set; }
-        public Vector2 position_Grid { get { return Engine.ConvertPosition_PixelToGrid(position_Base); } }
-        public Vector2 position_Draw { get { return position_Base + Engine.Window_HUD_Size_Pixels; } }
+
+        public Vector2 position { get; set; }
+        public Vector2 position_Grid { get { return Engine.ConvertPosition_PixelToGrid(position); } }
+        public Vector2 position_Draw { get { return (new Vector2((int)position.X, (int)position.Y) - boundingBox_Offset) + Engine.Window_HUD_Size_Pixels; } }
         protected Vector2 boundingBox_Offset { get; set; }
-        public Vector2 boundingBox_Size { get; set; }
-        public Vector2 boundingBox_Position { get { return new Vector2(boundingBox.X, boundingBox.Y); } }
-        public AABB boundingBox { get { return new AABB((int)position_Base.X + (int)boundingBox_Offset.X, (int)position_Base.Y + (int)boundingBox_Offset.Y, (int)boundingBox_Size.X, (int)boundingBox_Size.Y); } }
+        protected Vector2 boundingBox_Size { get; set; }
+        public AABB boundingBox { get { return new AABB(position, boundingBox_Size); } }
+        
+
         public Vector2 velocity { get; set; }
         public float movementSpeed { get; protected set; }
         public float healthPoints { get; protected set; }
@@ -60,9 +62,9 @@ namespace TileEngine
                 this.tag = tag;
                 this.texture = texture;
 
-                this.position_Base = position_Base;
-                boundingBox_Size = Vector2.Zero;
+                position = position_Base;
                 boundingBox_Offset = Vector2.Zero;
+                boundingBox_Size = Tile.Dimensions;
 
                 healthPoints = 1.0f;
                 velocity = Vector2.Zero;

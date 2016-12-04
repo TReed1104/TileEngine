@@ -12,12 +12,15 @@ namespace TileEngine
     public abstract class BaseAgent : BaseGameObject
     {
         // Enums
-        public enum Direction { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
+        public enum Direction { Towards, Away, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
+
         // Vars
         public bool isMoving { get; set; }
+        public bool isWallsliding { get; set; }
         public bool isAttacking { get; set; }
         public bool isDefending { get; set; }
         public Direction movementDirection { get; protected set; }
+        public bool isGridSnapped { get; set; }
 
         // Constructors
         public BaseAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
@@ -25,8 +28,8 @@ namespace TileEngine
         {
 
             this.healthPoints = healthPoints;
-            movementSpeed = 50.0f;
-            movementDirection = Direction.Down;
+            movementSpeed = 50.0f;  // In pixels per second.
+            movementDirection = Direction.Towards;
 
             Vector2 boundingGridDelta = sourceRectangle_Size - new Vector2(10, 10);
             boundingBox_Offset = (boundingGridDelta / 2);
@@ -43,7 +46,7 @@ namespace TileEngine
         public override void Update(GameTime gameTime)
         {
             deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
-            
+
             // Movement
             MovementHandler();
 
@@ -57,7 +60,7 @@ namespace TileEngine
             position += velocity;
             velocity = Vector2.Zero;
             isMoving = false;
-            
+
         }
         protected void AnimationFinder(string animationTag, GameTime gameTime)
         {
@@ -98,10 +101,10 @@ namespace TileEngine
                 // Works out what direction variation of a animation to play.
                 switch (movementDirection)
                 {
-                    case Direction.Down:
+                    case Direction.Towards:
                         AnimationFinder("Towards", gameTime);
                         break;
-                    case Direction.Up:
+                    case Direction.Away:
                         AnimationFinder("Away", gameTime);
                         break;
                     case Direction.Left:
@@ -132,135 +135,162 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        protected bool CollisionHandler_Movement()
+        protected void CollisionHandler_Movement()
         {
             try
             {
-                Vector2 newVelocity = new Vector2(0, 0);
-                switch (movementDirection)
+                // If the agent can only move between grid cells.
+                if (isGridSnapped)
                 {
-                    case Direction.Down:
-                        newVelocity = new Vector2(0, movementSpeed * deltaTime);
-                        break;
-                    case Direction.Up:
-                        newVelocity = new Vector2(0, -movementSpeed * deltaTime);
-                        break;
-                    case Direction.Left:
-                        newVelocity = new Vector2(-movementSpeed * deltaTime, 0);
-                        break;
-                    case Direction.Right:
-                        newVelocity = new Vector2(movementSpeed * deltaTime, 0);
-                        break;
-                    case Direction.UpLeft:
-                        newVelocity = new Vector2(-movementSpeed * deltaTime, -movementSpeed * deltaTime);
-                        break;
-                    case Direction.UpRight:
-                        newVelocity = new Vector2(movementSpeed * deltaTime, -movementSpeed * deltaTime);
-                        break;
-                    case Direction.DownLeft:
-                        newVelocity = new Vector2(-movementSpeed * deltaTime, movementSpeed * deltaTime);
-                        break;
-                    case Direction.DownRight:
-                        newVelocity = new Vector2(movementSpeed * deltaTime, movementSpeed * deltaTime);
-                        break;
-                    default:
-                        break;
+
                 }
-
-                Vector2 newPosition = position + newVelocity;
-                Vector2 newGridPosition = Engine.ConvertPosition_PixelToGrid(newPosition);
-                AABB newBounding = new AABB(newPosition, boundingBox.size);
-
-                float deltaNewX = newPosition.X - position.X;
-                float deltaNewY = newPosition.Y - position.Y;
-                float deltaVelocityX = Math.Abs(position.X - boundingBox.position.X);
-                float deltaVelocityY = Math.Abs(position.Y - boundingBox.position.Y);
-                Vector2 deltaGrid = newGridPosition - position_Grid;
-
-
-
-                AABB boundingToCheck_0 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_TopLeft);
-                AABB boundingToCheck_1 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_TopRight);
-                AABB boundingToCheck_2 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_BottomLeft);
-                AABB boundingToCheck_3 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_BottomRight);
-
-                bool isCollidiing_0 = newBounding.Intersects(boundingToCheck_0);
-                bool isCollidiing_1 = newBounding.Intersects(boundingToCheck_1);
-                bool isCollidiing_2 = newBounding.Intersects(boundingToCheck_2);
-                bool isCollidiing_3 = newBounding.Intersects(boundingToCheck_3);
-
-                bool isColliding = isCollidiing_0 || isCollidiing_1 || isCollidiing_2 || isCollidiing_3;
-
-                if(!isColliding)
+                // If the agent can move pixel by pixel.
+                if (!isGridSnapped)
                 {
-                    velocity = newVelocity;
-                    return true;
-                }
-                else
-                {
-                    // If a collision occured
-                    if (movementDirection == Direction.UpLeft)
+                    // Calculate the velocity of the movement decided by the agent.
+                    Vector2 newVelocity = new Vector2(0, 0);
+                    switch (movementDirection)
                     {
-                        // If the player is moving diagonally up and left
-                        // Make them move Left instead.
-                        movementDirection = Direction.Left;
-                        bool isMovementPossible = CollisionHandler_Movement();
-                        // If they can't move Left, try moving up.
-                        if (!isMovementPossible)
-                        {
-                            movementDirection = Direction.Up;
-                            CollisionHandler_Movement();
-                        }
+                        case Direction.Towards:
+                            newVelocity = new Vector2(0, movementSpeed * deltaTime);
+                            break;
+                        case Direction.Away:
+                            newVelocity = new Vector2(0, -movementSpeed * deltaTime);
+                            break;
+                        case Direction.Left:
+                            newVelocity = new Vector2(-movementSpeed * deltaTime, 0);
+                            break;
+                        case Direction.Right:
+                            newVelocity = new Vector2(movementSpeed * deltaTime, 0);
+                            break;
+                        case Direction.UpLeft:
+                            newVelocity = new Vector2(-movementSpeed * deltaTime, -movementSpeed * deltaTime);
+                            break;
+                        case Direction.UpRight:
+                            newVelocity = new Vector2(movementSpeed * deltaTime, -movementSpeed * deltaTime);
+                            break;
+                        case Direction.DownLeft:
+                            newVelocity = new Vector2(-movementSpeed * deltaTime, movementSpeed * deltaTime);
+                            break;
+                        case Direction.DownRight:
+                            newVelocity = new Vector2(movementSpeed * deltaTime, movementSpeed * deltaTime);
+                            break;
+                        default:
+                            break;
                     }
-                    else if (movementDirection == Direction.UpRight)
+
+                    // Calculate the new positionand create an AABB at that position, this represents the new position of the player if the movement takes palce.
+                    Vector2 newPosition = position + newVelocity;
+                    AABB newBounding = new AABB(newPosition, boundingBox.size);
+
+                    // Grab the AABBs of the cells the player is overlapping.
+                    AABB boundingToCheck_0 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_TopLeft);
+                    AABB boundingToCheck_1 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_TopRight);
+                    AABB boundingToCheck_2 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_BottomLeft);
+                    AABB boundingToCheck_3 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_BottomRight);
+
+                    // Check if there is a collision happening with the AABB of the overlapped cells, Intersects returns false automatically if the cell is not solid.
+                    bool isPlayerCollidingWithAABB_0 = newBounding.Intersects(boundingToCheck_0);
+                    bool isPlayerCollidingWithAABB_1 = newBounding.Intersects(boundingToCheck_1);
+                    bool isPlayerCollidingWithAABB_2 = newBounding.Intersects(boundingToCheck_2);
+                    bool isPlayerCollidingWithAABB_3 = newBounding.Intersects(boundingToCheck_3);
+
+                    // Work out if any of the coll
+                    bool isColliding = isPlayerCollidingWithAABB_0 || isPlayerCollidingWithAABB_1 || isPlayerCollidingWithAABB_2 || isPlayerCollidingWithAABB_3;
+
+                    if (!isColliding)
                     {
-                        // If the player is moving diagonally up and left
-                        // Make them move Right instead.
-                        movementDirection = Direction.Right;
-                        bool isMovementPossible = CollisionHandler_Movement();
-                        // If they can't move Right, try moving up.
-                        if (!isMovementPossible)
-                        {
-                            movementDirection = Direction.Up;
-                            CollisionHandler_Movement();
-                        }
+                        // If no collisions are detected, set the velocity of the agent to the velocity decided earlier on.
+                        velocity = newVelocity;
                     }
-                    else if (movementDirection == Direction.DownLeft)
+                    else
                     {
-                        // If the player is moving diagonally up and left
-                        // Make them move Left instead.
-                        movementDirection = Direction.Left;
-                        bool isMovementPossible = CollisionHandler_Movement();
-                        // If they can't move Left, try moving up.
-                        if (!isMovementPossible)
-                        {
-                            movementDirection = Direction.Down;
-                            CollisionHandler_Movement();
-                        }
-                    }
-                    else if (movementDirection == Direction.DownRight)
-                    {
-                        // If the player is moving diagonally up and left
-                        // Make them move left instead.
-                        movementDirection = Direction.Right;
-                        bool isMovementPossible = CollisionHandler_Movement();
-                        // If they can't move Right, try moving up.
-                        if (!isMovementPossible)
-                        {
-                            movementDirection = Direction.Down;
-                            CollisionHandler_Movement();
-                        }
-                    }
-                    return false;
-                }
+                        // If a collision is detected in the next movement.
 
 
+                        // Calculate if the player still has an amount of distance between them, then if so set the velocity to that last amount of distance - this prevents weird offsets when near objects.
+                        // **Down and Right movements have a slight offset of 0.001f this prevents the weird collisions caused by X + width and Y + height, which technically cause errorneous collisions.
+                        float deltaX = 0;
+                        float deltaY = 0;
+                        switch (movementDirection)
+                        {
+                            case Direction.Towards:
+                                deltaY = Math.Abs(position.Y - (int)position.Y);
+                                if (deltaY > 0.001f)
+                                {
+                                    float newY = 1 - deltaY;
+                                    velocity = new Vector2(deltaX, newY - 0.001f);
+                                }
+                                break;
+                            case Direction.Away:
+                                deltaY = Math.Abs(position.Y - (int)position.Y);
+                                velocity = new Vector2(deltaX, -deltaY);
+                                break;
+                            case Direction.Left:
+                                deltaX = Math.Abs(position.X - (int)position.X);
+                                velocity = new Vector2(-deltaX, deltaY);
+                                break;
+                            case Direction.Right:
+                                deltaX = Math.Abs(position.X - (int)position.X);
+                                if (deltaX > 0.001f)
+                                {
+                                    float newX = 1 - deltaX;
+                                    velocity = new Vector2(newX - 0.001f, deltaY);
+                                }
+                                break;
+                            case Direction.UpLeft:
+                                deltaX = Math.Abs(position.X - (int)position.X);
+                                deltaY = Math.Abs(position.Y - (int)position.Y);
+                                velocity = new Vector2(-deltaX, -deltaY);
+
+                                break;
+                            case Direction.UpRight:
+                                deltaX = Math.Abs(position.X - (int)position.X);
+                                if (deltaX > 0.001f)
+                                {
+                                    float newX = 1 - deltaX;
+                                    velocity = new Vector2(newX - 0.001f, deltaY);
+                                }
+
+                                deltaY = Math.Abs(position.Y - (int)position.Y);
+                                velocity = new Vector2(velocity.X, -deltaY);
+                                break;
+                            case Direction.DownLeft:
+                                deltaX = Math.Abs(position.X - (int)position.X);
+                                velocity = new Vector2(-deltaX, deltaY);
+
+                                deltaY = Math.Abs(position.Y - (int)position.Y);
+                                if (deltaY > 0.001f)
+                                {
+                                    float newY = 1 - deltaY;
+                                    velocity = new Vector2(velocity.X, newY - 0.001f);
+                                }
+                                break;
+                            case Direction.DownRight:
+                                deltaX = Math.Abs(position.X - (int)position.X);
+                                if (deltaX > 0.001f)
+                                {
+                                    float newX = 1 - deltaX;
+                                    velocity = new Vector2(newX - 0.001f, velocity.Y);
+                                }
+
+                                deltaY = Math.Abs(position.Y - (int)position.Y);
+                                if (deltaY > 0.001f)
+                                {
+                                    float newY = 1 - deltaY;
+                                    velocity = new Vector2(velocity.X, newY - 0.001f);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
             }
             catch (Exception error)
             {
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
-                return false;
             }
         }
     }

@@ -62,11 +62,11 @@ namespace TileEngine
 
                         if (isMovementDown)
                         {
-                            movementDirection = Direction.Down;
+                            movementDirection = Direction.Towards;
                         }
                         else if (isMovementUp)
                         {
-                            movementDirection = Direction.Up;
+                            movementDirection = Direction.Away;
                         }
                         else if (isMovementLeft)
                         {

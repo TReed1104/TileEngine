@@ -12,16 +12,10 @@ namespace TileEngine
     public class AABB
     {
         // Raw Data of the AABB.
-        private Rectangle baseRectangle { get; set; }
-        public int X { get { return baseRectangle.X; } }
-        public int Y { get { return baseRectangle.Y; } }
-        public int Width { get { return baseRectangle.Width; } }
-        public int Height { get { return baseRectangle.Height; } }
-        public int LeftPixel { get { return baseRectangle.Left; } }
-        public int RightPixel { get { return baseRectangle.Right; } }
-        public int TopPixel { get { return baseRectangle.Top; } }
-        public int BottomPixel { get { return baseRectangle.Bottom; } }
-        public bool isEmpty { get { return baseRectangle.IsEmpty; } }
+        public float X { get; set; }
+        public float Y { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
         
 
         // Vector versions of the raw data
@@ -32,7 +26,7 @@ namespace TileEngine
         public Vector2 position_TopLeft { get { return position; } }
         public Vector2 position_TopRight { get { return position + new Vector2(Width, 0); } }
         public Vector2 position_BottomLeft { get { return position + new Vector2(0, Height); } }
-        public Vector2 position_BottomRight { get { return position + new Vector2(Width, Height); } }
+        public Vector2 position_BottomRight { get { return position + new Vector2(Width , Height); } }
         // Grid Positions
         public Vector2 gridPosition { get { return Engine.ConvertPosition_PixelToGrid(position); } }
         public Vector2 gridPosition_TopLeft { get { return Engine.ConvertPosition_PixelToGrid(position_TopLeft); } }
@@ -41,31 +35,31 @@ namespace TileEngine
         public Vector2 gridPosition_BottomRight { get { return Engine.ConvertPosition_PixelToGrid(position_BottomRight); } }
 
         // Constructors
-        public AABB(int x, int y, int width, int height)
+        public AABB(float x, float y, int width, int height)
         {
-            baseRectangle = new Rectangle(x, y, width, height);
+            this.X = x;
+            this.Y = y;
+            this.Width = width;
+            this.Height = height;
         }
         public AABB(Vector2 position, Vector2 size)
         {
-            baseRectangle = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
+            this.X = position.X;
+            this.Y = position.Y;
+            this.Width = (int)size.X;
+            this.Height = (int)size.Y;
         }
 
         // Methods
-        public void SetPosition(int newX, int newY)
-        {
-            baseRectangle = new Rectangle(newX, newY, baseRectangle.Width, baseRectangle.Height);
-        }
         public void SetPosition(Vector2 newPosition)
         {
-            baseRectangle = new Rectangle((int)newPosition.X, (int)newPosition.Y, baseRectangle.Width, baseRectangle.Height);
-        }
-        public void SetSize(int newWidth, int newHeight)
-        {
-            baseRectangle = new Rectangle(baseRectangle.X, baseRectangle.Y, newWidth, newHeight);
+            this.X = position.X;
+            this.Y = position.Y;
         }
         public void SetSize(Vector2 newSize)
         {
-            baseRectangle = new Rectangle(baseRectangle.X, baseRectangle.Y, (int)newSize.X, (int)newSize.Y);
+            this.Width = (int)newSize.X;
+            this.Height = (int)newSize.Y;
         }
         public bool Intersects(AABB otherAABB)
         {
@@ -75,12 +69,9 @@ namespace TileEngine
                 {
                     return false;
                 }
-
-                //x_overlaps = (object.left < t.right) && (object.right > t.left)
-                //y_overlaps = (object.top < t.bottom) && (object.bottom > t.top)
                 
-                if (Math.Abs(position.X - otherAABB.X) < ((Width / 2) + (otherAABB.Width / 2))) return true;
-                if (Math.Abs(position.Y - otherAABB.Y) < ((Height / 2) + (otherAABB.Height / 2))) return true;
+                if (Math.Abs(position.X - otherAABB.X) * 2 < (Width + otherAABB.Width)) return true;
+                if (Math.Abs(position.Y - otherAABB.Y) * 2 < (Height + otherAABB.Height)) return true;
                 return false;
             }
             catch (Exception error)

@@ -13,13 +13,11 @@ namespace TileEngine
     {
         // Enums
         public enum Direction { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
-        public enum WallSlide { None, WallSlideLeft, WallSlideRight, WallSlideUp, WallSlideDown, };
         // Vars
         public bool isMoving { get; set; }
         public bool isAttacking { get; set; }
         public bool isDefending { get; set; }
         public Direction movementDirection { get; protected set; }
-        public WallSlide wallSlide { get; set; }
 
         // Constructors
         public BaseAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
@@ -27,9 +25,8 @@ namespace TileEngine
         {
 
             this.healthPoints = healthPoints;
-            movementSpeed = 48.0f;
+            movementSpeed = 50.0f;
             movementDirection = Direction.Down;
-            wallSlide = WallSlide.None;
 
             Vector2 boundingGridDelta = sourceRectangle_Size - new Vector2(10, 10);
             boundingBox_Offset = (boundingGridDelta / 2);
@@ -58,7 +55,7 @@ namespace TileEngine
 
             // Reset the Agent to its base mode.
             position += velocity;
-            this.velocity = Vector2.Zero;
+            velocity = Vector2.Zero;
             isMoving = false;
             
         }
@@ -135,7 +132,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        protected void CollisionHandler_Movement()
+        protected bool CollisionHandler_Movement()
         {
             try
             {
@@ -170,22 +167,92 @@ namespace TileEngine
                         break;
                 }
 
+                Vector2 newPosition = position + newVelocity;
+                Vector2 newGridPosition = Engine.ConvertPosition_PixelToGrid(newPosition);
+                AABB newBounding = new AABB(newPosition, boundingBox.size);
 
-                AABB newBounding = new AABB(boundingBox.position, boundingBox.size);
-                newBounding.SetPosition(newBounding.position + newVelocity);
+                float deltaNewX = newPosition.X - position.X;
+                float deltaNewY = newPosition.Y - position.Y;
+                float deltaVelocityX = Math.Abs(position.X - boundingBox.position.X);
+                float deltaVelocityY = Math.Abs(position.Y - boundingBox.position.Y);
+                Vector2 deltaGrid = newGridPosition - position_Grid;
+
+
 
                 AABB boundingToCheck_0 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_TopLeft);
                 AABB boundingToCheck_1 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_TopRight);
                 AABB boundingToCheck_2 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_BottomLeft);
                 AABB boundingToCheck_3 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_BottomRight);
 
-                bool isColliding = newBounding.Intersects(boundingToCheck_0) || newBounding.Intersects(boundingToCheck_1) || newBounding.Intersects(boundingToCheck_2) || newBounding.Intersects(boundingToCheck_3);
+                bool isCollidiing_0 = newBounding.Intersects(boundingToCheck_0);
+                bool isCollidiing_1 = newBounding.Intersects(boundingToCheck_1);
+                bool isCollidiing_2 = newBounding.Intersects(boundingToCheck_2);
+                bool isCollidiing_3 = newBounding.Intersects(boundingToCheck_3);
+
+                bool isColliding = isCollidiing_0 || isCollidiing_1 || isCollidiing_2 || isCollidiing_3;
 
                 if(!isColliding)
                 {
                     velocity = newVelocity;
+                    return true;
                 }
-
+                else
+                {
+                    // If a collision occured
+                    if (movementDirection == Direction.UpLeft)
+                    {
+                        // If the player is moving diagonally up and left
+                        // Make them move Left instead.
+                        movementDirection = Direction.Left;
+                        bool isMovementPossible = CollisionHandler_Movement();
+                        // If they can't move Left, try moving up.
+                        if (!isMovementPossible)
+                        {
+                            movementDirection = Direction.Up;
+                            CollisionHandler_Movement();
+                        }
+                    }
+                    else if (movementDirection == Direction.UpRight)
+                    {
+                        // If the player is moving diagonally up and left
+                        // Make them move Right instead.
+                        movementDirection = Direction.Right;
+                        bool isMovementPossible = CollisionHandler_Movement();
+                        // If they can't move Right, try moving up.
+                        if (!isMovementPossible)
+                        {
+                            movementDirection = Direction.Up;
+                            CollisionHandler_Movement();
+                        }
+                    }
+                    else if (movementDirection == Direction.DownLeft)
+                    {
+                        // If the player is moving diagonally up and left
+                        // Make them move Left instead.
+                        movementDirection = Direction.Left;
+                        bool isMovementPossible = CollisionHandler_Movement();
+                        // If they can't move Left, try moving up.
+                        if (!isMovementPossible)
+                        {
+                            movementDirection = Direction.Down;
+                            CollisionHandler_Movement();
+                        }
+                    }
+                    else if (movementDirection == Direction.DownRight)
+                    {
+                        // If the player is moving diagonally up and left
+                        // Make them move left instead.
+                        movementDirection = Direction.Right;
+                        bool isMovementPossible = CollisionHandler_Movement();
+                        // If they can't move Right, try moving up.
+                        if (!isMovementPossible)
+                        {
+                            movementDirection = Direction.Down;
+                            CollisionHandler_Movement();
+                        }
+                    }
+                    return false;
+                }
 
 
             }
@@ -193,6 +260,7 @@ namespace TileEngine
             {
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+                return false;
             }
         }
     }

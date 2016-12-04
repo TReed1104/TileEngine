@@ -30,9 +30,9 @@ namespace TileEngine
 
         // Pixel Positions
         public Vector2 position_TopLeft { get { return position; } }
-        public Vector2 position_TopRight { get { return position + new Vector2(Width - 1, 0); } }
-        public Vector2 position_BottomLeft { get { return position + new Vector2(0, Height - 1); } }
-        public Vector2 position_BottomRight { get { return position + new Vector2(Width - 1, Height - 1); } }
+        public Vector2 position_TopRight { get { return position + new Vector2(Width, 0); } }
+        public Vector2 position_BottomLeft { get { return position + new Vector2(0, Height); } }
+        public Vector2 position_BottomRight { get { return position + new Vector2(Width, Height); } }
         // Grid Positions
         public Vector2 gridPosition { get { return Engine.ConvertPosition_PixelToGrid(position); } }
         public Vector2 gridPosition_TopLeft { get { return Engine.ConvertPosition_PixelToGrid(position_TopLeft); } }
@@ -57,7 +57,7 @@ namespace TileEngine
         }
         public void SetPosition(Vector2 newPosition)
         {
-            baseRectangle = new Rectangle((int)Math.Round(newPosition.X), (int)Math.Round(newPosition.Y), baseRectangle.Width, baseRectangle.Height);
+            baseRectangle = new Rectangle((int)newPosition.X, (int)newPosition.Y, baseRectangle.Width, baseRectangle.Height);
         }
         public void SetSize(int newWidth, int newHeight)
         {
@@ -75,7 +75,13 @@ namespace TileEngine
                 {
                     return false;
                 }
-                return baseRectangle.Intersects(otherAABB.baseRectangle);
+
+                //x_overlaps = (object.left < t.right) && (object.right > t.left)
+                //y_overlaps = (object.top < t.bottom) && (object.bottom > t.top)
+                
+                if (Math.Abs(position.X - otherAABB.X) < ((Width / 2) + (otherAABB.Width / 2))) return true;
+                if (Math.Abs(position.Y - otherAABB.Y) < ((Height / 2) + (otherAABB.Height / 2))) return true;
+                return false;
             }
             catch (Exception error)
             {

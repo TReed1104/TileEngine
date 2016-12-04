@@ -17,7 +17,7 @@ namespace TileEngine
 
         public Vector2 position { get; set; }
         public Vector2 position_Grid { get { return Engine.ConvertPosition_PixelToGrid(position); } }
-        public Vector2 position_Draw { get { return (new Vector2((int)position.X, (int)position.Y) - boundingBox_Offset) + Engine.Window_HUD_Size_Pixels; } }
+        public Vector2 position_Draw { get { return (position - boundingBox_Offset) + Engine.Window_HUD_Size_Pixels; } }
         protected Vector2 boundingBox_Offset { get; set; }
         protected Vector2 boundingBox_Size { get; set; }
         public AABB boundingBox { get { return new AABB(position, boundingBox_Size); } }

@@ -27,7 +27,7 @@ namespace TileEngine
         {
 
             this.healthPoints = healthPoints;
-            movementSpeed = 100.0f;  // In pixels per second.
+            movementSpeed = 48.0f;  // In pixels per second.
             movementDirection = Direction.Down;
 
             Vector2 boundingGridDelta = sourceRectangle_Size - new Vector2(10, 10);
@@ -213,134 +213,69 @@ namespace TileEngine
 
                         switch (movementDirection)
                         {
+                            #region // Adjacent snapping.
                             case Direction.Down:
                                 {
-                                    #region // Calculate the Down offset
-                                    deltaY = Math.Abs(position.Y - (int)position.Y);
-
-                                    float currentGridY = (int)position.Y / Tile.Dimensions.Y;
-                                    float nextGridY = (int)currentGridY + 1;
-                                    float startPositionOfNextGridY = (int)nextGridY * Tile.Dimensions.Y;
-                                    float deltaStartPositionY = startPositionOfNextGridY - (position.Y + boundingBox_Size.Y);
-
-                                    if (deltaY > 0.001f)
-                                    {
-                                        float newY = 1 - deltaY;
-                                        if (newVelocity.Y >= 1.0f)
-                                        {
-                                            newY = deltaStartPositionY;
-                                        }
-                                        velocity = new Vector2(velocity.X, newY - 0.001f);
-                                    }
-                                    #endregion
+                                    // Calculate the Down offset
+                                    deltaY = (((((int)((int)position.Y / Tile.Dimensions.Y) + 1)) * Tile.Dimensions.Y) - (position.Y + boundingBox_Size.Y));
+                                    velocity = new Vector2(velocity.X, deltaY - 0.001f);
 
                                     break;
                                 }
                             case Direction.Up:
                                 {
-                                    #region // Calculate the Up offset
-                                    float currentGridY = (int)position.Y / Tile.Dimensions.Y;
-                                    float nextGridY = (int)currentGridY - 1;
-                                    float startPositionOfNextGridY = (int)(nextGridY * Tile.Dimensions.Y) + 16.0f;
-                                    float deltaStartPositionY = startPositionOfNextGridY - (position.Y);
-                                    float newY = deltaY;
-
-                                    if (newVelocity.Y <= -1.0f)
-                                    {
-                                        newY = -deltaStartPositionY;
-                                    }
-                                    velocity = new Vector2(velocity.X, -newY);
-                                    #endregion
+                                    // Calculate the Up offset
+                                    deltaY = (((int)(((int)((int)position.Y / Tile.Dimensions.Y) - 1) * Tile.Dimensions.Y) + 16.0f) - (position.Y));
+                                    velocity = new Vector2(velocity.X, deltaY);
 
                                     break;
                                 }
                             case Direction.Left:
                                 {
-                                    #region // Calculate the Left offset
-                                    deltaX = Math.Abs(position.X - (int)position.X);
-
-                                    float currentGridX = (int)position.X / Tile.Dimensions.X;
-                                    float nextGridX = (int)currentGridX - 1;
-                                    float startPositionOfNextGridX = (int)(nextGridX * Tile.Dimensions.X) + 16.0f;
-                                    float deltaStartPositionX = startPositionOfNextGridX - (position.X);
-                                    float newX = deltaX;
-
-                                    if (newVelocity.X <= -1.0f)
-                                    {
-                                        newX = deltaStartPositionX;
-                                    }
-                                    velocity = new Vector2(newX, velocity.Y);
-                                    #endregion
+                                    // Calculate the Left offset
+                                    deltaX = ((int)((((int)(position.X / Tile.Dimensions.X) - 1)) * Tile.Dimensions.X) + 16.0f) - (position.X);
+                                    velocity = new Vector2(deltaX, velocity.Y);
 
                                     break;
                                 }
                             case Direction.Right:
                                 {
-                                    #region // Calculate the Right offset
-                                    deltaX = Math.Abs(position.X - (int)position.X);
-
-                                    float currentGridX = (int)position.X / Tile.Dimensions.X;
-                                    float nextGridX = (int)currentGridX + 1;
-                                    float startPositionOfNextGridX = (int)nextGridX * Tile.Dimensions.X;
-                                    float deltaStartPositionX = startPositionOfNextGridX - (position.X + boundingBox_Size.X);
-
-                                    if (deltaX > 0.001f)
-                                    {
-                                        float newX = 1 - deltaX;
-                                        if (newVelocity.X >= 1.0f)
-                                        {
-                                            newX = deltaStartPositionX;
-                                        }
-                                        velocity = new Vector2(newX - 0.001f, velocity.Y);
-                                    }
-                                    #endregion
+                                    // Calculate the Right offset
+                                    deltaX = ((((int)(position.X / Tile.Dimensions.X)) + 1) * Tile.Dimensions.X) - (position.X + boundingBox_Size.X);
+                                    velocity = new Vector2(deltaX - 0.001f, velocity.Y);
 
                                     break;
                                 }
+                            #endregion
+                            #region // Diagonal snapping.
                             case Direction.UpLeft:
                                 {
                                     bool isCollidingLeft = isCollisionOccuring_TopLeft && isCollisionOccuring_BottomLeft;
                                     bool isCollidingUp = isCollisionOccuring_TopLeft && isCollisionOccuring_TopRight;
 
+                                    // If collision is left, snap left.
                                     if (isCollidingLeft)
                                     {
-                                        #region // Calculate the Left offset
-                                        deltaX = Math.Abs(position.X - (int)position.X);
-
-                                        float currentGridX = (int)position.X / Tile.Dimensions.X;
-                                        float nextGridX = (int)currentGridX - 1;
-                                        float startPositionOfNextGridX = (int)(nextGridX * Tile.Dimensions.X) + 16.0f;
-                                        float deltaStartPositionX = startPositionOfNextGridX - (position.X);
-                                        float newX = deltaX;
-                                        
-                                        if (newVelocity.X <= -1.0f)
-                                        {
-                                            newX = deltaStartPositionX;
-                                        }
-                                        velocity = new Vector2(newX, velocity.Y);
-                                        #endregion
+                                        // Calculate the Left offset
+                                        deltaX = ((int)((((int)(position.X / Tile.Dimensions.X) - 1)) * Tile.Dimensions.X) + 16.0f) - (position.X);
+                                        velocity = new Vector2(deltaX, velocity.Y);
                                     }
+                                    // If not, try to wallslide.
                                     else
                                     {
+
                                         movementDirection = Direction.Left;
                                         CollisionHandler_Movement();
                                     }
+
+                                    // If collision is Up, snap Up.
                                     if (isCollidingUp)
                                     {
-                                        #region // Calculate the Up offset
-                                        float currentGridY = (int)position.Y / Tile.Dimensions.Y;
-                                        float nextGridY = (int)currentGridY - 1;
-                                        float startPositionOfNextGridY = (int)(nextGridY * Tile.Dimensions.Y) + 16.0f;
-                                        float deltaStartPositionY = startPositionOfNextGridY - (position.Y);
-                                        float newY = deltaY;
-
-                                        if (newVelocity.Y <= -1.0f)
-                                        {
-                                            newY = -deltaStartPositionY;
-                                        }
-                                        velocity = new Vector2(velocity.X, -newY);
-                                        #endregion
+                                        // Calculate the Up offset
+                                        deltaY = (((int)(((int)((int)position.Y / Tile.Dimensions.Y) - 1) * Tile.Dimensions.Y) + 16.0f) - (position.Y));
+                                        velocity = new Vector2(velocity.X, deltaY);
                                     }
+                                    // If not, try to wallslide.
                                     else
                                     {
                                         movementDirection = Direction.Up;
@@ -353,48 +288,28 @@ namespace TileEngine
                                     bool isCollidingRight = isCollisionOccuring_TopRight && isCollisionOccuring_BottomRight;
                                     bool isCollidingUp = isCollisionOccuring_TopLeft && isCollisionOccuring_TopRight;
 
+                                    // If collision is Right, snap Right.
                                     if (isCollidingRight)
                                     {
-                                        #region // Calculate the Right offset
-                                        deltaX = Math.Abs(position.X - (int)position.X);
-
-                                        float currentGridX = (int)position.X / Tile.Dimensions.X;
-                                        float nextGridX = (int)currentGridX + 1;
-                                        float startPositionOfNextGridX = (int)nextGridX * Tile.Dimensions.X;
-                                        float deltaStartPositionX = startPositionOfNextGridX - (position.X + boundingBox_Size.X);
-
-                                        if (deltaX > 0.001f)
-                                        {
-                                            float newX = 1 - deltaX;
-                                            if (newVelocity.X >= 1.0f)
-                                            {
-                                                newX = deltaStartPositionX;
-                                            }
-                                            velocity = new Vector2(newX - 0.001f, velocity.Y);
-                                        }
-                                        #endregion
+                                        // Calculate the Right offset
+                                        deltaX = ((((int)(position.X / Tile.Dimensions.X)) + 1) * Tile.Dimensions.X) - (position.X + boundingBox_Size.X);
+                                        velocity = new Vector2(deltaX - 0.001f, velocity.Y);
                                     }
+                                    // If not, try to wallslide.
                                     else
                                     {
                                         movementDirection = Direction.Right;
                                         CollisionHandler_Movement();
                                     }
+
+                                    // If collision is Up, snap Up.
                                     if (isCollidingUp)
                                     {
-                                        #region // Calculate the Up offset
-                                        float currentGridY = (int)position.Y / Tile.Dimensions.Y;
-                                        float nextGridY = (int)currentGridY - 1;
-                                        float startPositionOfNextGridY = (int)(nextGridY * Tile.Dimensions.Y) + 16.0f;
-                                        float deltaStartPositionY = startPositionOfNextGridY - (position.Y);
-                                        float newY = deltaY;
-
-                                        if (newVelocity.Y <= -1.0f)
-                                        {
-                                            newY = -deltaStartPositionY;
-                                        }
-                                        velocity = new Vector2(velocity.X, -newY);
-                                        #endregion
+                                        // Calculate the Up offset
+                                        deltaY = (((int)(((int)((int)position.Y / Tile.Dimensions.Y) - 1) * Tile.Dimensions.Y) + 16.0f) - (position.Y));
+                                        velocity = new Vector2(velocity.X, deltaY);
                                     }
+                                    // If not, try to wallslide.
                                     else
                                     {
                                         movementDirection = Direction.Up;
@@ -408,50 +323,29 @@ namespace TileEngine
                                     bool isCollidingLeft = isCollisionOccuring_TopLeft && isCollisionOccuring_BottomLeft;
                                     bool isCollidingDown = isCollisionOccuring_BottomLeft && isCollisionOccuring_BottomRight;
 
+                                    // If collision is left, snap left.
                                     if (isCollidingLeft)
                                     {
-                                        #region // Calculate the Left offset
-                                        deltaX = Math.Abs(position.X - (int)position.X);
-
-                                        float currentGridX = (int)position.X / Tile.Dimensions.X;
-                                        float nextGridX = (int)currentGridX - 1;
-                                        float startPositionOfNextGridX = (int)(nextGridX * Tile.Dimensions.X) + 16.0f;
-                                        float deltaStartPositionX = startPositionOfNextGridX - (position.X);
-                                        float newX = deltaX;
-
-                                        if (newVelocity.X <= -1.0f)
-                                        {
-                                            newX = deltaStartPositionX;
-                                        }
-                                        velocity = new Vector2(newX, velocity.Y);
-                                        #endregion
+                                        // Calculate the Left offset
+                                        deltaX = ((int)((((int)(position.X / Tile.Dimensions.X) - 1)) * Tile.Dimensions.X) + 16.0f) - (position.X);
+                                        velocity = new Vector2(deltaX, velocity.Y);
                                     }
+                                    // If not, try to wallslide.
                                     else
                                     {
+
                                         movementDirection = Direction.Left;
                                         CollisionHandler_Movement();
                                     }
+
+                                    // If collision is Down, snap Down.
                                     if (isCollidingDown)
                                     {
-                                        #region // Calculate the Down offset
-                                        deltaY = Math.Abs(position.Y - (int)position.Y);
-
-                                        float currentGridY = (int)position.Y / Tile.Dimensions.Y;
-                                        float nextGridY = (int)currentGridY + 1;
-                                        float startPositionOfNextGridY = (int)nextGridY * Tile.Dimensions.Y;
-                                        float deltaStartPositionY = startPositionOfNextGridY - (position.Y + boundingBox_Size.Y);
-
-                                        if (deltaY > 0.001f)
-                                        {
-                                            float newY = 1 - deltaY;
-                                            if (newVelocity.Y >= 1.0f)
-                                            {
-                                                newY = deltaStartPositionY;
-                                            }
-                                            velocity = new Vector2(velocity.X, newY - 0.001f);
-                                        }
-                                        #endregion
+                                        // Calculate the Down offset
+                                        deltaY = (((((int)((int)position.Y / Tile.Dimensions.Y) + 1)) * Tile.Dimensions.Y) - (position.Y + boundingBox_Size.Y));
+                                        velocity = new Vector2(velocity.X, deltaY - 0.001f);
                                     }
+                                    // If not, try to wallslide.
                                     else
                                     {
                                         movementDirection = Direction.Down;
@@ -465,53 +359,28 @@ namespace TileEngine
                                     bool isCollidingRight = isCollisionOccuring_TopRight && isCollisionOccuring_BottomRight;
                                     bool isCollidingDown = isCollisionOccuring_BottomLeft && isCollisionOccuring_BottomRight;
 
+                                    // If collision is Right, snap Right.
                                     if (isCollidingRight)
                                     {
-                                        #region // Calculate the Right offset
-                                        deltaX = Math.Abs(position.X - (int)position.X);
-
-                                        float currentGridX = (int)position.X / Tile.Dimensions.X;
-                                        float nextGridX = (int)currentGridX + 1;
-                                        float startPositionOfNextGridX = (int)nextGridX * Tile.Dimensions.X;
-                                        float deltaStartPositionX = startPositionOfNextGridX - (position.X + boundingBox_Size.X);
-
-                                        if (deltaX > 0.001f)
-                                        {
-                                            float newX = 1 - deltaX;
-                                            if (newVelocity.X >= 1.0f)
-                                            {
-                                                newX = deltaStartPositionX;
-                                            }
-                                            velocity = new Vector2(newX - 0.001f, velocity.Y);
-                                        }
-                                        #endregion
+                                        // Calculate the Right offset
+                                        deltaX = ((((int)(position.X / Tile.Dimensions.X)) + 1) * Tile.Dimensions.X) - (position.X + boundingBox_Size.X);
+                                        velocity = new Vector2(deltaX - 0.001f, velocity.Y);
                                     }
+                                    // If not, try to wallslide.
                                     else
                                     {
                                         movementDirection = Direction.Right;
                                         CollisionHandler_Movement();
                                     }
+
+                                    // If collision is Down, snap Down.
                                     if (isCollidingDown)
                                     {
-                                        #region // Calculate the Down offset
-                                        deltaY = Math.Abs(position.Y - (int)position.Y);
-
-                                        float currentGridY = (int)position.Y / Tile.Dimensions.Y;
-                                        float nextGridY = (int)currentGridY + 1;
-                                        float startPositionOfNextGridY = (int)nextGridY * Tile.Dimensions.Y;
-                                        float deltaStartPositionY = startPositionOfNextGridY - (position.Y + boundingBox_Size.Y);
-
-                                        if (deltaY > 0.001f)
-                                        {
-                                            float newY = 1 - deltaY;
-                                            if (newVelocity.Y >= 1.0f)
-                                            {
-                                                newY = deltaStartPositionY;
-                                            }
-                                            velocity = new Vector2(velocity.X, newY - 0.001f);
-                                        }
-                                        #endregion
+                                        // Calculate the Down offset
+                                        deltaY = (((((int)((int)position.Y / Tile.Dimensions.Y) + 1)) * Tile.Dimensions.Y) - (position.Y + boundingBox_Size.Y));
+                                        velocity = new Vector2(velocity.X, deltaY - 0.001f);
                                     }
+                                    // If not, try to wallslide.
                                     else
                                     {
                                         movementDirection = Direction.Down;
@@ -520,6 +389,7 @@ namespace TileEngine
 
                                     break;
                                 }
+                            #endregion
                             default:
                                 break;
                         }

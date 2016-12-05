@@ -12,7 +12,7 @@ namespace TileEngine
     public abstract class BaseAgent : BaseGameObject
     {
         // Enums
-        public enum Direction { Towards, Away, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
+        public enum Direction { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
 
         // Vars
         public bool isMoving { get; set; }
@@ -27,8 +27,8 @@ namespace TileEngine
         {
 
             this.healthPoints = healthPoints;
-            movementSpeed = 50.0f;  // In pixels per second.
-            movementDirection = Direction.Towards;
+            movementSpeed = 80.0f;  // In pixels per second.
+            movementDirection = Direction.Down;
 
             Vector2 boundingGridDelta = sourceRectangle_Size - new Vector2(10, 10);
             boundingBox_Offset = (boundingGridDelta / 2);
@@ -100,10 +100,10 @@ namespace TileEngine
                 // Works out what direction variation of a animation to play.
                 switch (movementDirection)
                 {
-                    case Direction.Towards:
+                    case Direction.Down:
                         AnimationFinder("Towards", gameTime);
                         break;
-                    case Direction.Away:
+                    case Direction.Up:
                         AnimationFinder("Away", gameTime);
                         break;
                     case Direction.Left:
@@ -150,10 +150,10 @@ namespace TileEngine
                     Vector2 newVelocity = new Vector2(0, 0);
                     switch (movementDirection)
                     {
-                        case Direction.Towards:
+                        case Direction.Down:
                             newVelocity = new Vector2(0, movementSpeed * deltaTime);
                             break;
-                        case Direction.Away:
+                        case Direction.Up:
                             newVelocity = new Vector2(0, -movementSpeed * deltaTime);
                             break;
                         case Direction.Left:
@@ -210,75 +210,241 @@ namespace TileEngine
                         // **Down and Right movements have a slight offset of 0.001f this prevents the weird collisions caused by X + width and Y + height, which technically cause errorneous collisions.
                         float deltaX = 0;
                         float deltaY = 0;
+
                         switch (movementDirection)
                         {
-                            case Direction.Towards:
-                                deltaY = Math.Abs(position.Y - (int)position.Y);
-                                if (deltaY > 0.001f)
+                            case Direction.Down:
                                 {
-                                    float newY = 1 - deltaY;
-                                    velocity = new Vector2(deltaX, newY - 0.001f);
+                                    #region // Calculate the Down offset
+                                    deltaY = Math.Abs(position.Y - (int)position.Y);
+
+                                    float currentGridY = (int)position.Y / Tile.Dimensions.Y;
+                                    float nextGridY = (int)currentGridY + 1;
+                                    float startPositionOfNextGridY = (int)nextGridY * Tile.Dimensions.Y;
+                                    float deltaStartPositionY = startPositionOfNextGridY - (position.Y + boundingBox_Size.Y);
+
+                                    if (deltaY > 0.001f)
+                                    {
+                                        float newY = 1 - deltaY;
+                                        if (newVelocity.Y >= 1.0f)
+                                        {
+                                            newY = deltaStartPositionY;
+                                        }
+                                        velocity = new Vector2(velocity.X, newY - 0.001f);
+                                    }
+                                    #endregion
+
+                                    break;
                                 }
-                                break;
-                            case Direction.Away:
-                                deltaY = Math.Abs(position.Y - (int)position.Y);
-                                velocity = new Vector2(deltaX, -deltaY);
-                                break;
+                            case Direction.Up:
+                                {
+                                    #region // Calculate the Up offset
+                                    float currentGridY = (int)position.Y / Tile.Dimensions.Y;
+                                    float nextGridY = (int)currentGridY - 1;
+                                    float startPositionOfNextGridY = (int)(nextGridY * Tile.Dimensions.Y) + 16.0f;
+                                    float deltaStartPositionY = startPositionOfNextGridY - (position.Y);
+                                    float newY = deltaY;
+
+                                    if (newVelocity.Y <= -1.0f)
+                                    {
+                                        newY = -deltaStartPositionY;
+                                    }
+                                    velocity = new Vector2(velocity.X, -newY);
+                                    #endregion
+
+                                    break;
+                                }
                             case Direction.Left:
-                                deltaX = Math.Abs(position.X - (int)position.X);
-                                velocity = new Vector2(-deltaX, deltaY);
-                                break;
+                                {
+                                    #region // Calculate the Left offset
+                                    deltaX = Math.Abs(position.X - (int)position.X);
+
+                                    float currentGridX = (int)position.X / Tile.Dimensions.X;
+                                    float nextGridX = (int)currentGridX - 1;
+                                    float startPositionOfNextGridX = (int)(nextGridX * Tile.Dimensions.X) + 16.0f;
+                                    float deltaStartPositionX = startPositionOfNextGridX - (position.X);
+                                    float newX = deltaX;
+
+                                    if (newVelocity.X <= -1.0f)
+                                    {
+                                        newX = deltaStartPositionX;
+                                    }
+                                    velocity = new Vector2(newX, velocity.Y);
+                                    #endregion
+
+                                    break;
+                                }
                             case Direction.Right:
-                                deltaX = Math.Abs(position.X - (int)position.X);
-                                if (deltaX > 0.001f)
                                 {
-                                    float newX = 1 - deltaX;
-                                    velocity = new Vector2(newX - 0.001f, deltaY);
+                                    #region // Calculate the Right offset
+                                    deltaX = Math.Abs(position.X - (int)position.X);
+
+                                    float currentGridX = (int)position.X / Tile.Dimensions.X;
+                                    float nextGridX = (int)currentGridX + 1;
+                                    float startPositionOfNextGridX = (int)nextGridX * Tile.Dimensions.X;
+                                    float deltaStartPositionX = startPositionOfNextGridX - (position.X + boundingBox_Size.X);
+
+                                    if (deltaX > 0.001f)
+                                    {
+                                        float newX = 1 - deltaX;
+                                        if (newVelocity.X >= 1.0f)
+                                        {
+                                            newX = deltaStartPositionX;
+                                        }
+                                        velocity = new Vector2(newX - 0.001f, velocity.Y);
+                                    }
+                                    #endregion
+
+                                    break;
                                 }
-                                break;
                             case Direction.UpLeft:
-                                deltaX = Math.Abs(position.X - (int)position.X);
-                                deltaY = Math.Abs(position.Y - (int)position.Y);
-                                velocity = new Vector2(-deltaX, -deltaY);
+                                {
+                                    #region // Calculate the Left offset
+                                    deltaX = Math.Abs(position.X - (int)position.X);
 
-                                break;
+                                    float currentGridX = (int)position.X / Tile.Dimensions.X;
+                                    float nextGridX = (int)currentGridX - 1;
+                                    float startPositionOfNextGridX = (int)(nextGridX * Tile.Dimensions.X) + 16.0f;
+                                    float deltaStartPositionX = startPositionOfNextGridX - (position.X);
+                                    float newX = deltaX;
+
+                                    if (newVelocity.X <= -1.0f)
+                                    {
+                                        newX = deltaStartPositionX;
+                                    }
+                                    velocity = new Vector2(newX, velocity.Y);
+                                    #endregion
+                                    #region // Calculate the Up offset
+                                    float currentGridY = (int)position.Y / Tile.Dimensions.Y;
+                                    float nextGridY = (int)currentGridY - 1;
+                                    float startPositionOfNextGridY = (int)(nextGridY * Tile.Dimensions.Y) + 16.0f;
+                                    float deltaStartPositionY = startPositionOfNextGridY - (position.Y);
+                                    float newY = deltaY;
+
+                                    if (newVelocity.Y <= -1.0f)
+                                    {
+                                        newY = -deltaStartPositionY;
+                                    }
+                                    velocity = new Vector2(velocity.X, -newY);
+                                    #endregion
+
+                                    break;
+                                }
                             case Direction.UpRight:
-                                deltaX = Math.Abs(position.X - (int)position.X);
-                                if (deltaX > 0.001f)
                                 {
-                                    float newX = 1 - deltaX;
-                                    velocity = new Vector2(newX - 0.001f, deltaY);
-                                }
+                                    #region // Calculate the Right offset
+                                    deltaX = Math.Abs(position.X - (int)position.X);
 
-                                deltaY = Math.Abs(position.Y - (int)position.Y);
-                                velocity = new Vector2(velocity.X, -deltaY);
-                                break;
+                                    float currentGridX = (int)position.X / Tile.Dimensions.X;
+                                    float nextGridX = (int)currentGridX + 1;
+                                    float startPositionOfNextGridX = (int)nextGridX * Tile.Dimensions.X;
+                                    float deltaStartPositionX = startPositionOfNextGridX - (position.X + boundingBox_Size.X);
+
+                                    if (deltaX > 0.001f)
+                                    {
+                                        float newX = 1 - deltaX;
+                                        if (newVelocity.X >= 1.0f)
+                                        {
+                                            newX = deltaStartPositionX;
+                                        }
+                                        velocity = new Vector2(newX - 0.001f, velocity.Y);
+                                    }
+                                    #endregion
+                                    #region // Calculate the Up offset
+                                    float currentGridY = (int)position.Y / Tile.Dimensions.Y;
+                                    float nextGridY = (int)currentGridY - 1;
+                                    float startPositionOfNextGridY = (int)(nextGridY * Tile.Dimensions.Y) + 16.0f;
+                                    float deltaStartPositionY = startPositionOfNextGridY - (position.Y);
+                                    float newY = deltaY;
+
+                                    if (newVelocity.Y <= -1.0f)
+                                    {
+                                        newY = -deltaStartPositionY;
+                                    }
+                                    velocity = new Vector2(velocity.X, -newY);
+                                    #endregion
+
+                                    break;
+                                }
                             case Direction.DownLeft:
-                                deltaX = Math.Abs(position.X - (int)position.X);
-                                velocity = new Vector2(-deltaX, deltaY);
-
-                                deltaY = Math.Abs(position.Y - (int)position.Y);
-                                if (deltaY > 0.001f)
                                 {
-                                    float newY = 1 - deltaY;
-                                    velocity = new Vector2(velocity.X, newY - 0.001f);
+                                    #region // Calculate the Left offset
+                                    deltaX = Math.Abs(position.X - (int)position.X);
+
+                                    float currentGridX = (int)position.X / Tile.Dimensions.X;
+                                    float nextGridX = (int)currentGridX - 1;
+                                    float startPositionOfNextGridX = (int)(nextGridX * Tile.Dimensions.X) + 16.0f;
+                                    float deltaStartPositionX = startPositionOfNextGridX - (position.X);
+                                    float newX = deltaX;
+
+                                    if (newVelocity.X <= -1.0f)
+                                    {
+                                        newX = deltaStartPositionX;
+                                    }
+                                    velocity = new Vector2(newX, velocity.Y);
+                                    #endregion
+                                    #region // Calculate the Down offset
+                                    deltaY = Math.Abs(position.Y - (int)position.Y);
+
+                                    float currentGridY = (int)position.Y / Tile.Dimensions.Y;
+                                    float nextGridY = (int)currentGridY + 1;
+                                    float startPositionOfNextGridY = (int)nextGridY * Tile.Dimensions.Y;
+                                    float deltaStartPositionY = startPositionOfNextGridY - (position.Y + boundingBox_Size.Y);
+
+                                    if (deltaY > 0.001f)
+                                    {
+                                        float newY = 1 - deltaY;
+                                        if (newVelocity.Y >= 1.0f)
+                                        {
+                                            newY = deltaStartPositionY;
+                                        }
+                                        velocity = new Vector2(velocity.X, newY - 0.001f);
+                                    }
+                                    #endregion
+
+                                    break;
                                 }
-                                break;
                             case Direction.DownRight:
-                                deltaX = Math.Abs(position.X - (int)position.X);
-                                if (deltaX > 0.001f)
                                 {
-                                    float newX = 1 - deltaX;
-                                    velocity = new Vector2(newX - 0.001f, velocity.Y);
-                                }
+                                    #region // Calculate the Right offset
+                                    deltaX = Math.Abs(position.X - (int)position.X);
 
-                                deltaY = Math.Abs(position.Y - (int)position.Y);
-                                if (deltaY > 0.001f)
-                                {
-                                    float newY = 1 - deltaY;
-                                    velocity = new Vector2(velocity.X, newY - 0.001f);
+                                    float currentGridX = (int)position.X / Tile.Dimensions.X;
+                                    float nextGridX = (int)currentGridX + 1;
+                                    float startPositionOfNextGridX = (int)nextGridX * Tile.Dimensions.X;
+                                    float deltaStartPositionX = startPositionOfNextGridX - (position.X + boundingBox_Size.X);
+
+                                    if (deltaX > 0.001f)
+                                    {
+                                        float newX = 1 - deltaX;
+                                        if (newVelocity.X >= 1.0f)
+                                        {
+                                            newX = deltaStartPositionX;
+                                        }
+                                        velocity = new Vector2(newX - 0.001f, velocity.Y);
+                                    }
+                                    #endregion
+                                    #region // Calculate the Down offset
+                                    deltaY = Math.Abs(position.Y - (int)position.Y);
+
+                                    float currentGridY = (int)position.Y / Tile.Dimensions.Y;
+                                    float nextGridY = (int)currentGridY + 1;
+                                    float startPositionOfNextGridY = (int)nextGridY * Tile.Dimensions.Y;
+                                    float deltaStartPositionY = startPositionOfNextGridY - (position.Y + boundingBox_Size.Y);
+
+                                    if (deltaY > 0.001f)
+                                    {
+                                        float newY = 1 - deltaY;
+                                        if (newVelocity.Y >= 1.0f)
+                                        {
+                                            newY = deltaStartPositionY;
+                                        }
+                                        velocity = new Vector2(velocity.X, newY - 0.001f);
+                                    }
+                                    #endregion
+
+                                    break;
                                 }
-                                break;
                             default:
                                 break;
                         }

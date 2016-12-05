@@ -12,21 +12,21 @@ namespace TileEngine
     public class AABB
     {
         // Raw Data of the AABB.
-        public float X { get; set; }
-        public float Y { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public float x { get; set; }
+        public float y { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
         
 
         // Vector versions of the raw data
-        public Vector2 size { get { return new Vector2(Width, Height); } }
-        public Vector2 position { get { return new Vector2(X, Y); } }
+        public Vector2 size { get { return new Vector2(width, height); } }
+        public Vector2 position { get { return new Vector2(x, y); } }
 
         // Pixel Positions
         public Vector2 position_TopLeft { get { return position; } }
-        public Vector2 position_TopRight { get { return position + new Vector2(Width, 0); } }
-        public Vector2 position_BottomLeft { get { return position + new Vector2(0, Height); } }
-        public Vector2 position_BottomRight { get { return position + new Vector2(Width , Height); } }
+        public Vector2 position_TopRight { get { return position + new Vector2(width, 0); } }
+        public Vector2 position_BottomLeft { get { return position + new Vector2(0, height); } }
+        public Vector2 position_BottomRight { get { return position + new Vector2(width , height); } }
         // Grid Positions
         public Vector2 gridPosition { get { return Engine.ConvertPosition_PixelToGrid(position); } }
         public Vector2 gridPosition_TopLeft { get { return Engine.ConvertPosition_PixelToGrid(position_TopLeft); } }
@@ -37,48 +37,44 @@ namespace TileEngine
         // Constructors
         public AABB(float x, float y, int width, int height)
         {
-            this.X = x;
-            this.Y = y;
-            this.Width = width;
-            this.Height = height;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
         }
         public AABB(Vector2 position, Vector2 size)
         {
-            this.X = position.X;
-            this.Y = position.Y;
-            this.Width = (int)size.X;
-            this.Height = (int)size.Y;
+            this.x = position.X;
+            this.y = position.Y;
+            this.width = (int)size.X;
+            this.height = (int)size.Y;
         }
 
         // Methods
         public void SetPosition(Vector2 newPosition)
         {
-            this.X = position.X;
-            this.Y = position.Y;
+            this.x = position.X;
+            this.y = position.Y;
         }
         public void SetSize(Vector2 newSize)
         {
-            this.Width = (int)newSize.X;
-            this.Height = (int)newSize.Y;
+            this.width = (int)newSize.X;
+            this.height = (int)newSize.Y;
         }
-        public bool Intersects(AABB otherAABB)
+        public bool CheckForCollisionWith(AABB otherAABB)
         {
             try
             {
-                if (Engine.GetCurrentLevel().IsTileEmpty(otherAABB.gridPosition))
-                {
-                    return false;
-                }
-                
-                if (Math.Abs(position.X - otherAABB.X) * 2 < (Width + otherAABB.Width)) return true;
-                if (Math.Abs(position.Y - otherAABB.Y) * 2 < (Height + otherAABB.Height)) return true;
-                return false;
+                // Check if the cell is solid, if it is not just return false as the AABB intersection would be a false positive.
+                if (Engine.GetCurrentLevel().IsTileEmpty(otherAABB.gridPosition)) { return false; }
+                // If the cell is solid, find out if this AABB is colliding with the passed AABB.
+                return ((x < otherAABB.x + otherAABB.width) && (x + otherAABB.width > otherAABB.x) && (y < otherAABB.y + otherAABB.height) && (y + height  > otherAABB.y));
             }
             catch (Exception error)
             {
                 string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
-                return true;
+                return true;    // If something goes wrong, return that a collision has occured.
             }
         }
     }

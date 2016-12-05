@@ -16,7 +16,6 @@ namespace TileEngine
 
         // Vars
         public bool isMoving { get; set; }
-        public bool isWallsliding { get; set; }
         public bool isAttacking { get; set; }
         public bool isDefending { get; set; }
         public Direction movementDirection { get; protected set; }
@@ -145,9 +144,9 @@ namespace TileEngine
 
                 }
                 // If the agent can move pixel by pixel.
-                if (!isGridSnapped)
+                else
                 {
-                    // Calculate the velocity of the movement decided by the agent.
+                    #region // Calculate the velocity of the movement decided by the agent.
                     Vector2 newVelocity = new Vector2(0, 0);
                     switch (movementDirection)
                     {
@@ -178,26 +177,26 @@ namespace TileEngine
                         default:
                             break;
                     }
+                    #endregion
 
-                    // Calculate the new positionand create an AABB at that position, this represents the new position of the player if the movement takes palce.
+                    #region// Calculate the new positionand create an AABB at that position, this represents the new position of the player if the movement takes palce.
                     Vector2 newPosition = position + newVelocity;
                     AABB newBounding = new AABB(newPosition, boundingBox.size);
+                    #endregion
 
-                    // Grab the AABBs of the cells the player is overlapping.
+                    #region // Grab the AABBs of the cells the player is overlapping and check if the newBoundingBox is colliding with any of them.
                     AABB boundingToCheck_0 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_TopLeft);
                     AABB boundingToCheck_1 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_TopRight);
                     AABB boundingToCheck_2 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_BottomLeft);
                     AABB boundingToCheck_3 = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_BottomRight);
+                    bool isPlayerCollidingWithAABB_0 = newBounding.CheckForCollisionWith(boundingToCheck_0);
+                    bool isPlayerCollidingWithAABB_1 = newBounding.CheckForCollisionWith(boundingToCheck_1);
+                    bool isPlayerCollidingWithAABB_2 = newBounding.CheckForCollisionWith(boundingToCheck_2);
+                    bool isPlayerCollidingWithAABB_3 = newBounding.CheckForCollisionWith(boundingToCheck_3);
+                    #endregion
 
-                    // Check if there is a collision happening with the AABB of the overlapped cells, Intersects returns false automatically if the cell is not solid.
-                    bool isPlayerCollidingWithAABB_0 = newBounding.Intersects(boundingToCheck_0);
-                    bool isPlayerCollidingWithAABB_1 = newBounding.Intersects(boundingToCheck_1);
-                    bool isPlayerCollidingWithAABB_2 = newBounding.Intersects(boundingToCheck_2);
-                    bool isPlayerCollidingWithAABB_3 = newBounding.Intersects(boundingToCheck_3);
-
-                    // Work out if any of the coll
+                    // Work out if any of the overlaps involved a collision with a solid tile.
                     bool isColliding = isPlayerCollidingWithAABB_0 || isPlayerCollidingWithAABB_1 || isPlayerCollidingWithAABB_2 || isPlayerCollidingWithAABB_3;
-
                     if (!isColliding)
                     {
                         // If no collisions are detected, set the velocity of the agent to the velocity decided earlier on.
@@ -206,8 +205,7 @@ namespace TileEngine
                     else
                     {
                         // If a collision is detected in the next movement.
-
-
+                        #region // Calculate the offset velocity to move the player the tiny amount left between them and collisions.
                         // Calculate if the player still has an amount of distance between them, then if so set the velocity to that last amount of distance - this prevents weird offsets when near objects.
                         // **Down and Right movements have a slight offset of 0.001f this prevents the weird collisions caused by X + width and Y + height, which technically cause errorneous collisions.
                         float deltaX = 0;
@@ -284,6 +282,10 @@ namespace TileEngine
                             default:
                                 break;
                         }
+                        #endregion
+
+                        #region // Wall Sliding
+                        #endregion
                     }
                 }
             }

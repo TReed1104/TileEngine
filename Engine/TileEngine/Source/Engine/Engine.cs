@@ -17,7 +17,7 @@ namespace TileEngine
         public static string EngineVersion { get; private set; }
         #endregion
         #region // XNA Vars
-        public static GraphicsDeviceManager GraphicsDevideManager { get; set; }
+        public static GraphicsDeviceManager GraphicsDeviceManager { get; set; }
         public static SpriteBatch SpriteBatch { get; set; }
         #endregion
         #region // Directory Vars
@@ -44,7 +44,6 @@ namespace TileEngine
         #region // Window Vars
         public static string Window_Title { get; private set; }
         public static int FrameRate_Max { get; private set; }
-        public static Matrix Window_TransformationMatrix { get; set; }
         public static float Window_Scaler { get; set; }
         public static Vector2 Window_HUD_Size_Tiles { get; set; }
         public static Vector2 Window_HUD_Size_Pixels { get { return Window_HUD_Size_Tiles * Tile.Dimensions; } }
@@ -83,7 +82,7 @@ namespace TileEngine
         public const float LayerDepth_Foreground = 0.05f;
         #endregion
         #region // Camera Vars
-        public static Camera PlayerCamera { get; set; }
+        public static Camera GameCamera { get; set; }
         #endregion
         #region // Debugger Vars
         public static bool VisualDebugger { get; set; }
@@ -112,7 +111,7 @@ namespace TileEngine
             Engine.PointerCurrent_Player = 0;
             Engine.PointerCurrent_Level = 0;
 
-            Engine.PlayerCamera = new Camera("Player Camera", Vector2.Zero);
+            Engine.GameCamera = new Camera();
 
             Engine.VisualDebugger = false;
             Engine.isEngineInTestMode = false;
@@ -130,7 +129,7 @@ namespace TileEngine
                 if (Engine.Register_PlayerSaves.Count > 0)
                 {
                     Engine.GetCurrentPlayer().Update(gameTime);
-                    Engine.PlayerCamera.Update(gameTime, Engine.GetCurrentPlayer());
+                    Engine.GameCamera.Update(gameTime, Engine.GetCurrentPlayer());
                 }
             }
             catch (Exception error)
@@ -144,7 +143,7 @@ namespace TileEngine
             try
             {
                 game.GraphicsDevice.Clear(Color.Magenta);
-                Engine.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.Window_TransformationMatrix);
+                Engine.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix);
                 if (Engine.Register_Levels.Count > 0 && Engine.GetCurrentLevel() != null)
                 {
                     Engine.GetCurrentLevel().Draw();
@@ -239,12 +238,10 @@ namespace TileEngine
         {
             try
             {
-                Engine.Window_TransformationMatrix = Matrix.Identity;
-                Engine.Window_TransformationMatrix *= Matrix.CreateScale(Engine.Window_Scaler);
-                Engine.GraphicsDevideManager.PreferredBackBufferWidth = (int)Engine.Window_DimensionsPixels_Scaled.X;
-                Engine.GraphicsDevideManager.PreferredBackBufferHeight = (int)Engine.Window_DimensionsPixels_Scaled.Y;
+                Engine.GraphicsDeviceManager.PreferredBackBufferWidth = (int)Engine.Window_DimensionsPixels_Scaled.X;
+                Engine.GraphicsDeviceManager.PreferredBackBufferHeight = (int)Engine.Window_DimensionsPixels_Scaled.Y;
                 game.Window.Title = Engine.Window_Title;
-                Engine.GraphicsDevideManager.ApplyChanges();
+                Engine.GraphicsDeviceManager.ApplyChanges();
             }
             catch (Exception error)
             {
@@ -257,7 +254,7 @@ namespace TileEngine
             try
             {
                 #region // Default MonoGame Setup
-                Engine.GraphicsDevideManager = new GraphicsDeviceManager(game);
+                Engine.GraphicsDeviceManager = new GraphicsDeviceManager(game);
                 game.Content.RootDirectory = Engine.Directory_Content;
                 game.TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / Engine.FrameRate_Max);
                 game.IsFixedTimeStep = false;

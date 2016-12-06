@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
@@ -10,88 +11,63 @@ namespace TileEngine
 {
     public class Camera
     {
-        // Enums
-        public enum CameraType { Follow, Snapped, Manual, };
-        // Vars
-        public string tag { get; set; }
-        public CameraType cameraType { get; set; }
-        public Vector2 position_Base { get; set; }
-        public Vector2 position_Grid { get; set; }
+        public Vector2 position { get; set; }
+        public Vector2 position_Grid {  get { return Engine.ConvertPosition_PixelToGrid(position); } }
+        public float movementSpeed { get { return Engine.GetCurrentPlayer().movementSpeed; } }
+        public float rotation { get; set; }
+        public float scale { get { return Engine.Window_Scaler; } }
+        public Matrix transformationMatrix { get; set; }
+        private float deltaTime { get; set; }
 
-        // Constructors
-        static Camera()
+        public Camera()
         {
+            position = Vector2.Zero;
+            rotation = 0.0f;
+        }
+
+        public void Update(GameTime gameTime, BaseGameObject focus)
+        {
+            
+            deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
+
+            float newX = focus.position.X - (Engine.Window_PixelGridSize.X / 2);
+            float newY= focus.position.Y - (Engine.Window_PixelGridSize.Y / 2);
+            position = new Vector2(newX, newY);
+            CheckBound();
+
+            transformationMatrix = Matrix.Identity * Matrix.CreateTranslation(-position.X, -position.Y, 0) * Matrix.CreateRotationZ(rotation) * Matrix.CreateScale(scale);
 
         }
-        public Camera(string tag, Vector2 positon)
+        public void CheckBound()
         {
-            try
+            // Left bounds check
+            if (position.X < 0)
             {
-                this.tag = tag;
-                this.cameraType = CameraType.Follow;
-                this.position_Base = positon;
-                this.position_Grid = Engine.ConvertPosition_PixelToGrid(position_Base);
+                position = new Vector2(0, position.Y);
             }
-            catch (Exception error)
+            // Right bounds check
+            if (position.X > (Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.Window_PixelGridSize.X))
             {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+                position = new Vector2((Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.Window_PixelGridSize.X), position.Y);
+            }
+            // Up bounds check
+            if (position.Y < 0)
+            {
+                position = new Vector2(position.X, 0);
+            }
+            // Down bounds check
+            if (position.Y > (Engine.GetCurrentLevel().gridSize_Pixels.Y - (Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y)))
+            {
+                position = new Vector2(position.X, (Engine.GetCurrentLevel().gridSize_Pixels.Y - (Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y)));
             }
         }
-        // XNA methods
-        public void Update(GameTime gameTime, BaseGameObject cameraTarget)
+        public bool IsInView(BaseGameObject gameObject)
         {
-            try
+            if (gameObject.position_Grid.X >= position_Grid.X && gameObject.position_Grid.X < (position_Grid.X + Engine.Window_TileGridSize.X) + 1 && gameObject.position_Grid.Y >= position_Grid.Y && gameObject.position_Grid.Y < (position_Grid.Y + Engine.Window_TileGridSize.Y) + 1)
             {
-                if (cameraType == CameraType.Follow)
-                {
-                    float newCameraX = cameraTarget.position.X - (Engine.Window_PixelGridSize.X / 2);
-                    float newCameraY = cameraTarget.position.Y - ((Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y) / 2);
-                    position_Base = new Vector2(newCameraX, newCameraY);
-                }
-                CheckBounds();
-                position_Grid = Engine.ConvertPosition_PixelToGrid(position_Base);
-                Engine.Window_TransformationMatrix = Matrix.Identity;
-                Engine.Window_TransformationMatrix = Matrix.CreateTranslation(new Vector3(-position_Base.X, -position_Base.Y, 0.0f));
-                Engine.Window_TransformationMatrix *= Matrix.CreateScale(Engine.Window_Scaler);
+                return true;
             }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
-            }
-        }
-        // Camera control methods
-        public void CheckBounds()
-        {
-            try
-            {
-                // Left bounds check
-                if (position_Base.X < 0)
-                {
-                    position_Base = new Vector2(0, position_Base.Y);
-                }
-                // Right bounds check
-                if (position_Base.X > (Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.Window_PixelGridSize.X))
-                {
-                    position_Base = new Vector2((Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.Window_PixelGridSize.X), position_Base.Y);
-                }
-                // Up bounds check
-                if (position_Base.Y < 0)
-                {
-                    position_Base = new Vector2(position_Base.X, 0);
-                }
-                // Down bounds check
-                if (position_Base.Y > (Engine.GetCurrentLevel().gridSize_Pixels.Y - (Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y)))
-                {
-                    position_Base = new Vector2(position_Base.X, (Engine.GetCurrentLevel().gridSize_Pixels.Y - (Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y)));
-                }
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
-            }
+            return false;
         }
     }
 }

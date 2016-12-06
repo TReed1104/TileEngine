@@ -69,24 +69,14 @@ namespace TileEngine
         {
             try
             {
-                for (int y = 0; y < Engine.Camera_RenderGridSize_Tiles.Y; y++)
+                for (int y = 0; y < gridSize_Tiles.Y; y++)
                 {
-                    for (int x = 0; x < Engine.Camera_RenderGridSize_Tiles.X; x++)
+                    for (int x = 0; x < gridSize_Tiles.X; x++)
                     {
-                        int drawX = (int)(Engine.PlayerCamera.position_Grid.X + x);
-                        int drawY = (int)(Engine.PlayerCamera.position_Grid.Y + y);
-                        tilemap[drawX, drawY].Draw();
-                        if (drawX + 1 < gridSize_Tiles.X)
+                        bool isValid = IsTileValid(new Vector2(x, y));
+                        if (isValid)
                         {
-                            tilemap[drawX + 1, drawY].Draw();
-                        }
-                        if (drawY + 1 < gridSize_Tiles.Y)
-                        {
-                            tilemap[drawX, drawY + 1].Draw();
-                        }
-                        if (drawX + 1 < gridSize_Tiles.X && drawY + 1 < gridSize_Tiles.Y)
-                        {
-                            tilemap[drawX + 1, drawY + 1].Draw();
+                            tilemap[x, y].Draw();
                         }
                     }
                 }

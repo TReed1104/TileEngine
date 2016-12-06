@@ -189,7 +189,7 @@ namespace TileEngine
                     Vector2 newGridPosition = new Vector2((int)(newPosition.X / Tile.Dimensions.X), (int)(newPosition.Y / Tile.Dimensions.Y));
 
                     // Check the new Position is within bounds
-                    if (newPosition.X >= 0 && newPosition.X < Engine.GetCurrentLevel().gridSize_Pixels.X && newPosition.Y >= 0 && newGridPosition.Y < Engine.GetCurrentLevel().gridSize_Pixels.Y)
+                    if (newPosition.X >= 0 && (newPosition.X + boundingBox.width) < Engine.GetCurrentLevel().gridSize_Pixels.X && newPosition.Y >= 0 && (newPosition.Y + boundingBox.height) < Engine.GetCurrentLevel().gridSize_Pixels.Y)
                     {
                         AABB newBounding = new AABB(newPosition, boundingBox.size);
                         #endregion

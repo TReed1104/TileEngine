@@ -159,6 +159,10 @@ namespace TileEngine
         }
         public AABB GetTileBoundingBox(Vector2 gridPositionOfTile)
         {
+            if (gridPositionOfTile.X < 0) return null;
+            if (gridPositionOfTile.X >= gridSize_Tiles.X) return null;
+            if (gridPositionOfTile.Y < 0) return null;
+            if (gridPositionOfTile.Y >= gridSize_Tiles.Y) return null;
             return tilemap[(int)gridPositionOfTile.X, (int)gridPositionOfTile.Y].boundingBox;
         }
         public void SetCellTile(Vector2 gridPositionToSet, Tile newTile)

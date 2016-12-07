@@ -65,11 +65,12 @@ namespace TileEngine
         {
             try
             {
-                // Check if the cell is solid, if it is not just return false as the AABB intersection would be a false positive.
                 if (Engine.GetCurrentLevel().IsTileEmpty(otherAABB.gridPosition)) { return false; }
-                if (!Engine.GetCurrentLevel().IsTileEmpty(otherAABB.gridPosition)) { return true; }
+
+                bool isColliding = ((x < otherAABB.x + otherAABB.width) && (x + otherAABB.width > otherAABB.x) && (y < otherAABB.y + otherAABB.height) && (y + height > otherAABB.y));
+
                 // If the cell is solid, find out if this AABB is colliding with the passed AABB.
-                return ((x < otherAABB.x + otherAABB.width) && (x + otherAABB.width > otherAABB.x) && (y < otherAABB.y + otherAABB.height) && (y + height  > otherAABB.y));
+                return isColliding;
             }
             catch (Exception error)
             {

@@ -267,7 +267,7 @@ namespace TileEngine
                                         if (isCollidingLeft)
                                         {
                                             // Calculate the Left offset
-                                            deltaX = ((int)((((int)(position.X / Tile.Dimensions.X) - 1)) * Tile.Dimensions.X) + 16.0f) - (position.X);
+                                            deltaX = ((int)((((int)(position.X / Tile.Dimensions.X) - 1)) * Tile.Dimensions.X) + Tile.Dimensions.X) - (position.X);
                                             snappingVelocity = new Vector2(deltaX, snappingVelocity.Y);
                                         }
                                         // If not, try to wallslide.
@@ -282,7 +282,7 @@ namespace TileEngine
                                         if (isCollidingUp)
                                         {
                                             // Calculate the Up offset
-                                            deltaY = (((int)(((int)((int)position.Y / Tile.Dimensions.Y) - 1) * Tile.Dimensions.Y) + 16.0f) - (position.Y));
+                                            deltaY = (((int)(((int)((int)position.Y / Tile.Dimensions.Y) - 1) * Tile.Dimensions.Y) + Tile.Dimensions.Y) - (position.Y));
                                             snappingVelocity = new Vector2(snappingVelocity.X, deltaY);
                                         }
                                         // If not, try to wallslide.
@@ -316,7 +316,7 @@ namespace TileEngine
                                         if (isCollidingUp)
                                         {
                                             // Calculate the Up offset
-                                            deltaY = (((int)(((int)((int)position.Y / Tile.Dimensions.Y) - 1) * Tile.Dimensions.Y) + 16.0f) - (position.Y));
+                                            deltaY = (((int)(((int)((int)position.Y / Tile.Dimensions.Y) - 1) * Tile.Dimensions.Y) + Tile.Dimensions.Y) - (position.Y));
                                             snappingVelocity = new Vector2(snappingVelocity.X, deltaY);
                                         }
                                         // If not, try to wallslide.
@@ -337,7 +337,7 @@ namespace TileEngine
                                         if (isCollidingLeft)
                                         {
                                             // Calculate the Left offset
-                                            deltaX = ((int)((((int)(position.X / Tile.Dimensions.X) - 1)) * Tile.Dimensions.X) + 16.0f) - (position.X);
+                                            deltaX = ((int)((((int)(position.X / Tile.Dimensions.X) - 1)) * Tile.Dimensions.X) + Tile.Dimensions.X) - (position.X);
                                             snappingVelocity = new Vector2(deltaX, snappingVelocity.Y);
                                         }
                                         // If not, try to wallslide.

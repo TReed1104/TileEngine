@@ -142,7 +142,7 @@ namespace TileEngine
         {
             try
             {
-                game.GraphicsDevice.Clear(Color.Magenta);
+                game.GraphicsDevice.Clear(Color.CornflowerBlue);
                 Engine.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix);
                 if (Engine.Register_Levels.Count > 0 && Engine.GetCurrentLevel() != null)
                 {

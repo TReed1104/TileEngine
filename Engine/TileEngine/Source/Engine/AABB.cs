@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TileEngine
 {
-    [DebuggerDisplay("{X}, {Y}")]
+    [DebuggerDisplay("{x}, {x}")]
     public class AABB
     {
         // Raw Data of the AABB.

@@ -28,7 +28,7 @@ namespace TileEngine
         {
 
             this.healthPoints = healthPoints;
-            movementSpeed = 50.0f;  // In pixels per second.
+            movementSpeed = 60.0f;  // In pixels per second.
             movementDirection = Direction.Down;
 
             Vector2 boundingGridDelta = sourceRectangle_Size - new Vector2(10, 10);
@@ -227,32 +227,44 @@ namespace TileEngine
                                 case Direction.Down:
                                     {
                                         // Calculate the Down offset
-                                        deltaY = (((((int)((int)position.Y / Tile.Dimensions.Y) + 1)) * Tile.Dimensions.Y) - (position.Y + boundingBox_Size.Y));
-                                        snappingVelocity = new Vector2(snappingVelocity.X, deltaY - 0.001f);
+                                        float offsetBottomLeft = (position.Y + boundingBox.height) - boundingToCheck_BottomLeft.y;
+                                        float offsetBottomRight = (position.Y + boundingBox.height) - boundingToCheck_BottomRight.y;
+
+                                        if (offsetBottomLeft > offsetBottomRight) { deltaY = -offsetBottomLeft - 0.001f; }
+                                        else { deltaY = -offsetBottomRight - 0.001f; }
 
                                         break;
                                     }
                                 case Direction.Up:
                                     {
                                         // Calculate the Up offset
-                                        deltaY = (((int)(((int)((int)position.Y / Tile.Dimensions.Y) - 1) * Tile.Dimensions.Y) + 16.0f) - (position.Y));
-                                        snappingVelocity = new Vector2(snappingVelocity.X, deltaY);
+                                        float offsetTopLeft = position.Y - (boundingToCheck_TopLeft.y + boundingToCheck_TopLeft.height);
+                                        float offsetTopRight = position.Y - (boundingToCheck_TopRight.y + boundingToCheck_BottomLeft.height);
+
+                                        if (offsetTopLeft < offsetTopRight) { deltaY = -offsetTopLeft; }
+                                        else { deltaY = -offsetTopRight; }
 
                                         break;
                                     }
                                 case Direction.Left:
                                     {
                                         // Calculate the Left offset
-                                        deltaX = ((int)((((int)(position.X / Tile.Dimensions.X) - 1)) * Tile.Dimensions.X) + 16.0f) - (position.X);
-                                        snappingVelocity = new Vector2(deltaX, snappingVelocity.Y);
+                                        float offsetTopLeft = position.X - (boundingToCheck_TopLeft.x + boundingToCheck_TopLeft.width);
+                                        float offsetBottomLeft = position.X - (boundingToCheck_BottomLeft.x + boundingToCheck_BottomLeft.width);
+
+                                        if (offsetTopLeft < offsetBottomLeft) { deltaX = -offsetTopLeft; }
+                                        else { deltaX = -offsetBottomLeft; }
 
                                         break;
                                     }
                                 case Direction.Right:
                                     {
                                         // Calculate the Right offset
-                                        deltaX = ((((int)(position.X / Tile.Dimensions.X)) + 1) * Tile.Dimensions.X) - (position.X + boundingBox_Size.X);
-                                        snappingVelocity = new Vector2(deltaX - 0.001f, snappingVelocity.Y);
+                                        float offsetTopRight = (position.X + boundingBox.width) - boundingToCheck_TopRight.x;
+                                        float offsetBottomRight = (position.X + boundingBox.width) - boundingToCheck_BottomRight.x;
+
+                                        if (offsetTopRight > offsetBottomRight) { deltaX = -offsetTopRight - 0.001f; }
+                                        else { deltaX = -offsetBottomRight - 0.001f; }
 
                                         break;
                                     }
@@ -267,8 +279,11 @@ namespace TileEngine
                                         if (isCollidingLeft)
                                         {
                                             // Calculate the Left offset
-                                            deltaX = ((int)((((int)(position.X / Tile.Dimensions.X) - 1)) * Tile.Dimensions.X) + Tile.Dimensions.X) - (position.X);
-                                            snappingVelocity = new Vector2(deltaX, snappingVelocity.Y);
+                                            float offsetTopLeft = position.X - (boundingToCheck_TopLeft.x + boundingToCheck_TopLeft.width);
+                                            float offsetBottomLeft = position.X - (boundingToCheck_BottomLeft.x + boundingToCheck_BottomLeft.width);
+
+                                            if (offsetTopLeft < offsetBottomLeft) { deltaX = -offsetTopLeft; }
+                                            else { deltaX = -offsetBottomLeft; }
                                         }
                                         // If not, try to wallslide.
                                         else
@@ -282,8 +297,11 @@ namespace TileEngine
                                         if (isCollidingUp)
                                         {
                                             // Calculate the Up offset
-                                            deltaY = (((int)(((int)((int)position.Y / Tile.Dimensions.Y) - 1) * Tile.Dimensions.Y) + Tile.Dimensions.Y) - (position.Y));
-                                            snappingVelocity = new Vector2(snappingVelocity.X, deltaY);
+                                            float offsetTopLeft = position.Y - (boundingToCheck_TopLeft.y + boundingToCheck_TopLeft.height);
+                                            float offsetTopRight = position.Y - (boundingToCheck_TopRight.y + boundingToCheck_BottomLeft.height);
+
+                                            if (offsetTopLeft < offsetTopRight) { deltaY = -offsetTopLeft; }
+                                            else { deltaY = -offsetTopRight; }
                                         }
                                         // If not, try to wallslide.
                                         else
@@ -302,8 +320,11 @@ namespace TileEngine
                                         if (isCollidingRight)
                                         {
                                             // Calculate the Right offset
-                                            deltaX = ((((int)(position.X / Tile.Dimensions.X)) + 1) * Tile.Dimensions.X) - (position.X + boundingBox_Size.X);
-                                            snappingVelocity = new Vector2(deltaX - 0.001f, snappingVelocity.Y);
+                                            float offsetTopRight = (position.X + boundingBox.width) - boundingToCheck_TopRight.x;
+                                            float offsetBottomRight = (position.X + boundingBox.width) - boundingToCheck_BottomRight.x;
+
+                                            if (offsetTopRight > offsetBottomRight) { deltaX = -offsetTopRight - 0.001f; }
+                                            else { deltaX = -offsetBottomRight - 0.001f; }
                                         }
                                         // If not, try to wallslide.
                                         else
@@ -316,8 +337,11 @@ namespace TileEngine
                                         if (isCollidingUp)
                                         {
                                             // Calculate the Up offset
-                                            deltaY = (((int)(((int)((int)position.Y / Tile.Dimensions.Y) - 1) * Tile.Dimensions.Y) + Tile.Dimensions.Y) - (position.Y));
-                                            snappingVelocity = new Vector2(snappingVelocity.X, deltaY);
+                                            float offsetTopLeft = position.Y - (boundingToCheck_TopLeft.y + boundingToCheck_TopLeft.height);
+                                            float offsetTopRight = position.Y - (boundingToCheck_TopRight.y + boundingToCheck_BottomLeft.height);
+
+                                            if (offsetTopLeft < offsetTopRight) { deltaY = -offsetTopLeft; }
+                                            else { deltaY = -offsetTopRight; }
                                         }
                                         // If not, try to wallslide.
                                         else
@@ -337,13 +361,15 @@ namespace TileEngine
                                         if (isCollidingLeft)
                                         {
                                             // Calculate the Left offset
-                                            deltaX = ((int)((((int)(position.X / Tile.Dimensions.X) - 1)) * Tile.Dimensions.X) + Tile.Dimensions.X) - (position.X);
-                                            snappingVelocity = new Vector2(deltaX, snappingVelocity.Y);
+                                            float offsetTopLeft = position.X - (boundingToCheck_TopLeft.x + boundingToCheck_TopLeft.width);
+                                            float offsetBottomLeft = position.X - (boundingToCheck_BottomLeft.x + boundingToCheck_BottomLeft.width);
+
+                                            if (offsetTopLeft < offsetBottomLeft) { deltaX = -offsetTopLeft; }
+                                            else { deltaX = -offsetBottomLeft; }
                                         }
                                         // If not, try to wallslide.
                                         else
                                         {
-
                                             movementDirection = Direction.Left;
                                             CollisionHandler_Movement();
                                         }
@@ -352,8 +378,11 @@ namespace TileEngine
                                         if (isCollidingDown)
                                         {
                                             // Calculate the Down offset
-                                            deltaY = (((((int)((int)position.Y / Tile.Dimensions.Y) + 1)) * Tile.Dimensions.Y) - (position.Y + boundingBox_Size.Y));
-                                            snappingVelocity = new Vector2(snappingVelocity.X, deltaY - 0.001f);
+                                            float offsetBottomLeft = (position.Y + boundingBox.height) - boundingToCheck_BottomLeft.y;
+                                            float offsetBottomRight = (position.Y + boundingBox.height) - boundingToCheck_BottomRight.y;
+
+                                            if (offsetBottomLeft > offsetBottomRight) { deltaY = -offsetBottomLeft - 0.001f; }
+                                            else { deltaY = -offsetBottomRight - 0.001f; }
                                         }
                                         // If not, try to wallslide.
                                         else
@@ -373,8 +402,11 @@ namespace TileEngine
                                         if (isCollidingRight)
                                         {
                                             // Calculate the Right offset
-                                            deltaX = ((((int)(position.X / Tile.Dimensions.X)) + 1) * Tile.Dimensions.X) - (position.X + boundingBox_Size.X);
-                                            snappingVelocity = new Vector2(deltaX - 0.001f, snappingVelocity.Y);
+                                            float offsetTopRight = (position.X + boundingBox.width) - boundingToCheck_TopRight.x;
+                                            float offsetBottomRight = (position.X + boundingBox.width) - boundingToCheck_BottomRight.x;
+
+                                            if (offsetTopRight > offsetBottomRight) { deltaX = -offsetTopRight - 0.001f; }
+                                            else { deltaX = -offsetBottomRight - 0.001f; }
                                         }
                                         // If not, try to wallslide.
                                         else
@@ -387,8 +419,11 @@ namespace TileEngine
                                         if (isCollidingDown)
                                         {
                                             // Calculate the Down offset
-                                            deltaY = (((((int)((int)position.Y / Tile.Dimensions.Y) + 1)) * Tile.Dimensions.Y) - (position.Y + boundingBox_Size.Y));
-                                            snappingVelocity = new Vector2(snappingVelocity.X, deltaY - 0.001f);
+                                            float offsetBottomLeft = (position.Y + boundingBox.height) - boundingToCheck_BottomLeft.y;
+                                            float offsetBottomRight = (position.Y + boundingBox.height) - boundingToCheck_BottomRight.y;
+
+                                            if (offsetBottomLeft > offsetBottomRight) { deltaY = -offsetBottomLeft - 0.001f; }
+                                            else { deltaY = -offsetBottomRight - 0.001f; }
                                         }
                                         // If not, try to wallslide.
                                         else
@@ -405,8 +440,7 @@ namespace TileEngine
                             }
                             #endregion
 
-                            #region // Wall Sliding
-                            #endregion
+                            snappingVelocity = new Vector2(deltaX, deltaY);
                         }
                     }
                 }

@@ -29,10 +29,7 @@ namespace TileEngine
         {
             
             deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
-
-            float newX = focus.position.X - (Engine.Window_PixelGridSize.X / 2);
-            float newY= focus.position.Y - (Engine.Window_PixelGridSize.Y / 2);
-            position = new Vector2(newX, newY);
+            position = new Vector2(focus.position.X - (Engine.Window_PixelGridSize.X / 2), focus.position.Y - (Engine.Window_PixelGridSize.Y / 2));
             CheckBound();
 
             transformationMatrix = Matrix.Identity * Matrix.CreateTranslation(-position.X, -position.Y, 0) * Matrix.CreateRotationZ(rotation) * Matrix.CreateScale(scale);

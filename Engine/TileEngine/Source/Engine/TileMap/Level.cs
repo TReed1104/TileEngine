@@ -296,7 +296,7 @@ namespace TileEngine
                 }
             }
 
-            if (Engine.isEngineInTestMode)
+            if (Engine.IsEngineInTestMode)
             {
                 // Cap the grid
                 for (int x = 0; x < gridSize_Tiles.X; x++)

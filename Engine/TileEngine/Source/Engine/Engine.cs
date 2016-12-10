@@ -84,9 +84,12 @@ namespace TileEngine
         #region // Camera Vars
         public static Camera GameCamera { get; set; }
         #endregion
+        #region // Misc Variables
+        public static bool IsMovementGridSnapped { get; set; }
+        #endregion
         #region // Debugger Vars
         public static bool VisualDebugger { get; set; }
-        public static bool isEngineInTestMode { get; set; }
+        public static bool IsEngineInTestMode { get; set; }
         #endregion
 
         // Constructors
@@ -113,8 +116,10 @@ namespace TileEngine
 
             Engine.GameCamera = new Camera();
 
+            Engine.IsMovementGridSnapped = true;
+
             Engine.VisualDebugger = false;
-            Engine.isEngineInTestMode = false;
+            Engine.IsEngineInTestMode = false;
         }
 
         // Runtime methods
@@ -322,12 +327,12 @@ namespace TileEngine
                     xmlWriter.WriteWhitespace("\r\n\t");
 
                     xmlWriter.WriteStartElement("position_x");
-                    xmlWriter.WriteAttributeString("value", "48");
+                    xmlWriter.WriteAttributeString("value", "35");
                     xmlWriter.WriteEndElement();
                     xmlWriter.WriteWhitespace("\r\n\t");
 
                     xmlWriter.WriteStartElement("position_y");
-                    xmlWriter.WriteAttributeString("value", "68");
+                    xmlWriter.WriteAttributeString("value", "67");
                     xmlWriter.WriteEndElement();
                     xmlWriter.WriteWhitespace("\r\n\t");
 
@@ -698,7 +703,7 @@ namespace TileEngine
         // Testing Methods
         private static void TestGeneration()
         {
-            if (Engine.isEngineInTestMode)
+            if (Engine.IsEngineInTestMode)
             {
                 Engine.ClearLevelCache();   // Clear the cache for re-generation for testing.
 

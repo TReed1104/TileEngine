@@ -15,12 +15,16 @@ namespace TileEngine
         public enum Direction { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
 
         // Vars
-        public bool isMoving { get; set; }
+        public bool allowChangeInVelocity { get; set; }
+        public bool isMovingForAnimation { get; set; }
         public bool isAttacking { get; set; }
         public bool isDefending { get; set; }
         public Direction movementDirection { get; protected set; }
-        public bool isGridSnapped { get; set; }
-        protected Vector2 snappingVelocity { get; set; }
+        public bool isGridSnapped { get { return Engine.IsMovementGridSnapped; } }
+        protected Vector2 pixelSnapVelocity { get; set; }
+        protected bool isMovementLocked { get; set; }
+
+        protected Vector2 targetPositionOfGridSnap { get; set; }
 
         // Constructors
         public BaseAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
@@ -32,14 +36,15 @@ namespace TileEngine
             movementDirection = Direction.Down;
 
             Vector2 boundingGridDelta = sourceRectangle_Size - new Vector2(10, 10);
-            boundingBox_Offset = (boundingGridDelta / 2);
+            boundingBox_Offset_Texture = (boundingGridDelta / 2);
             boundingBox_Size = new Vector2(10, 10);
+            pixelSnapVelocity = new Vector2(0, 0);
 
-            snappingVelocity = new Vector2(0, 0);
+            isMovementLocked = false;
         }
 
         // Delegates
-        protected delegate void MovementControl();
+        protected delegate void MovementControl(GameTime gameTime);
         protected MovementControl MovementHandler;
         protected delegate void AgentBehaviour(GameTime gameTime);
         protected AgentBehaviour BehaviourHandler;
@@ -50,7 +55,8 @@ namespace TileEngine
             deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
 
             // Movement
-            MovementHandler();
+            MovementHandler(gameTime);
+            CollisionHandler_Movement(gameTime);
 
             // Behaviour
             BehaviourHandler(gameTime);
@@ -60,17 +66,18 @@ namespace TileEngine
 
             // Reset the Agent to its base mode.
             position += velocity;
-            position += snappingVelocity;
+            position += pixelSnapVelocity;
             velocity = Vector2.Zero;
-            snappingVelocity = Vector2.Zero;
-            isMoving = false;
+            pixelSnapVelocity = Vector2.Zero;
+            isMovingForAnimation = false;
 
+            allowChangeInVelocity = false;
         }
         protected void AnimationFinder(string animationTag, GameTime gameTime)
         {
             // Work out which version of that directions animation to play
             string animationModifier = "Idle ";
-            if (isMoving)
+            if (isMovingForAnimation)
             {
                 animationModifier = "Walking ";
             }
@@ -139,60 +146,59 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        protected void CollisionHandler_Movement()
+        protected void CollisionHandler_Movement(GameTime gameTime)
         {
             try
             {
-                // If the agent can only move between grid cells.
-                if (isGridSnapped)
+                if (!isGridSnapped)
                 {
-
-                }
-                // If the agent can move pixel by pixel.
-                else
-                {
+                    // If the agent can move pixel by pixel.
                     #region // Calculate the velocity of the movement decided by the agent.
                     Vector2 newVelocity = new Vector2(0, 0);
-                    switch (movementDirection)
+                    if (allowChangeInVelocity)
                     {
-                        case Direction.Down:
-                            newVelocity = new Vector2(0, movementSpeed * deltaTime);
-                            break;
-                        case Direction.Up:
-                            newVelocity = new Vector2(0, -movementSpeed * deltaTime);
-                            break;
-                        case Direction.Left:
-                            newVelocity = new Vector2(-movementSpeed * deltaTime, 0);
-                            break;
-                        case Direction.Right:
-                            newVelocity = new Vector2(movementSpeed * deltaTime, 0);
-                            break;
-                        case Direction.UpLeft:
-                            newVelocity = new Vector2(-movementSpeed * deltaTime, -movementSpeed * deltaTime);
-                            break;
-                        case Direction.UpRight:
-                            newVelocity = new Vector2(movementSpeed * deltaTime, -movementSpeed * deltaTime);
-                            break;
-                        case Direction.DownLeft:
-                            newVelocity = new Vector2(-movementSpeed * deltaTime, movementSpeed * deltaTime);
-                            break;
-                        case Direction.DownRight:
-                            newVelocity = new Vector2(movementSpeed * deltaTime, movementSpeed * deltaTime);
-                            break;
-                        default:
-                            break;
+                        switch (movementDirection)
+                        {
+                            case Direction.Down:
+                                newVelocity = new Vector2(0, movementSpeed * deltaTime);
+                                break;
+                            case Direction.Up:
+                                newVelocity = new Vector2(0, -movementSpeed * deltaTime);
+                                break;
+                            case Direction.Left:
+                                newVelocity = new Vector2(-movementSpeed * deltaTime, 0);
+                                break;
+                            case Direction.Right:
+                                newVelocity = new Vector2(movementSpeed * deltaTime, 0);
+                                break;
+                            case Direction.UpLeft:
+                                newVelocity = new Vector2(-movementSpeed * deltaTime, -movementSpeed * deltaTime);
+                                break;
+                            case Direction.UpRight:
+                                newVelocity = new Vector2(movementSpeed * deltaTime, -movementSpeed * deltaTime);
+                                break;
+                            case Direction.DownLeft:
+                                newVelocity = new Vector2(-movementSpeed * deltaTime, movementSpeed * deltaTime);
+                                break;
+                            case Direction.DownRight:
+                                newVelocity = new Vector2(movementSpeed * deltaTime, movementSpeed * deltaTime);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     #endregion
 
                     #region// Calculate the new positionand create an AABB at that position, this represents the new position of the player if the movement takes palce.
                     Vector2 newPosition = position + newVelocity;
                     Vector2 newGridPosition = new Vector2((int)(newPosition.X / Tile.Dimensions.X), (int)(newPosition.Y / Tile.Dimensions.Y));
+                    #endregion
 
+                    #region // The collisions checks and movement
                     // Check the new Position is within bounds
                     if (newPosition.X >= 0 && (newPosition.X + boundingBox.width) < Engine.GetCurrentLevel().gridSize_Pixels.X && newPosition.Y >= 0 && (newPosition.Y + boundingBox.height) < Engine.GetCurrentLevel().gridSize_Pixels.Y)
                     {
                         AABB newBounding = new AABB(newPosition, boundingBox.size);
-                        #endregion
 
                         #region // Grab the AABBs of the cells the player is overlapping and check if the newBoundingBox is colliding with any of them.
                         AABB boundingToCheck_TopLeft = Engine.GetCurrentLevel().GetTileBoundingBox(newBounding.gridPosition_TopLeft);
@@ -290,7 +296,7 @@ namespace TileEngine
                                         {
 
                                             movementDirection = Direction.Left;
-                                            CollisionHandler_Movement();
+                                            CollisionHandler_Movement(gameTime);
                                         }
 
                                         // If collision is Up, snap Up.
@@ -307,7 +313,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = Direction.Up;
-                                            CollisionHandler_Movement();
+                                            CollisionHandler_Movement(gameTime);
                                         }
                                         break;
                                     }
@@ -330,7 +336,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = Direction.Right;
-                                            CollisionHandler_Movement();
+                                            CollisionHandler_Movement(gameTime);
                                         }
 
                                         // If collision is Up, snap Up.
@@ -347,7 +353,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = Direction.Up;
-                                            CollisionHandler_Movement();
+                                            CollisionHandler_Movement(gameTime);
                                         }
 
                                         break;
@@ -371,7 +377,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = Direction.Left;
-                                            CollisionHandler_Movement();
+                                            CollisionHandler_Movement(gameTime);
                                         }
 
                                         // If collision is Down, snap Down.
@@ -388,7 +394,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = Direction.Down;
-                                            CollisionHandler_Movement();
+                                            CollisionHandler_Movement(gameTime);
                                         }
 
                                         break;
@@ -412,7 +418,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = Direction.Right;
-                                            CollisionHandler_Movement();
+                                            CollisionHandler_Movement(gameTime);
                                         }
 
                                         // If collision is Down, snap Down.
@@ -429,7 +435,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = Direction.Down;
-                                            CollisionHandler_Movement();
+                                            CollisionHandler_Movement(gameTime);
                                         }
 
                                         break;
@@ -440,9 +446,20 @@ namespace TileEngine
                             }
                             #endregion
 
-                            snappingVelocity = new Vector2(deltaX, deltaY);
+                            pixelSnapVelocity = new Vector2(deltaX, deltaY);
                         }
                     }
+                    #endregion
+
+                }
+                else
+                {
+                    // If the agent can only move between tiles.
+
+                    
+
+                    //delta = endPos - startPos;
+                    //position += delta * (timeSinceLastUpdate / durationOfMovement);
                 }
             }
             catch (Exception error)

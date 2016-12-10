@@ -16,12 +16,12 @@ namespace TileEngine
         {
             MovementHandler += NpcMovementHandler;
             BehaviourHandler += NpcBehaviourHandler;
-            isMoving = false;
+            allowChangeInVelocity = false;
             isAttacking = false;
             isDefending = false;
         }
 
-        protected void NpcMovementHandler()
+        protected void NpcMovementHandler(GameTime gameTime)
         {
 
         }

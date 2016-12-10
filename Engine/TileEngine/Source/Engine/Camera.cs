@@ -13,7 +13,7 @@ namespace TileEngine
     {
         public Vector2 position { get; set; }
         public Vector2 position_Grid {  get { return Engine.ConvertPosition_PixelToGrid(position); } }
-        public float movementSpeed { get { return Engine.GetCurrentPlayer().movementSpeed; } }
+        public float movementSpeed { get { return Engine.GetCurrentPlayer().movementSpeed_FreeMovement; } }
         public float rotation { get; set; }
         public float scale { get { return Engine.Window_Scaler; } }
         public Matrix transformationMatrix { get; set; }

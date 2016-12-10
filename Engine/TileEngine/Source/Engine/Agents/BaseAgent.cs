@@ -22,9 +22,14 @@ namespace TileEngine
         public Direction movementDirection { get; protected set; }
         public bool isGridSnapped { get { return Engine.IsMovementGridSnapped; } }
         protected Vector2 pixelSnapVelocity { get; set; }
-        protected bool isMovementLocked { get; set; }
+        public bool isMovementDisabled { get; set; }
 
+        protected bool isSnapMovementOccuring { get; set; }
+        protected bool isTargetPositionSet { get; set; }
+        protected Vector2 startPositionOfGridSnap { get; set; }
         protected Vector2 targetPositionOfGridSnap { get; set; }
+        protected Vector2 distanceTraveledInSnap { get; set; }
+        protected float movementSpeed_Snapped { get; set; }
 
         // Constructors
         public BaseAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
@@ -32,15 +37,22 @@ namespace TileEngine
         {
 
             this.healthPoints = healthPoints;
-            movementSpeed = 60.0f;  // In pixels per second.
+            movementSpeed_FreeMovement = 60.0f;  // In pixels per second.
             movementDirection = Direction.Down;
 
             Vector2 boundingGridDelta = sourceRectangle_Size - new Vector2(10, 10);
             boundingBox_Offset_Texture = (boundingGridDelta / 2);
             boundingBox_Size = new Vector2(10, 10);
             pixelSnapVelocity = new Vector2(0, 0);
+            isMovementDisabled = false;
 
-            isMovementLocked = false;
+            // Snapping
+            isSnapMovementOccuring = false;
+            isTargetPositionSet = false;
+            startPositionOfGridSnap = position_Grid;
+            targetPositionOfGridSnap = position_Grid;
+            distanceTraveledInSnap = new Vector2(0, 0);
+            movementSpeed_Snapped = 0.25f;  // Time taken to reach next tile
         }
 
         // Delegates
@@ -160,28 +172,28 @@ namespace TileEngine
                         switch (movementDirection)
                         {
                             case Direction.Down:
-                                newVelocity = new Vector2(0, movementSpeed * deltaTime);
+                                newVelocity = new Vector2(0, movementSpeed_FreeMovement * deltaTime);
                                 break;
                             case Direction.Up:
-                                newVelocity = new Vector2(0, -movementSpeed * deltaTime);
+                                newVelocity = new Vector2(0, -movementSpeed_FreeMovement * deltaTime);
                                 break;
                             case Direction.Left:
-                                newVelocity = new Vector2(-movementSpeed * deltaTime, 0);
+                                newVelocity = new Vector2(-movementSpeed_FreeMovement * deltaTime, 0);
                                 break;
                             case Direction.Right:
-                                newVelocity = new Vector2(movementSpeed * deltaTime, 0);
+                                newVelocity = new Vector2(movementSpeed_FreeMovement * deltaTime, 0);
                                 break;
                             case Direction.UpLeft:
-                                newVelocity = new Vector2(-movementSpeed * deltaTime, -movementSpeed * deltaTime);
+                                newVelocity = new Vector2(-movementSpeed_FreeMovement * deltaTime, -movementSpeed_FreeMovement * deltaTime);
                                 break;
                             case Direction.UpRight:
-                                newVelocity = new Vector2(movementSpeed * deltaTime, -movementSpeed * deltaTime);
+                                newVelocity = new Vector2(movementSpeed_FreeMovement * deltaTime, -movementSpeed_FreeMovement * deltaTime);
                                 break;
                             case Direction.DownLeft:
-                                newVelocity = new Vector2(-movementSpeed * deltaTime, movementSpeed * deltaTime);
+                                newVelocity = new Vector2(-movementSpeed_FreeMovement * deltaTime, movementSpeed_FreeMovement * deltaTime);
                                 break;
                             case Direction.DownRight:
-                                newVelocity = new Vector2(movementSpeed * deltaTime, movementSpeed * deltaTime);
+                                newVelocity = new Vector2(movementSpeed_FreeMovement * deltaTime, movementSpeed_FreeMovement * deltaTime);
                                 break;
                             default:
                                 break;
@@ -455,11 +467,72 @@ namespace TileEngine
                 else
                 {
                     // If the agent can only move between tiles.
+                    if (isSnapMovementOccuring)
+                    {
+                        isMovingForAnimation = true;        // Used to tell the animation handler that the movement variation of the animation should be played.
+                        if (!isTargetPositionSet)
+                        {
+                            Vector2 newTarget = position_Grid;
+                            switch (movementDirection)
+                            {
+                                case Direction.Down:
+                                    newTarget += new Vector2(0, 1);
+                                    break;
+                                case Direction.Up:
+                                    newTarget += new Vector2(0, -1);
+                                    break;
+                                case Direction.Left:
+                                    newTarget += new Vector2(-1, 0);
+                                    break;
+                                case Direction.Right:
+                                    newTarget += new Vector2(1, 0);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            if (Engine.GetCurrentLevel().IsTileEmpty(newTarget))
+                            {
+                                startPositionOfGridSnap = position_Grid;
+                                targetPositionOfGridSnap = newTarget;
+                                isTargetPositionSet = true;
+                                distanceTraveledInSnap = new Vector2(0, 0);
+                            }
+                            else
+                            {
+                                startPositionOfGridSnap = position_Grid;
+                                targetPositionOfGridSnap = position_Grid;
+                                isTargetPositionSet = false;
+                                isSnapMovementOccuring = false;
+                                distanceTraveledInSnap = new Vector2(0, 0);
+                            }
+                        }
 
-                    
+                        Vector2 distanceOfMovement = (targetPositionOfGridSnap - startPositionOfGridSnap) * Tile.Dimensions;
+                        Vector2 newVelocity = distanceOfMovement * (deltaTime / movementSpeed_Snapped);
+                        
+                        Vector2 newPosition = position + newVelocity;
+                        Vector2 targetPositionInPixels = (targetPositionOfGridSnap * Tile.Dimensions) - boundingBox_Offset_Tile;
 
-                    //delta = endPos - startPos;
-                    //position += delta * (timeSinceLastUpdate / durationOfMovement);
+                        Vector2 newDistanceTravelled = distanceTraveledInSnap + newVelocity;
+
+                        if (newDistanceTravelled.Length() < distanceOfMovement.Length())
+                        {
+                            velocity = newVelocity;
+                            distanceTraveledInSnap = newDistanceTravelled;
+                        }
+                        else
+                        {
+                            Vector2 deltaPosition = targetPositionInPixels - position;
+                            velocity = deltaPosition;
+
+                            startPositionOfGridSnap = position_Grid;
+                            targetPositionOfGridSnap = position_Grid;
+                            isTargetPositionSet = false;
+                            isSnapMovementOccuring = false;
+                            distanceTraveledInSnap = new Vector2(0, 0);
+                        }
+
+                    }
                 }
             }
             catch (Exception error)

@@ -25,7 +25,7 @@ namespace TileEngine
         
 
         public Vector2 velocity { get; set; }
-        public float movementSpeed { get; protected set; }
+        public float movementSpeed_FreeMovement { get; protected set; }
         public float healthPoints { get; protected set; }
         public bool isAlive {  get { return healthPoints > 0.0f;  } }
         public float damagePower { get; protected set; }
@@ -69,7 +69,7 @@ namespace TileEngine
 
                 healthPoints = 1.0f;
                 velocity = Vector2.Zero;
-                movementSpeed = 0.0f;
+                movementSpeed_FreeMovement = 0.0f;
                 damagePower = 1.0f;
 
                 deltaTime = 0;

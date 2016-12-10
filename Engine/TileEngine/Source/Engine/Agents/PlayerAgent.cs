@@ -41,7 +41,8 @@ namespace TileEngine
             {
                 #region // Keyboard movement handling
 
-                if (isMovementLocked) return;
+                if (isMovementDisabled) return;
+                if (isSnapMovementOccuring) return;
 
                 KeyboardState keyboardState = Keyboard.GetState();
                 bool isMovementKeyPressed = keyboardState.IsKeyDown(movementKey_Down) || keyboardState.IsKeyDown(movementKey_Up) || keyboardState.IsKeyDown(movementKey_Right) || keyboardState.IsKeyDown(movementKey_Left);
@@ -49,60 +50,79 @@ namespace TileEngine
                 // If a movement key is pressed...
                 if (isMovementKeyPressed)
                 {
-                    bool isMovementDown = keyboardState.IsKeyDown(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Right);
-                    bool isMovementUp = keyboardState.IsKeyDown(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Right);
-                    bool isMovementLeft = keyboardState.IsKeyDown(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Right);
-                    bool isMovementRight = keyboardState.IsKeyDown(movementKey_Right) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Left);
+                    if (!isGridSnapped)
+                    {
+                        bool isMovementDown = keyboardState.IsKeyDown(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Right);
+                        bool isMovementUp = keyboardState.IsKeyDown(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Right);
+                        bool isMovementLeft = keyboardState.IsKeyDown(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Right);
+                        bool isMovementRight = keyboardState.IsKeyDown(movementKey_Right) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Left);
 
-                    bool isMovementDownLeft = keyboardState.IsKeyDown(movementKey_Down) && keyboardState.IsKeyDown(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Right);
-                    bool isMovementDownRight = keyboardState.IsKeyDown(movementKey_Down) && keyboardState.IsKeyDown(movementKey_Right) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Left);
-                    bool isMovementUpLeft = keyboardState.IsKeyDown(movementKey_Up) && keyboardState.IsKeyDown(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Right);
-                    bool isMovementUpRight = keyboardState.IsKeyDown(movementKey_Up) && keyboardState.IsKeyDown(movementKey_Right) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Left);
+                        bool isMovementDownLeft = keyboardState.IsKeyDown(movementKey_Down) && keyboardState.IsKeyDown(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Right);
+                        bool isMovementDownRight = keyboardState.IsKeyDown(movementKey_Down) && keyboardState.IsKeyDown(movementKey_Right) && keyboardState.IsKeyUp(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Left);
+                        bool isMovementUpLeft = keyboardState.IsKeyDown(movementKey_Up) && keyboardState.IsKeyDown(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Right);
+                        bool isMovementUpRight = keyboardState.IsKeyDown(movementKey_Up) && keyboardState.IsKeyDown(movementKey_Right) && keyboardState.IsKeyUp(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Left);
 
-                    if (isMovementDown)
-                    {
-                        movementDirection = Direction.Down;
-                    }
-                    else if (isMovementUp)
-                    {
-                        movementDirection = Direction.Up;
-                    }
-                    else if (isMovementLeft)
-                    {
-                        movementDirection = Direction.Left;
-                    }
-                    else if (isMovementRight)
-                    {
-                        movementDirection = Direction.Right;
-                    }
-                    else if (isMovementDownLeft)
-                    {
-                        movementDirection = Direction.DownLeft;
-                    }
-                    else if (isMovementDownRight)
-                    {
-                        movementDirection = Direction.DownRight;
-                    }
-                    else if (isMovementUpLeft)
-                    {
-                        movementDirection = Direction.UpLeft;
-                    }
-                    else if (isMovementUpRight)
-                    {
-                        movementDirection = Direction.UpRight;
-                    }
-
-                    isMovingForAnimation = true;        // Used to tell the animation handler that the movement variation of the animation should be played.
-
-                    // If the movement is grid snapped and the direction has been changed, lock the movement.
-                    if (isGridSnapped)
-                    {
-                        isMovementLocked = true;
-                    }
-                    else
-                    {
+                        if (isMovementDown)
+                        {
+                            movementDirection = Direction.Down;
+                        }
+                        else if (isMovementUp)
+                        {
+                            movementDirection = Direction.Up;
+                        }
+                        else if (isMovementLeft)
+                        {
+                            movementDirection = Direction.Left;
+                        }
+                        else if (isMovementRight)
+                        {
+                            movementDirection = Direction.Right;
+                        }
+                        else if (isMovementDownLeft)
+                        {
+                            movementDirection = Direction.DownLeft;
+                        }
+                        else if (isMovementDownRight)
+                        {
+                            movementDirection = Direction.DownRight;
+                        }
+                        else if (isMovementUpLeft)
+                        {
+                            movementDirection = Direction.UpLeft;
+                        }
+                        else if (isMovementUpRight)
+                        {
+                            movementDirection = Direction.UpRight;
+                        }
                         // If not allow the collision handler to adjust the velocity for pixel-by-pixel movement
+                        isMovingForAnimation = true;
                         allowChangeInVelocity = isMovementDown || isMovementUp || isMovementLeft || isMovementRight || isMovementDownLeft || isMovementDownRight || isMovementUpLeft || isMovementUpRight;
+                    }
+                    // If the movement is grid snapped and the direction has been changed, lock the movement.
+                    else if (isGridSnapped)
+                    {
+                        bool isMovementDown = keyboardState.IsKeyDown(movementKey_Down) && keyboardState.IsKeyUp(movementKey_Up);
+                        bool isMovementUp = keyboardState.IsKeyDown(movementKey_Up) && keyboardState.IsKeyUp(movementKey_Down);
+                        bool isMovementLeft = keyboardState.IsKeyDown(movementKey_Left) && keyboardState.IsKeyUp(movementKey_Right);
+                        bool isMovementRight = keyboardState.IsKeyDown(movementKey_Right) && keyboardState.IsKeyUp(movementKey_Left);
+
+                        if (isMovementDown)
+                        {
+                            movementDirection = Direction.Down;
+                        }
+                        else if (isMovementUp)
+                        {
+                            movementDirection = Direction.Up;
+                        }
+                        else if (isMovementLeft)
+                        {
+                            movementDirection = Direction.Left;
+                        }
+                        else if (isMovementRight)
+                        {
+                            movementDirection = Direction.Right;
+                        }
+                        isSnapMovementOccuring = isMovementDown || isMovementUp || isMovementLeft || isMovementRight;
                     }
                 }
                 #endregion

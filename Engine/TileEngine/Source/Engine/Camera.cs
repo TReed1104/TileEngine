@@ -28,8 +28,8 @@ namespace TileEngine
         public void Update(GameTime gameTime, BaseGameObject focus)
         {
             
-            deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
-            position = new Vector2(focus.position.X - (Engine.Window_PixelGridSize.X / 2), focus.position.Y - (Engine.Window_PixelGridSize.Y / 2));
+            deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime 
+            position = new Vector2((focus.position.X + (focus.boundingBox.width / 2)) - (Engine.Window_PixelGridSize.X / 2), (focus.position.Y + (focus.boundingBox.height / 2)) - (Engine.Window_PixelGridSize.Y / 2));
             CheckBound();
 
             transformationMatrix = Matrix.Identity * Matrix.CreateTranslation(-position.X, -position.Y, 0) * Matrix.CreateRotationZ(rotation) * Matrix.CreateScale(scale);

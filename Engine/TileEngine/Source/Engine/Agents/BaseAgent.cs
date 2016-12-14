@@ -509,10 +509,8 @@ namespace TileEngine
 
                         Vector2 distanceOfMovement = (targetPositionOfGridSnap - startPositionOfGridSnap) * Tile.Dimensions;
                         Vector2 newVelocity = distanceOfMovement * (deltaTime / movementSpeed_Snapped);
-                        
                         Vector2 newPosition = position + newVelocity;
                         Vector2 targetPositionInPixels = (targetPositionOfGridSnap * Tile.Dimensions) - boundingBox_Offset_Tile;
-
                         Vector2 newDistanceTravelled = distanceTraveledInSnap + newVelocity;
 
                         if (newDistanceTravelled.Length() < distanceOfMovement.Length())

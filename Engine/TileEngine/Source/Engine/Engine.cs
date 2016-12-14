@@ -17,8 +17,8 @@ namespace TileEngine
         public static string EngineVersion { get; private set; }
         #endregion
         #region // XNA Vars
-        public static GraphicsDeviceManager GraphicsDeviceManager { get; set; }
-        public static SpriteBatch SpriteBatch { get; set; }
+        public static GraphicsDeviceManager XNA_GraphicsDeviceManager { get; set; }
+        public static SpriteBatch XNA_SpriteBatch { get; set; }
         #endregion
         #region // Directory Vars
         public const string Directory_Content = "Content/";
@@ -148,7 +148,7 @@ namespace TileEngine
             try
             {
                 game.GraphicsDevice.Clear(Color.CornflowerBlue);
-                Engine.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix);
+                Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix);
                 if (Engine.Register_Levels.Count > 0 && Engine.GetCurrentLevel() != null)
                 {
                     Engine.GetCurrentLevel().Draw();
@@ -157,7 +157,7 @@ namespace TileEngine
                 {
                     GetCurrentPlayer().Draw();
                 }
-                Engine.SpriteBatch.End();
+                Engine.XNA_SpriteBatch.End();
             }
             catch (Exception error)
             {
@@ -243,10 +243,10 @@ namespace TileEngine
         {
             try
             {
-                Engine.GraphicsDeviceManager.PreferredBackBufferWidth = (int)Engine.Window_DimensionsPixels_Scaled.X;
-                Engine.GraphicsDeviceManager.PreferredBackBufferHeight = (int)Engine.Window_DimensionsPixels_Scaled.Y;
+                Engine.XNA_GraphicsDeviceManager.PreferredBackBufferWidth = (int)Engine.Window_DimensionsPixels_Scaled.X;
+                Engine.XNA_GraphicsDeviceManager.PreferredBackBufferHeight = (int)Engine.Window_DimensionsPixels_Scaled.Y;
                 game.Window.Title = Engine.Window_Title;
-                Engine.GraphicsDeviceManager.ApplyChanges();
+                Engine.XNA_GraphicsDeviceManager.ApplyChanges();
             }
             catch (Exception error)
             {
@@ -259,7 +259,7 @@ namespace TileEngine
             try
             {
                 #region // Default MonoGame Setup
-                Engine.GraphicsDeviceManager = new GraphicsDeviceManager(game);
+                Engine.XNA_GraphicsDeviceManager = new GraphicsDeviceManager(game);
                 game.Content.RootDirectory = Engine.Directory_Content;
                 game.TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / Engine.FrameRate_Max);
                 game.IsFixedTimeStep = false;
@@ -640,7 +640,7 @@ namespace TileEngine
             try
             {
                 #region // Default MonoGame Setup
-                Engine.SpriteBatch = new SpriteBatch(game.GraphicsDevice);
+                Engine.XNA_SpriteBatch = new SpriteBatch(game.GraphicsDevice);
                 #endregion
 
                 Engine.CheckContentStructure();

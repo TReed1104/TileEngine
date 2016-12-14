@@ -104,7 +104,7 @@ namespace TileEngine
                 {
                     if (Engine.GameCamera.IsInView(this))
                     {
-                        Engine.SpriteBatch.Draw(texture, position_Draw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
+                        Engine.XNA_SpriteBatch.Draw(texture, position_Draw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
                     }
                 }
             }

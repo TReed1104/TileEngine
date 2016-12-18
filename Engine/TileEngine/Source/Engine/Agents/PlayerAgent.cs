@@ -42,7 +42,7 @@ namespace TileEngine
                 #region // Keyboard movement handling
 
                 if (isMovementDisabled) return;
-                if (isSnapMovementOccuring) return;
+                if (hasGridMovementBeenInitialised) return;
 
                 KeyboardState keyboardState = Keyboard.GetState();
                 bool isMovementKeyPressed = keyboardState.IsKeyDown(movementKey_Down) || keyboardState.IsKeyDown(movementKey_Up) || keyboardState.IsKeyDown(movementKey_Right) || keyboardState.IsKeyDown(movementKey_Left);
@@ -122,7 +122,7 @@ namespace TileEngine
                         {
                             movementDirection = Direction.Right;
                         }
-                        isSnapMovementOccuring = isMovementDown || isMovementUp || isMovementLeft || isMovementRight;
+                        hasGridMovementBeenInitialised = isMovementDown || isMovementUp || isMovementLeft || isMovementRight;
                     }
                 }
                 #endregion

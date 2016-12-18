@@ -24,12 +24,11 @@ namespace TileEngine
         protected Vector2 pixelSnapVelocity { get; set; }
         public bool isMovementDisabled { get; set; }
 
-        protected bool isSnapMovementOccuring { get; set; }
-        protected bool isTargetPositionSet { get; set; }
-        protected Vector2 startPositionOfGridSnap { get; set; }
-        protected Vector2 targetPositionOfGridSnap { get; set; }
-        protected Vector2 distanceTraveledInSnap { get; set; }
-        protected float movementSpeed_Snapped { get; set; }
+        protected bool hasGridMovementBeenInitialised { get; set; }
+        protected Vector2 snappedMovementStartPosition { get; set; }
+        protected Vector2 snappedMovementTargetPosition { get; set; }
+        protected float snappedMovementSpeed { get; set; }
+        protected float snappedMovementTimer { get; set; }
 
         // Constructors
         public BaseAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
@@ -47,12 +46,10 @@ namespace TileEngine
             isMovementDisabled = false;
 
             // Snapping
-            isSnapMovementOccuring = false;
-            isTargetPositionSet = false;
-            startPositionOfGridSnap = position_Grid;
-            targetPositionOfGridSnap = position_Grid;
-            distanceTraveledInSnap = new Vector2(0, 0);
-            movementSpeed_Snapped = 250f;  // Time taken to reach next tile, in milliseconds
+            hasGridMovementBeenInitialised = false;
+            snappedMovementStartPosition = position_Grid;
+            snappedMovementTargetPosition = position_Grid;
+            snappedMovementSpeed = 0.2f;  // Time taken to reach next tile, in milliseconds
         }
 
         // Delegates
@@ -468,82 +465,75 @@ namespace TileEngine
                 {
                     // If the agent can only move between tiles.
                     // Check if the player is set to be moving, handled by "MovementHandler()" of the derived class.
-                    if (isSnapMovementOccuring)
+                    if (hasGridMovementBeenInitialised)
                     {
-                        isMovingForAnimation = true;                // Used to tell the animation handler that the movement variation of the animation should be played.
-                        float distanceOfMovementInTiles = 1.0f;     // Distance in tiles the agent can move per movement.
-
-                        #region // If not already done, Calculate the grid cell that the movement is targetting.
-                        if (!isTargetPositionSet)
+                        if (snappedMovementTargetPosition == snappedMovementStartPosition)
                         {
-                            // Calculate the new cell position and check if the movement is possible.
-                            Vector2 newTarget = position_Grid;
+                            #region // Calculate the new target position
+                            // Work out the new cell to check.
+                            Vector2 newTargetPosition = position_Grid;
                             switch (movementDirection)
                             {
                                 case Direction.Down:
-                                    newTarget += new Vector2(0, distanceOfMovementInTiles);
+                                    newTargetPosition += new Vector2(0, 1);
                                     break;
                                 case Direction.Up:
-                                    newTarget += new Vector2(0, -distanceOfMovementInTiles);
+                                    newTargetPosition += new Vector2(0, -1);
                                     break;
                                 case Direction.Left:
-                                    newTarget += new Vector2(-distanceOfMovementInTiles, 0);
+                                    newTargetPosition += new Vector2(-1, 0);
                                     break;
                                 case Direction.Right:
-                                    newTarget += new Vector2(distanceOfMovementInTiles, 0);
+                                    newTargetPosition += new Vector2(1, 0);
                                     break;
                                 default:
                                     break;
                             }
-                            if (Engine.GetCurrentLevel().IsTileEmpty(newTarget))
+                            #endregion
+
+                            #region // Do collisions checks
+                            // Check if the new target cell is a valid space to move to.
+                            if (Engine.GetCurrentLevel().IsTileEmpty(newTargetPosition))
                             {
-                                startPositionOfGridSnap = position_Grid;
-                                targetPositionOfGridSnap = newTarget;
-                                isTargetPositionSet = true;
-                                distanceTraveledInSnap = new Vector2(0, 0);
+                                // The target position is empty, set the target for the movement.
+                                snappedMovementStartPosition = position_Grid;
+                                snappedMovementTargetPosition = newTargetPosition;
+                                snappedMovementTimer = 0.0f;
                             }
                             else
                             {
-                                startPositionOfGridSnap = position_Grid;
-                                targetPositionOfGridSnap = position_Grid;
-                                isTargetPositionSet = false;
-                                isSnapMovementOccuring = false;
-                                distanceTraveledInSnap = new Vector2(0, 0);
+                                // Invalid cell, 
+                                hasGridMovementBeenInitialised = false;
                             }
-
-                            // ***** Need to implement checks for movements longer than one tile.
-                        }
-                        #endregion
-
-                        #region // Calculate the velocity of the movement decided by the agent.
-                        Vector2 distanceOfMovement = (targetPositionOfGridSnap - startPositionOfGridSnap) * Tile.Dimensions;
-                        Vector2 newVelocity = ((targetPositionOfGridSnap - startPositionOfGridSnap) * Tile.Dimensions) * (gameTime.ElapsedGameTime.Milliseconds / movementSpeed_Snapped);
-                        #endregion
-
-                        #region // Work out if the new velocity will overshoot the target cell, and adjust the velocity accordingly.
-                        if ((distanceTraveledInSnap + newVelocity).Length() < distanceOfMovement.Length())
-                        {
-                            // If the distance travelled is less than the maximum distance the agent can move, set their velocity to the new value.
-                            velocity = newVelocity;
-                            distanceTraveledInSnap = (distanceTraveledInSnap + newVelocity);
-                        }
-                        else
-                        {
-                            #region // Tile snap and reset.
-
-                            // If the distance travelled is greater than the maximum distance the agent can move, snap them to the nearest grid position.
-                            Vector2 deltaPosition = ((targetPositionOfGridSnap * Tile.Dimensions) - boundingBox_Offset_Tile) - position;
-                            velocity = deltaPosition;
-
-                            // Reset for next movement.
-                            startPositionOfGridSnap = position_Grid;
-                            targetPositionOfGridSnap = position_Grid;
-                            isTargetPositionSet = false;
-                            isSnapMovementOccuring = false;
-                            distanceTraveledInSnap = new Vector2(0, 0);
                             #endregion
                         }
+
+                        #region // Movement timer calculations
+                        // Increment the timer used for the lerp
+                        snappedMovementTimer += deltaTime;
+
+                        // Cap the movement speed.
+                        if (snappedMovementTimer >= snappedMovementSpeed)
+                        {
+                            snappedMovementTimer = snappedMovementSpeed;
+                        }
                         #endregion
+
+                        // Calculate the velocity of the agent.
+                        Vector2 newPositon = Vector2.Lerp(snappedMovementStartPosition * Tile.Dimensions, snappedMovementTargetPosition * Tile.Dimensions, snappedMovementTimer / snappedMovementSpeed) - boundingBox_Offset_Tile;  // Minus the tile offset of the AABB.
+                        velocity = newPositon - position;
+
+                        #region // Check if the movement is complete.
+                        // Prevent any further movement
+                        if ((newPositon + boundingBox_Offset_Tile) == (snappedMovementTargetPosition * Tile.Dimensions))
+                        {
+                            hasGridMovementBeenInitialised = false;
+                            snappedMovementStartPosition = position_Grid;
+                            snappedMovementTargetPosition = position_Grid;
+                            snappedMovementTimer = 0.0f;
+                        }
+                        #endregion
+
                     }
                 }
             }

@@ -11,60 +11,60 @@ namespace TileEngine
 {
     public class Camera
     {
-        public Vector2 position { get; set; }
-        public Vector2 position_Grid {  get { return Engine.ConvertPosition_PixelToGrid(position); } }
-        public float movementSpeed { get { return Engine.GetCurrentPlayer().movementSpeed_FreeMovement; } }
-        public float rotation { get; set; }
-        public float scale { get { return Engine.Window_Scaler; } }
-        public Matrix transformationMatrix { get; set; }
-        private float deltaTime { get; set; }
+        public Vector2 position { get; protected set; }
+        public Vector2 viewPortSize { get { return Engine.Window_DimensionsPixels_Scaled; } }
+        public float rotation { get; protected set; }
+        public float zoom { get; set; }
+        protected float renderScale { get { return zoom * Engine.Window_Scale; } }
+        public Matrix transformationMatrix { get; protected set; }
+        public PlayerAgent focus { get; protected set; }
+        protected float deltaTime { get; set; }
 
-        public Camera()
+        public Camera(PlayerAgent focus)
         {
-            position = Vector2.Zero;
-            rotation = 0.0f;
+            this.focus = focus;
+            this.rotation = 0.0f;
+            this.deltaTime = 0.0f;
+            this.zoom = 1.0f;
         }
 
-        public void Update(GameTime gameTime, BaseGameObject focus)
+        public void Update(GameTime gameTime)
         {
+            deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
+
+
+            Vector2 newPosition = focus.position + (focus.boundingBox_Size / 2);
             
-            deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime 
-            position = new Vector2((focus.position.X + (focus.boundingBox.width / 2)) - (Engine.Window_PixelGridSize.X / 2), (focus.position.Y + (focus.boundingBox.height / 2)) - (Engine.Window_PixelGridSize.Y / 2));
-            CheckBound();
+            // Lerp amount changes dependant on movement speed.
+            if (Engine.IsMovementGridSnapped)
+            {
+                position = Vector2.Lerp(position, newPosition, 1.0f);
+            }
+            else
+            {
+                position = Vector2.Lerp(position, newPosition, focus.movementSpeed * deltaTime);
+            }
 
-            transformationMatrix = Matrix.Identity * Matrix.CreateTranslation(-position.X, -position.Y, 0) * Matrix.CreateRotationZ(rotation) * Matrix.CreateScale(scale);
+            // Transformation matrices
+            Matrix translationMatrix_Focus = Matrix.CreateTranslation(new Vector3(-position, 0));
+            Matrix translatioMatrixn_ViewportOffset = Matrix.CreateTranslation(new Vector3((Engine.Window_DimensionsPixels_Scaled / 2), 0));
+            Matrix rotationMatrix = Matrix.CreateRotationZ(rotation);
+            Matrix scaleMatrix = Matrix.CreateScale(renderScale);
+            transformationMatrix = translationMatrix_Focus * rotationMatrix * scaleMatrix * translatioMatrixn_ViewportOffset;
 
         }
-        public void CheckBound()
+        public bool IsObjectVisible(BaseGameObject gameObject)
         {
-            // Left bounds check
-            if (position.X < 0)
-            {
-                position = new Vector2(0, position.Y);
-            }
-            // Right bounds check
-            if (position.X > (Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.Window_PixelGridSize.X))
-            {
-                position = new Vector2((Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.Window_PixelGridSize.X), position.Y);
-            }
-            // Up bounds check
-            if (position.Y < 0)
-            {
-                position = new Vector2(position.X, 0);
-            }
-            // Down bounds check
-            if (position.Y > (Engine.GetCurrentLevel().gridSize_Pixels.Y - (Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y)))
-            {
-                position = new Vector2(position.X, (Engine.GetCurrentLevel().gridSize_Pixels.Y - (Engine.Window_PixelGridSize.Y - Engine.Window_HUD_Size_Pixels.Y)));
-            }
+            // Returns if the object is visible to decide whether or not an object should be drawn.
+            return true;
         }
-        public bool IsInView(BaseGameObject gameObject)
+        public void SetRotation(float newRotation)
         {
-            if (gameObject.position_Grid.X >= position_Grid.X && gameObject.position_Grid.X < (position_Grid.X + Engine.Window_TileGridSize.X) + 1 && gameObject.position_Grid.Y >= position_Grid.Y && gameObject.position_Grid.Y < (position_Grid.Y + Engine.Window_TileGridSize.Y) + 1)
-            {
-                return true;
-            }
-            return false;
+            this.rotation = newRotation;
+        }
+        public void SetFocus(PlayerAgent newFocus)
+        {
+            this.focus = newFocus;
         }
     }
 }

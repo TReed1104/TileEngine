@@ -95,7 +95,6 @@ namespace TileEngine
                             movementDirection = Direction.UpRight;
                         }
                         // If not allow the collision handler to adjust the velocity for pixel-by-pixel movement
-                        isMovingForAnimation = true;
                         allowChangeInVelocity = isMovementDown || isMovementUp || isMovementLeft || isMovementRight || isMovementDownLeft || isMovementDownRight || isMovementUpLeft || isMovementUpRight;
                     }
                     // If the movement is grid snapped and the direction has been changed, lock the movement.

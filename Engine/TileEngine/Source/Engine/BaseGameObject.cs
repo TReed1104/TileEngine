@@ -22,14 +22,16 @@ namespace TileEngine
         public Vector2 boundingBox_Offset_Tile { get { return -((Tile.Dimensions - boundingBox_Size) / 2); } }
         public Vector2 boundingBox_Size { get; set; }
         public AABB boundingBox { get { return new AABB(position, boundingBox_Size); } }
-        
 
         public Vector2 velocity { get; set; }
-        public float movementSpeed_FreeMovement { get; protected set; }
+        public float movementSpeed { get; protected set; }
+
         public float healthPoints { get; protected set; }
         public bool isAlive {  get { return healthPoints > 0.0f;  } }
         public float damagePower { get; protected set; }
+
         protected float deltaTime { get; set; }
+
         public Texture2D texture { get; set; }
         public string textureTag { get; set; }
         public Color colour { get; set; }
@@ -69,7 +71,7 @@ namespace TileEngine
 
                 healthPoints = 1.0f;
                 velocity = Vector2.Zero;
-                movementSpeed_FreeMovement = 0.0f;
+                movementSpeed = 0.0f;
                 damagePower = 1.0f;
 
                 deltaTime = 0;
@@ -102,7 +104,7 @@ namespace TileEngine
             {
                 if (isAlive)
                 {
-                    if (Engine.GameCamera.IsInView(this))
+                    if (Engine.GameCamera.IsObjectVisible(this))
                     {
                         Engine.XNA_SpriteBatch.Draw(texture, position_Draw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
                     }

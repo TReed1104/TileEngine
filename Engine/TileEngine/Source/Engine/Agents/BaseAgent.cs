@@ -21,14 +21,13 @@ namespace TileEngine
         public bool isDefending { get; set; }
         public Direction movementDirection { get; protected set; }
         public bool isGridSnapped { get { return Engine.IsMovementGridSnapped; } }
-        protected Vector2 pixelSnapVelocity { get; set; }
+        protected Vector2 snapVelocity { get; set; }
         public bool isMovementDisabled { get; set; }
 
-        protected bool hasGridMovementBeenInitialised { get; set; }
-        protected Vector2 snappedMovementStartPosition { get; set; }
-        protected Vector2 snappedMovementTargetPosition { get; set; }
-        protected float snappedMovementSpeed { get; set; }
-        protected float snappedMovementTimer { get; set; }
+        public bool hasGridMovementBeenInitialised { get; protected set; }
+        public Vector2 snappedMovementStartPosition { get; protected set; }
+        public Vector2 snappedMovementTargetPosition { get; protected set; }
+        public float snappedMovementTimer { get; protected set; }
 
         // Constructors
         public BaseAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
@@ -36,20 +35,25 @@ namespace TileEngine
         {
 
             this.healthPoints = healthPoints;
-            movementSpeed_FreeMovement = 60.0f;  // In pixels per second.
             movementDirection = Direction.Down;
 
             Vector2 boundingGridDelta = sourceRectangle_Size - new Vector2(10, 10);
             boundingBox_Offset_Texture = (boundingGridDelta / 2);
             boundingBox_Size = new Vector2(10, 10);
-            pixelSnapVelocity = new Vector2(0, 0);
+            snapVelocity = new Vector2(0, 0);
             isMovementDisabled = false;
 
-            // Snapping
-            hasGridMovementBeenInitialised = false;
-            snappedMovementStartPosition = position_Grid;
-            snappedMovementTargetPosition = position_Grid;
-            snappedMovementSpeed = 0.2f;  // Time taken to reach next tile, in milliseconds
+            if (Engine.IsMovementGridSnapped)
+            {
+                hasGridMovementBeenInitialised = false;
+                snappedMovementStartPosition = position_Grid;
+                snappedMovementTargetPosition = position_Grid;
+                movementSpeed = 0.2f;  // Time taken to reach next tile, in milliseconds
+            }
+            else
+            {
+                movementSpeed = 60.0f;  // In pixels per second.
+            }
         }
 
         // Delegates
@@ -75,9 +79,9 @@ namespace TileEngine
 
             // Reset the Agent to its base mode.
             position += velocity;
-            position += pixelSnapVelocity;
+            position += snapVelocity;
             velocity = Vector2.Zero;
-            pixelSnapVelocity = Vector2.Zero;
+            snapVelocity = Vector2.Zero;
             isMovingForAnimation = false;
 
             allowChangeInVelocity = false;
@@ -166,31 +170,33 @@ namespace TileEngine
                     Vector2 newVelocity = new Vector2(0, 0);
                     if (allowChangeInVelocity)
                     {
+                        isMovingForAnimation = true;    // As the object can potentially move, allow animation
+
                         switch (movementDirection)
                         {
                             case Direction.Down:
-                                newVelocity = new Vector2(0, movementSpeed_FreeMovement * deltaTime);
+                                newVelocity = new Vector2(0, movementSpeed * deltaTime);
                                 break;
                             case Direction.Up:
-                                newVelocity = new Vector2(0, -movementSpeed_FreeMovement * deltaTime);
+                                newVelocity = new Vector2(0, -movementSpeed * deltaTime);
                                 break;
                             case Direction.Left:
-                                newVelocity = new Vector2(-movementSpeed_FreeMovement * deltaTime, 0);
+                                newVelocity = new Vector2(-movementSpeed * deltaTime, 0);
                                 break;
                             case Direction.Right:
-                                newVelocity = new Vector2(movementSpeed_FreeMovement * deltaTime, 0);
+                                newVelocity = new Vector2(movementSpeed * deltaTime, 0);
                                 break;
                             case Direction.UpLeft:
-                                newVelocity = new Vector2(-movementSpeed_FreeMovement * deltaTime, -movementSpeed_FreeMovement * deltaTime);
+                                newVelocity = new Vector2(-movementSpeed * deltaTime, -movementSpeed * deltaTime);
                                 break;
                             case Direction.UpRight:
-                                newVelocity = new Vector2(movementSpeed_FreeMovement * deltaTime, -movementSpeed_FreeMovement * deltaTime);
+                                newVelocity = new Vector2(movementSpeed * deltaTime, -movementSpeed * deltaTime);
                                 break;
                             case Direction.DownLeft:
-                                newVelocity = new Vector2(-movementSpeed_FreeMovement * deltaTime, movementSpeed_FreeMovement * deltaTime);
+                                newVelocity = new Vector2(-movementSpeed * deltaTime, movementSpeed * deltaTime);
                                 break;
                             case Direction.DownRight:
-                                newVelocity = new Vector2(movementSpeed_FreeMovement * deltaTime, movementSpeed_FreeMovement * deltaTime);
+                                newVelocity = new Vector2(movementSpeed * deltaTime, movementSpeed * deltaTime);
                                 break;
                             default:
                                 break;
@@ -455,7 +461,7 @@ namespace TileEngine
                             }
                             #endregion
 
-                            pixelSnapVelocity = new Vector2(deltaX, deltaY);
+                            snapVelocity = new Vector2(deltaX, deltaY);
                         }
                     }
                     #endregion
@@ -467,6 +473,7 @@ namespace TileEngine
                     // Check if the player is set to be moving, handled by "MovementHandler()" of the derived class.
                     if (hasGridMovementBeenInitialised)
                     {
+                        isMovingForAnimation = true;
                         if (snappedMovementTargetPosition == snappedMovementStartPosition)
                         {
                             #region // Calculate the new target position
@@ -507,20 +514,19 @@ namespace TileEngine
                             }
                             #endregion
                         }
-
                         #region // Movement timer calculations
                         // Increment the timer used for the lerp
                         snappedMovementTimer += deltaTime;
 
                         // Cap the movement speed.
-                        if (snappedMovementTimer >= snappedMovementSpeed)
+                        if (snappedMovementTimer >= movementSpeed)
                         {
-                            snappedMovementTimer = snappedMovementSpeed;
+                            snappedMovementTimer = movementSpeed;
                         }
                         #endregion
 
                         // Calculate the velocity of the agent.
-                        Vector2 newPositon = Vector2.Lerp(snappedMovementStartPosition * Tile.Dimensions, snappedMovementTargetPosition * Tile.Dimensions, snappedMovementTimer / snappedMovementSpeed) - boundingBox_Offset_Tile;  // Minus the tile offset of the AABB.
+                        Vector2 newPositon = Vector2.Lerp(snappedMovementStartPosition * Tile.Dimensions, snappedMovementTargetPosition * Tile.Dimensions, snappedMovementTimer / movementSpeed) - boundingBox_Offset_Tile;  // Minus the tile offset of the AABB.
                         velocity = newPositon - position;
 
                         #region // Check if the movement is complete.

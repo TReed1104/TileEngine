@@ -44,13 +44,13 @@ namespace TileEngine
         #region // Window Vars
         public static string Window_Title { get; private set; }
         public static int FrameRate_Max { get; private set; }
-        public static float Window_Scaler { get; set; }
+        public static float Window_Scale { get; set; }
         public static Vector2 Window_HUD_Size_Tiles { get; set; }
         public static Vector2 Window_HUD_Size_Pixels { get { return Window_HUD_Size_Tiles * Tile.Dimensions; } }
         public static Vector2 Window_TileGridSize { get; private set; }
         public static Vector2 Window_PixelGridSize { get { return (Engine.Window_TileGridSize * Tile.Dimensions); } }
         public static Vector2 Window_DimensionsPixels_Base { get { return (Engine.Window_TileGridSize * Tile.Dimensions); } }
-        public static Vector2 Window_DimensionsPixels_Scaled { get { return Engine.Window_DimensionsPixels_Base * Engine.Window_Scaler; } }
+        public static Vector2 Window_DimensionsPixels_Scaled { get { return Engine.Window_DimensionsPixels_Base * Engine.Window_Scale; } }
 
         public static Vector2 Camera_RenderGridSize_Tiles { get { return Engine.Window_TileGridSize - Engine.Window_HUD_Size_Tiles; } }
         #endregion
@@ -98,7 +98,7 @@ namespace TileEngine
             Engine.EngineName = "NULL";
             Engine.EngineVersion = "NULL";
 
-            Engine.Window_Scaler = 1.0f;
+            Engine.Window_Scale = 1.0f;
             Engine.Window_Title = "NULL";
             Engine.FrameRate_Max = 30;
             Engine.Window_HUD_Size_Tiles = new Vector2(0, 50);
@@ -114,7 +114,7 @@ namespace TileEngine
             Engine.PointerCurrent_Player = 0;
             Engine.PointerCurrent_Level = 0;
 
-            Engine.GameCamera = new Camera();
+            
 
             Engine.IsMovementGridSnapped = true;
 
@@ -134,7 +134,7 @@ namespace TileEngine
                 if (Engine.Register_PlayerSaves.Count > 0)
                 {
                     Engine.GetCurrentPlayer().Update(gameTime);
-                    Engine.GameCamera.Update(gameTime, Engine.GetCurrentPlayer());
+                    Engine.GameCamera.Update(gameTime);
                 }
             }
             catch (Exception error)
@@ -220,7 +220,7 @@ namespace TileEngine
                                 Engine.Window_Title = xmlReader.GetAttribute("title");
                                 Engine.Window_TileGridSize = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
                                 Engine.FrameRate_Max = int.Parse(xmlReader.GetAttribute("max_frame_rate"));
-                                Engine.Window_Scaler = float.Parse(xmlReader.GetAttribute("scaler"));
+                                Engine.Window_Scale = float.Parse(xmlReader.GetAttribute("scaler"));
                                 Engine.Window_HUD_Size_Tiles = new Vector2(0, int.Parse(xmlReader.GetAttribute("hud_size")));
                             }
                             if (xmlReader.Name == "tile_settings")
@@ -650,6 +650,7 @@ namespace TileEngine
                 Engine.LoadLevels();
                 Engine.LoadAgents();
 
+                Engine.GameCamera = new Camera(Engine.GetCurrentPlayer());
                 Engine.TestGeneration();
             }
             catch (Exception error)
@@ -664,7 +665,7 @@ namespace TileEngine
         {
             try
             {
-
+                
             }
             catch (Exception error)
             {

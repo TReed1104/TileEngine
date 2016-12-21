@@ -31,23 +31,13 @@ namespace TileEngine
         {
             deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
 
-
-            bool useLerp = false;
-            if (useLerp)
-            {
-                Vector2 newPosition = focus.position + (focus.boundingBox_Size / 2);
-                position = Vector2.Lerp(position, newPosition, 2.0f * deltaTime);
-            }
-            else
-            {
-                position = focus.position + (focus.boundingBox_Size / 2);
-            }
+            Vector2 newPosition = focus.position + (focus.boundingBox_Size / 2);
+            position = Vector2.Lerp(position, newPosition, 2.0f * deltaTime);
 
             Matrix cameraTarget = Matrix.CreateTranslation(new Vector3(-position, 0));
             Matrix cameraRotation = Matrix.CreateRotationZ(rotation);
             Matrix cameraZoom = Matrix.CreateScale(zoom);
             Matrix viewPortOffset = Matrix.CreateTranslation(new Vector3((Engine.ViewPortSize / 2), 0));
-            Matrix windowScale = Matrix.CreateScale(Engine.GameWindowScale);
 
             transformationMatrix = cameraTarget * cameraRotation * cameraZoom * viewPortOffset;
 

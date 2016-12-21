@@ -48,7 +48,7 @@ namespace TileEngine
         public static string GameWindowTitle { get; private set; }
         public static float GameWindowScale { get; set; }
         public static Vector2 GameWindowSize { get { return Engine.ViewPortSize * Engine.GameWindowScale; } }
-        
+
         #endregion
         #region // Register Vars
         public static List<Texture2D> Register_Textures { get; set; }           // Holds all the games Textures
@@ -140,47 +140,17 @@ namespace TileEngine
         {
             try
             {
-                bool useRenderTarget = false;
-                if (useRenderTarget)
+                game.GraphicsDevice.Clear(Color.CornflowerBlue);
+                Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix * Matrix.CreateScale(Engine.GameWindowScale));
+                if (Engine.Register_Levels.Count > 0 && Engine.GetCurrentLevel() != null)
                 {
-                    game.GraphicsDevice.Clear(Color.CornflowerBlue);
-                    RenderTarget2D scene = new RenderTarget2D(game.GraphicsDevice, Engine.XNA_GraphicsDeviceManager.PreferredBackBufferWidth, Engine.XNA_GraphicsDeviceManager.PreferredBackBufferHeight, false, SurfaceFormat.Color, DepthFormat.None, game.GraphicsDevice.PresentationParameters.MultiSampleCount, RenderTargetUsage.DiscardContents);
-
-
-                    Engine.XNA_GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(scene);
-
-                    Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix);
-                    if (Engine.Register_Levels.Count > 0 && Engine.GetCurrentLevel() != null)
-                    {
-                        Engine.GetCurrentLevel().Draw();
-                    }
-                    if (Engine.Register_PlayerSaves.Count > 0)
-                    {
-                        GetCurrentPlayer().Draw();
-                    }
-                    Engine.XNA_SpriteBatch.End();
-
-                    Engine.XNA_GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(null);
-
-
-                    Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null);
-                    Engine.XNA_SpriteBatch.Draw(scene, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, Engine.GameWindowScale, SpriteEffects.None, 0f);
-                    Engine.XNA_SpriteBatch.End();
+                    Engine.GetCurrentLevel().Draw();
                 }
-                else
+                if (Engine.Register_PlayerSaves.Count > 0)
                 {
-                    game.GraphicsDevice.Clear(Color.CornflowerBlue);
-                    Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix * Matrix.CreateScale(Engine.GameWindowScale));
-                    if (Engine.Register_Levels.Count > 0 && Engine.GetCurrentLevel() != null)
-                    {
-                        Engine.GetCurrentLevel().Draw();
-                    }
-                    if (Engine.Register_PlayerSaves.Count > 0)
-                    {
-                        GetCurrentPlayer().Draw();
-                    }
-                    Engine.XNA_SpriteBatch.End();
+                    GetCurrentPlayer().Draw();
                 }
+                Engine.XNA_SpriteBatch.End();
             }
             catch (Exception error)
             {
@@ -688,7 +658,7 @@ namespace TileEngine
         {
             try
             {
-                
+
             }
             catch (Exception error)
             {

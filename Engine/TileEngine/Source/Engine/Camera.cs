@@ -12,10 +12,9 @@ namespace TileEngine
     public class Camera
     {
         public Vector2 position { get; protected set; }
-        public Vector2 viewPortSize { get { return Engine.Window_DimensionsPixels_Scaled; } }
+        public Vector2 viewPortSize { get { return Engine.GameWindowSize; } }
         public float rotation { get; protected set; }
         public float zoom { get; set; }
-        protected float renderScale { get { return zoom * Engine.Window_Scale; } }
         public Matrix transformationMatrix { get; protected set; }
         public PlayerAgent focus { get; protected set; }
         protected float deltaTime { get; set; }
@@ -33,24 +32,24 @@ namespace TileEngine
             deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
 
 
-            Vector2 newPosition = focus.position + (focus.boundingBox_Size / 2);
-            
-            // Lerp amount changes dependant on movement speed.
-            if (Engine.IsMovementGridSnapped)
+            bool useLerp = false;
+            if (useLerp)
             {
-                position = Vector2.Lerp(position, newPosition, 1.0f);
+                Vector2 newPosition = focus.position + (focus.boundingBox_Size / 2);
+                position = Vector2.Lerp(position, newPosition, 2.0f * deltaTime);
             }
             else
             {
-                position = Vector2.Lerp(position, newPosition, focus.movementSpeed * deltaTime);
+                position = focus.position + (focus.boundingBox_Size / 2);
             }
 
-            // Transformation matrices
-            Matrix translationMatrix_Focus = Matrix.CreateTranslation(new Vector3(-position, 0));
-            Matrix translatioMatrixn_ViewportOffset = Matrix.CreateTranslation(new Vector3((Engine.Window_DimensionsPixels_Scaled / 2), 0));
-            Matrix rotationMatrix = Matrix.CreateRotationZ(rotation);
-            Matrix scaleMatrix = Matrix.CreateScale(renderScale);
-            transformationMatrix = translationMatrix_Focus * rotationMatrix * scaleMatrix * translatioMatrixn_ViewportOffset;
+            Matrix cameraTarget = Matrix.CreateTranslation(new Vector3(-position, 0));
+            Matrix cameraRotation = Matrix.CreateRotationZ(rotation);
+            Matrix cameraZoom = Matrix.CreateScale(zoom);
+            Matrix viewPortOffset = Matrix.CreateTranslation(new Vector3((Engine.ViewPortSize / 2), 0));
+            Matrix windowScale = Matrix.CreateScale(Engine.GameWindowScale);
+
+            transformationMatrix = cameraTarget * cameraRotation * cameraZoom * viewPortOffset;
 
         }
         public bool IsObjectVisible(BaseGameObject gameObject)

@@ -17,7 +17,7 @@ namespace TileEngine
 
         public Vector2 position { get; set; }
         public Vector2 position_Grid { get { return Engine.ConvertPosition_PixelToGrid(position); } }
-        public Vector2 position_Draw { get { return (position - boundingBox_Offset_Texture) + Engine.Window_HUD_Size_Pixels; } }
+        public Vector2 position_Draw { get { return (position - boundingBox_Offset_Texture); } }
         protected Vector2 boundingBox_Offset_Texture { get; set; }
         public Vector2 boundingBox_Offset_Tile { get { return -((Tile.Dimensions - boundingBox_Size) / 2); } }
         public Vector2 boundingBox_Size { get; set; }

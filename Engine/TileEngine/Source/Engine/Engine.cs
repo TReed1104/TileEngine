@@ -42,17 +42,13 @@ namespace TileEngine
         public static string FullPath_SaveData { get { return Engine.Directory_Content + Engine.DirectoryName_SaveData; } }
         #endregion
         #region // Window Vars
-        public static string Window_Title { get; private set; }
-        public static int FrameRate_Max { get; private set; }
-        public static float Window_Scale { get; set; }
-        public static Vector2 Window_HUD_Size_Tiles { get; set; }
-        public static Vector2 Window_HUD_Size_Pixels { get { return Window_HUD_Size_Tiles * Tile.Dimensions; } }
-        public static Vector2 Window_TileGridSize { get; private set; }
-        public static Vector2 Window_PixelGridSize { get { return (Engine.Window_TileGridSize * Tile.Dimensions); } }
-        public static Vector2 Window_DimensionsPixels_Base { get { return (Engine.Window_TileGridSize * Tile.Dimensions); } }
-        public static Vector2 Window_DimensionsPixels_Scaled { get { return Engine.Window_DimensionsPixels_Base * Engine.Window_Scale; } }
-
-        public static Vector2 Camera_RenderGridSize_Tiles { get { return Engine.Window_TileGridSize - Engine.Window_HUD_Size_Tiles; } }
+        public static int TargetFrameRate { get; private set; }
+        public static Vector2 ViewPortSize_TileGrid { get; private set; }
+        public static Vector2 ViewPortSize { get { return (Engine.ViewPortSize_TileGrid * Tile.Dimensions); } }
+        public static string GameWindowTitle { get; private set; }
+        public static float GameWindowScale { get; set; }
+        public static Vector2 GameWindowSize { get { return Engine.ViewPortSize * Engine.GameWindowScale; } }
+        
         #endregion
         #region // Register Vars
         public static List<Texture2D> Register_Textures { get; set; }           // Holds all the games Textures
@@ -98,11 +94,10 @@ namespace TileEngine
             Engine.EngineName = "NULL";
             Engine.EngineVersion = "NULL";
 
-            Engine.Window_Scale = 1.0f;
-            Engine.Window_Title = "NULL";
-            Engine.FrameRate_Max = 30;
-            Engine.Window_HUD_Size_Tiles = new Vector2(0, 50);
-            Engine.Window_TileGridSize = new Vector2(10, 10);
+            Engine.GameWindowScale = 1.0f;
+            Engine.GameWindowTitle = "NULL";
+            Engine.TargetFrameRate = 30;
+            Engine.ViewPortSize_TileGrid = new Vector2(10, 10);
 
             Engine.Register_Textures = new List<Texture2D>();
             Engine.Register_Tiles = new List<Tile>();
@@ -114,9 +109,7 @@ namespace TileEngine
             Engine.PointerCurrent_Player = 0;
             Engine.PointerCurrent_Level = 0;
 
-            
-
-            Engine.IsMovementGridSnapped = true;
+            Engine.IsMovementGridSnapped = false;
 
             Engine.VisualDebugger = false;
             Engine.IsEngineInTestMode = false;
@@ -147,17 +140,47 @@ namespace TileEngine
         {
             try
             {
-                game.GraphicsDevice.Clear(Color.CornflowerBlue);
-                Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix);
-                if (Engine.Register_Levels.Count > 0 && Engine.GetCurrentLevel() != null)
+                bool useRenderTarget = false;
+                if (useRenderTarget)
                 {
-                    Engine.GetCurrentLevel().Draw();
+                    game.GraphicsDevice.Clear(Color.CornflowerBlue);
+                    RenderTarget2D scene = new RenderTarget2D(game.GraphicsDevice, Engine.XNA_GraphicsDeviceManager.PreferredBackBufferWidth, Engine.XNA_GraphicsDeviceManager.PreferredBackBufferHeight, false, SurfaceFormat.Color, DepthFormat.None, game.GraphicsDevice.PresentationParameters.MultiSampleCount, RenderTargetUsage.DiscardContents);
+
+
+                    Engine.XNA_GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(scene);
+
+                    Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix);
+                    if (Engine.Register_Levels.Count > 0 && Engine.GetCurrentLevel() != null)
+                    {
+                        Engine.GetCurrentLevel().Draw();
+                    }
+                    if (Engine.Register_PlayerSaves.Count > 0)
+                    {
+                        GetCurrentPlayer().Draw();
+                    }
+                    Engine.XNA_SpriteBatch.End();
+
+                    Engine.XNA_GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(null);
+
+
+                    Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null);
+                    Engine.XNA_SpriteBatch.Draw(scene, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, Engine.GameWindowScale, SpriteEffects.None, 0f);
+                    Engine.XNA_SpriteBatch.End();
                 }
-                if (Engine.Register_PlayerSaves.Count > 0)
+                else
                 {
-                    GetCurrentPlayer().Draw();
+                    game.GraphicsDevice.Clear(Color.CornflowerBlue);
+                    Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix * Matrix.CreateScale(Engine.GameWindowScale));
+                    if (Engine.Register_Levels.Count > 0 && Engine.GetCurrentLevel() != null)
+                    {
+                        Engine.GetCurrentLevel().Draw();
+                    }
+                    if (Engine.Register_PlayerSaves.Count > 0)
+                    {
+                        GetCurrentPlayer().Draw();
+                    }
+                    Engine.XNA_SpriteBatch.End();
                 }
-                Engine.XNA_SpriteBatch.End();
             }
             catch (Exception error)
             {
@@ -217,11 +240,10 @@ namespace TileEngine
                             if (xmlReader.Name == "window_settings")
                             {
                                 // Load the Window settings
-                                Engine.Window_Title = xmlReader.GetAttribute("title");
-                                Engine.Window_TileGridSize = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
-                                Engine.FrameRate_Max = int.Parse(xmlReader.GetAttribute("max_frame_rate"));
-                                Engine.Window_Scale = float.Parse(xmlReader.GetAttribute("scaler"));
-                                Engine.Window_HUD_Size_Tiles = new Vector2(0, int.Parse(xmlReader.GetAttribute("hud_size")));
+                                Engine.GameWindowTitle = xmlReader.GetAttribute("title");
+                                Engine.ViewPortSize_TileGrid = new Vector2(int.Parse(xmlReader.GetAttribute("width")), int.Parse(xmlReader.GetAttribute("height")));
+                                Engine.TargetFrameRate = int.Parse(xmlReader.GetAttribute("max_frame_rate"));
+                                Engine.GameWindowScale = float.Parse(xmlReader.GetAttribute("scaler"));
                             }
                             if (xmlReader.Name == "tile_settings")
                             {
@@ -243,9 +265,10 @@ namespace TileEngine
         {
             try
             {
-                Engine.XNA_GraphicsDeviceManager.PreferredBackBufferWidth = (int)Engine.Window_DimensionsPixels_Scaled.X;
-                Engine.XNA_GraphicsDeviceManager.PreferredBackBufferHeight = (int)Engine.Window_DimensionsPixels_Scaled.Y;
-                game.Window.Title = Engine.Window_Title;
+                Engine.XNA_GraphicsDeviceManager.PreferredBackBufferWidth = (int)Engine.GameWindowSize.X;
+                Engine.XNA_GraphicsDeviceManager.PreferredBackBufferHeight = (int)Engine.GameWindowSize.Y;
+
+                game.Window.Title = Engine.GameWindowTitle;
                 Engine.XNA_GraphicsDeviceManager.ApplyChanges();
             }
             catch (Exception error)
@@ -261,7 +284,7 @@ namespace TileEngine
                 #region // Default MonoGame Setup
                 Engine.XNA_GraphicsDeviceManager = new GraphicsDeviceManager(game);
                 game.Content.RootDirectory = Engine.Directory_Content;
-                game.TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / Engine.FrameRate_Max);
+                game.TargetElapsedTime = TimeSpan.FromTicks(TimeSpan.TicksPerSecond / Engine.TargetFrameRate);
                 game.IsFixedTimeStep = false;
                 #endregion
 

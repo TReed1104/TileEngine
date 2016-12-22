@@ -30,9 +30,8 @@ namespace TileEngine
         public void Update(GameTime gameTime)
         {
             deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
-
-            Vector2 newPosition = focus.position + (focus.boundingBox_Size / 2);
-            position = Vector2.Lerp(position, newPosition, 2.0f * deltaTime);
+            
+            position = focus.position + (focus.boundingBox_Size / 2);
 
             Matrix cameraTarget = Matrix.CreateTranslation(new Vector3(-position, 0));
             Matrix cameraRotation = Matrix.CreateRotationZ(rotation);

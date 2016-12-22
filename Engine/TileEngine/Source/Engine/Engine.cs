@@ -140,8 +140,15 @@ namespace TileEngine
         {
             try
             {
+                // Create the RenderTarget
+                RenderTarget2D scene = new RenderTarget2D(game.GraphicsDevice, (int)Engine.ViewPortSize.X, (int)Engine.ViewPortSize.Y, false, SurfaceFormat.Color, DepthFormat.None, game.GraphicsDevice.PresentationParameters.MultiSampleCount, RenderTargetUsage.DiscardContents);
+
+                // Render to the newly created Render target.
+                Engine.XNA_GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(scene);
                 game.GraphicsDevice.Clear(Color.CornflowerBlue);
-                Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix * Matrix.CreateScale(Engine.GameWindowScale));
+
+                // Draw to the RenderTarget
+                Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.GameCamera.transformationMatrix);
                 if (Engine.Register_Levels.Count > 0 && Engine.GetCurrentLevel() != null)
                 {
                     Engine.GetCurrentLevel().Draw();
@@ -151,6 +158,15 @@ namespace TileEngine
                     GetCurrentPlayer().Draw();
                 }
                 Engine.XNA_SpriteBatch.End();
+
+                Engine.XNA_GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(null);
+                game.GraphicsDevice.Clear(Color.CornflowerBlue);
+
+                // Draw the RenderTarget, apply scales and rotations here.
+                Engine.XNA_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, null);
+                Engine.XNA_SpriteBatch.Draw(scene, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, Engine.GameWindowScale, SpriteEffects.None, 0f);
+                Engine.XNA_SpriteBatch.End();
+
             }
             catch (Exception error)
             {

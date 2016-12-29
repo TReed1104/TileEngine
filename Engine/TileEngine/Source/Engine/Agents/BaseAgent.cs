@@ -12,14 +12,17 @@ namespace TileEngine
     public abstract class BaseAgent : BaseGameObject
     {
         // Enums
-        public enum Direction { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
+        public enum FourDirectional { Down, Up, Left, Right, };
+        public enum EightDirectional { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
 
         // Vars
         public bool allowChangeInVelocity { get; set; }
         public bool isMovingForAnimation { get; set; }
         public bool isAttacking { get; set; }
         public bool isDefending { get; set; }
-        public Direction movementDirection { get; protected set; }
+        public EightDirectional movementDirection { get; protected set; }
+        public FourDirectional animationDirection { get; protected set; }
+        protected bool isWallSliding { get; set; }
         public bool isGridSnapped { get { return Engine.IsMovementGridSnapped; } }
         protected Vector2 snapVelocity { get; set; }
         public bool isMovementDisabled { get; set; }
@@ -33,16 +36,16 @@ namespace TileEngine
         public BaseAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
             : base(tag, texture, position_World, sourceRectangle_Position, sourceRectangle_Size, colour, layerDepth)
         {
-
+            // Attributes
             this.healthPoints = healthPoints;
-            movementDirection = Direction.Down;
 
+            // Movement
+            movementDirection = EightDirectional.Down;
             Vector2 boundingGridDelta = sourceRectangle_Size - new Vector2(10, 10);
             boundingBox_Offset_Texture = (boundingGridDelta / 2);
             boundingBox_Size = new Vector2(10, 10);
             snapVelocity = new Vector2(0, 0);
             isMovementDisabled = false;
-
             if (Engine.IsMovementGridSnapped)
             {
                 hasGridMovementBeenInitialised = false;
@@ -54,6 +57,11 @@ namespace TileEngine
             {
                 movementSpeed = 60.0f;  // In pixels per second.
             }
+
+            // Animation
+            animationDirection = FourDirectional.Down;
+            AnimationHandler += AgentAnimationHandler;
+            AnimationFinder += AgentAnimationFinder;
         }
 
         // Delegates
@@ -75,6 +83,7 @@ namespace TileEngine
             BehaviourHandler(gameTime);
 
             // Animations
+            UpdateSpriteDirection();
             AnimationHandler(gameTime);
 
             // Reset the Agent to its base mode.
@@ -83,10 +92,23 @@ namespace TileEngine
             velocity = Vector2.Zero;
             snapVelocity = Vector2.Zero;
             isMovingForAnimation = false;
+            isWallSliding = false;
 
             allowChangeInVelocity = false;
         }
-        protected void AnimationFinder(string animationTag, GameTime gameTime)
+        protected void UpdateSpriteDirection()
+        {
+            // If moving Right, left, down or up.
+            if (velocity.X > 0 && velocity.Y == 0) animationDirection = FourDirectional.Right;
+            if (velocity.X < 0 && velocity.Y == 0) animationDirection = FourDirectional.Left;
+            if (velocity.X == 0 && velocity.Y > 0) animationDirection = FourDirectional.Down;
+            if (velocity.X == 0 && velocity.Y < 0) animationDirection = FourDirectional.Up;
+
+            // If moving diagonally, set to either up or down.
+            if (velocity.X != 0 && velocity.Y > 0) animationDirection = FourDirectional.Down;
+            if (velocity.X != 0 && velocity.Y < 0) animationDirection = FourDirectional.Up;
+        }
+        protected void AgentAnimationFinder(string animationTag, GameTime gameTime)
         {
             // Work out which version of that directions animation to play
             string animationModifier = "Idle ";
@@ -118,35 +140,23 @@ namespace TileEngine
                 animations[indexOfAnimation].Run(gameTime, this);
             }
         }
-        protected void AnimationHandler(GameTime gameTime)
+        protected void AgentAnimationHandler(GameTime gameTime)
         {
             try
             {
                 // Works out what direction variation of a animation to play.
-                switch (movementDirection)
+                switch (animationDirection)
                 {
-                    case Direction.Down:
+                    case FourDirectional.Down:
                         AnimationFinder("Towards", gameTime);
                         break;
-                    case Direction.Up:
+                    case FourDirectional.Up:
                         AnimationFinder("Away", gameTime);
                         break;
-                    case Direction.Left:
+                    case FourDirectional.Left:
                         AnimationFinder("Left", gameTime);
                         break;
-                    case Direction.Right:
-                        AnimationFinder("Right", gameTime);
-                        break;
-                    case Direction.UpLeft:
-                        AnimationFinder("Left", gameTime);
-                        break;
-                    case Direction.UpRight:
-                        AnimationFinder("Right", gameTime);
-                        break;
-                    case Direction.DownLeft:
-                        AnimationFinder("Left", gameTime);
-                        break;
-                    case Direction.DownRight:
+                    case FourDirectional.Right:
                         AnimationFinder("Right", gameTime);
                         break;
                     default:
@@ -174,28 +184,28 @@ namespace TileEngine
 
                         switch (movementDirection)
                         {
-                            case Direction.Down:
+                            case EightDirectional.Down:
                                 newVelocity = new Vector2(0, movementSpeed * deltaTime);
                                 break;
-                            case Direction.Up:
+                            case EightDirectional.Up:
                                 newVelocity = new Vector2(0, -movementSpeed * deltaTime);
                                 break;
-                            case Direction.Left:
+                            case EightDirectional.Left:
                                 newVelocity = new Vector2(-movementSpeed * deltaTime, 0);
                                 break;
-                            case Direction.Right:
+                            case EightDirectional.Right:
                                 newVelocity = new Vector2(movementSpeed * deltaTime, 0);
                                 break;
-                            case Direction.UpLeft:
+                            case EightDirectional.UpLeft:
                                 newVelocity = new Vector2(-movementSpeed * deltaTime, -movementSpeed * deltaTime);
                                 break;
-                            case Direction.UpRight:
+                            case EightDirectional.UpRight:
                                 newVelocity = new Vector2(movementSpeed * deltaTime, -movementSpeed * deltaTime);
                                 break;
-                            case Direction.DownLeft:
+                            case EightDirectional.DownLeft:
                                 newVelocity = new Vector2(-movementSpeed * deltaTime, movementSpeed * deltaTime);
                                 break;
-                            case Direction.DownRight:
+                            case EightDirectional.DownRight:
                                 newVelocity = new Vector2(movementSpeed * deltaTime, movementSpeed * deltaTime);
                                 break;
                             default:
@@ -204,7 +214,7 @@ namespace TileEngine
                     }
                     #endregion
 
-                    #region// Calculate the new positionand create an AABB at that position, this represents the new position of the player if the movement takes palce.
+                    #region// Calculate the new position and create an AABB at that position, this represents the new position of the player if the movement takes palce.
                     Vector2 newPosition = position + newVelocity;
                     Vector2 newGridPosition = new Vector2((int)(newPosition.X / Tile.Dimensions.X), (int)(newPosition.Y / Tile.Dimensions.Y));
                     #endregion
@@ -235,6 +245,7 @@ namespace TileEngine
                         }
                         else
                         {
+                            isWallSliding = true;
                             // If a collision is detected in the next movement.
                             #region // Calculate the offset velocity to move the player the tiny amount left between them and collisions.
                             // Calculate if the player still has an amount of distance between them, then if so set the velocity to that last amount of distance - this prevents weird offsets when near objects.
@@ -245,7 +256,7 @@ namespace TileEngine
                             switch (movementDirection)
                             {
                                 #region // Adjacent snapping.
-                                case Direction.Down:
+                                case EightDirectional.Down:
                                     {
                                         // Calculate the Down offset
                                         float offsetBottomLeft = (position.Y + boundingBox.height) - boundingToCheck_BottomLeft.y;
@@ -256,7 +267,7 @@ namespace TileEngine
 
                                         break;
                                     }
-                                case Direction.Up:
+                                case EightDirectional.Up:
                                     {
                                         // Calculate the Up offset
                                         float offsetTopLeft = position.Y - (boundingToCheck_TopLeft.y + boundingToCheck_TopLeft.height);
@@ -267,7 +278,7 @@ namespace TileEngine
 
                                         break;
                                     }
-                                case Direction.Left:
+                                case EightDirectional.Left:
                                     {
                                         // Calculate the Left offset
                                         float offsetTopLeft = position.X - (boundingToCheck_TopLeft.x + boundingToCheck_TopLeft.width);
@@ -278,7 +289,7 @@ namespace TileEngine
 
                                         break;
                                     }
-                                case Direction.Right:
+                                case EightDirectional.Right:
                                     {
                                         // Calculate the Right offset
                                         float offsetTopRight = (position.X + boundingBox.width) - boundingToCheck_TopRight.x;
@@ -291,7 +302,7 @@ namespace TileEngine
                                     }
                                 #endregion
                                 #region // Diagonal snapping.
-                                case Direction.UpLeft:
+                                case EightDirectional.UpLeft:
                                     {
                                         bool isCollidingLeft = isCollisionOccuring_TopLeft && isCollisionOccuring_BottomLeft;
                                         bool isCollidingUp = isCollisionOccuring_TopLeft && isCollisionOccuring_TopRight;
@@ -309,8 +320,7 @@ namespace TileEngine
                                         // If not, try to wallslide.
                                         else
                                         {
-
-                                            movementDirection = Direction.Left;
+                                            movementDirection = EightDirectional.Left;
                                             CollisionHandler_Movement(gameTime);
                                         }
 
@@ -327,12 +337,12 @@ namespace TileEngine
                                         // If not, try to wallslide.
                                         else
                                         {
-                                            movementDirection = Direction.Up;
+                                            movementDirection = EightDirectional.Up;
                                             CollisionHandler_Movement(gameTime);
                                         }
                                         break;
                                     }
-                                case Direction.UpRight:
+                                case EightDirectional.UpRight:
                                     {
                                         bool isCollidingRight = isCollisionOccuring_TopRight && isCollisionOccuring_BottomRight;
                                         bool isCollidingUp = isCollisionOccuring_TopLeft && isCollisionOccuring_TopRight;
@@ -350,7 +360,7 @@ namespace TileEngine
                                         // If not, try to wallslide.
                                         else
                                         {
-                                            movementDirection = Direction.Right;
+                                            movementDirection = EightDirectional.Right;
                                             CollisionHandler_Movement(gameTime);
                                         }
 
@@ -367,13 +377,13 @@ namespace TileEngine
                                         // If not, try to wallslide.
                                         else
                                         {
-                                            movementDirection = Direction.Up;
+                                            movementDirection = EightDirectional.Up;
                                             CollisionHandler_Movement(gameTime);
                                         }
 
                                         break;
                                     }
-                                case Direction.DownLeft:
+                                case EightDirectional.DownLeft:
                                     {
                                         bool isCollidingLeft = isCollisionOccuring_TopLeft && isCollisionOccuring_BottomLeft;
                                         bool isCollidingDown = isCollisionOccuring_BottomLeft && isCollisionOccuring_BottomRight;
@@ -391,7 +401,7 @@ namespace TileEngine
                                         // If not, try to wallslide.
                                         else
                                         {
-                                            movementDirection = Direction.Left;
+                                            movementDirection = EightDirectional.Left;
                                             CollisionHandler_Movement(gameTime);
                                         }
 
@@ -408,13 +418,13 @@ namespace TileEngine
                                         // If not, try to wallslide.
                                         else
                                         {
-                                            movementDirection = Direction.Down;
+                                            movementDirection = EightDirectional.Down;
                                             CollisionHandler_Movement(gameTime);
                                         }
 
                                         break;
                                     }
-                                case Direction.DownRight:
+                                case EightDirectional.DownRight:
                                     {
                                         bool isCollidingRight = isCollisionOccuring_TopRight && isCollisionOccuring_BottomRight;
                                         bool isCollidingDown = isCollisionOccuring_BottomLeft && isCollisionOccuring_BottomRight;
@@ -432,7 +442,7 @@ namespace TileEngine
                                         // If not, try to wallslide.
                                         else
                                         {
-                                            movementDirection = Direction.Right;
+                                            movementDirection = EightDirectional.Right;
                                             CollisionHandler_Movement(gameTime);
                                         }
 
@@ -449,7 +459,7 @@ namespace TileEngine
                                         // If not, try to wallslide.
                                         else
                                         {
-                                            movementDirection = Direction.Down;
+                                            movementDirection = EightDirectional.Down;
                                             CollisionHandler_Movement(gameTime);
                                         }
 
@@ -481,16 +491,16 @@ namespace TileEngine
                             Vector2 newTargetPosition = position_Grid;
                             switch (movementDirection)
                             {
-                                case Direction.Down:
+                                case EightDirectional.Down:
                                     newTargetPosition += new Vector2(0, 1);
                                     break;
-                                case Direction.Up:
+                                case EightDirectional.Up:
                                     newTargetPosition += new Vector2(0, -1);
                                     break;
-                                case Direction.Left:
+                                case EightDirectional.Left:
                                     newTargetPosition += new Vector2(-1, 0);
                                     break;
-                                case Direction.Right:
+                                case EightDirectional.Right:
                                     newTargetPosition += new Vector2(1, 0);
                                     break;
                                 default:

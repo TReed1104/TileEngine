@@ -34,6 +34,10 @@ namespace TileEngine
                 this.id = id;
                 this.type = type;
                 texture = TileSet;
+
+                // Assign the animation delegates
+                AnimationHandler += TileAnimationHandler;
+                AnimationFinder += TileAnimationFinder;
             }
             catch (Exception error)
             {
@@ -44,6 +48,15 @@ namespace TileEngine
 
         // Methods
         public override void Update(GameTime gameTime)
+        {
+            deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
+
+            AnimationHandler(gameTime);
+        }
+        protected void TileAnimationFinder(string animationTag, GameTime gameTime)
+        {
+        }
+        protected void TileAnimationHandler(GameTime gameTime)
         {
         }
         public static TileType Register_ConvertTileType(string stringToConvert)

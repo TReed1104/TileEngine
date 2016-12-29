@@ -96,6 +96,12 @@ namespace TileEngine
             }
         }
 
+        // Delegates
+        protected delegate void AnimationSearch(string animationTag, GameTime gameTime);
+        protected AnimationSearch AnimationFinder;
+        protected delegate void AnimationControl(GameTime gameTime);
+        protected AnimationControl AnimationHandler;
+
         // Methods
         public abstract void Update(GameTime gameTime);
         public virtual void Draw()
@@ -116,7 +122,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        public void AttachAnimations(List<Animation> newAnimations)
+        public void AddAnimations(List<Animation> newAnimations)
         {
             for (int i = 0; i < newAnimations.Count(); i++)
             {

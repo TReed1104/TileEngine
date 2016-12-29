@@ -64,35 +64,35 @@ namespace TileEngine
 
                         if (isMovementDown)
                         {
-                            movementDirection = Direction.Down;
+                            movementDirection = EightDirectional.Down;
                         }
                         else if (isMovementUp)
                         {
-                            movementDirection = Direction.Up;
+                            movementDirection = EightDirectional.Up;
                         }
                         else if (isMovementLeft)
                         {
-                            movementDirection = Direction.Left;
+                            movementDirection = EightDirectional.Left;
                         }
                         else if (isMovementRight)
                         {
-                            movementDirection = Direction.Right;
+                            movementDirection = EightDirectional.Right;
                         }
                         else if (isMovementDownLeft)
                         {
-                            movementDirection = Direction.DownLeft;
+                            movementDirection = EightDirectional.DownLeft;
                         }
                         else if (isMovementDownRight)
                         {
-                            movementDirection = Direction.DownRight;
+                            movementDirection = EightDirectional.DownRight;
                         }
                         else if (isMovementUpLeft)
                         {
-                            movementDirection = Direction.UpLeft;
+                            movementDirection = EightDirectional.UpLeft;
                         }
                         else if (isMovementUpRight)
                         {
-                            movementDirection = Direction.UpRight;
+                            movementDirection = EightDirectional.UpRight;
                         }
                         // If not allow the collision handler to adjust the velocity for pixel-by-pixel movement
                         allowChangeInVelocity = isMovementDown || isMovementUp || isMovementLeft || isMovementRight || isMovementDownLeft || isMovementDownRight || isMovementUpLeft || isMovementUpRight;
@@ -107,19 +107,19 @@ namespace TileEngine
 
                         if (isMovementDown)
                         {
-                            movementDirection = Direction.Down;
+                            movementDirection = EightDirectional.Down;
                         }
                         else if (isMovementUp)
                         {
-                            movementDirection = Direction.Up;
+                            movementDirection = EightDirectional.Up;
                         }
                         else if (isMovementLeft)
                         {
-                            movementDirection = Direction.Left;
+                            movementDirection = EightDirectional.Left;
                         }
                         else if (isMovementRight)
                         {
-                            movementDirection = Direction.Right;
+                            movementDirection = EightDirectional.Right;
                         }
                         hasGridMovementBeenInitialised = isMovementDown || isMovementUp || isMovementLeft || isMovementRight;
                     }

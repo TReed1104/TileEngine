@@ -30,17 +30,25 @@ namespace TileEngine
         public void Update(GameTime gameTime)
         {
             deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
-            
+
             position = focus.position + (focus.boundingBox_Size / 2);
 
-            Matrix cameraTarget = Matrix.CreateTranslation(new Vector3(-position, 0));
+            Matrix cameraLookAt = Matrix.CreateTranslation(new Vector3(-position, 0));
             Matrix cameraRotation = Matrix.CreateRotationZ(rotation);
             Matrix cameraZoom = Matrix.CreateScale(zoom);
-            Matrix viewPortOffset = Matrix.CreateTranslation(new Vector3((Engine.ViewPortSize / 2), 0));
 
-            transformationMatrix = cameraTarget * cameraRotation * cameraZoom * viewPortOffset;
+            // Calculate the offset of the camera, this centers the camera on the player.
+            Vector2 viewPortPosition = (Engine.ViewPortSize / 2);
+            if ((position - viewPortPosition).X <= 0) viewPortPosition.X += (position - viewPortPosition).X;
+            if ((position - viewPortPosition).Y <= 0) viewPortPosition.Y += (position - viewPortPosition).Y;
+            if ((position - viewPortPosition).X >= (Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.ViewPortSize.X)) viewPortPosition.X -= ((Engine.GetCurrentLevel().gridSize_Pixels.X - Engine.ViewPortSize.X) - (position - viewPortPosition).X);
+            if ((position - viewPortPosition).Y >= (Engine.GetCurrentLevel().gridSize_Pixels.Y - Engine.ViewPortSize.Y)) viewPortPosition.Y -= ((Engine.GetCurrentLevel().gridSize_Pixels.Y - Engine.ViewPortSize.Y) - (position - viewPortPosition).Y);
+            Matrix viewPortOffset = Matrix.CreateTranslation(new Vector3(viewPortPosition, 0));
+
+            transformationMatrix = cameraLookAt * cameraRotation * cameraZoom * viewPortOffset;
 
         }
+
         public bool IsObjectVisible(BaseGameObject gameObject)
         {
             // Returns if the object is visible to decide whether or not an object should be drawn.

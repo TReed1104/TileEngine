@@ -107,7 +107,7 @@ namespace TileEngine
             Engine.Register_NPCs = new List<NpcAgent>();
 
             Engine.PointerCurrent_Player = 0;
-            Engine.PointerCurrent_Level = 0;
+            Engine.PointerCurrent_Level = 1;
 
             Engine.IsMovementGridSnapped = false;
 
@@ -625,14 +625,14 @@ namespace TileEngine
                         {
                             player = new PlayerAgent(loadedSave.tag, Engine.Register_Textures[indexOfTexture], loadedSave.position, Vector2.Zero, SourceRectangleSize, colour, Engine.LayerDepth_Player, baseHealth);
                         }
-                        player.AttachAnimations(animations);
+                        player.AddAnimations(animations);
                         Engine.Register_PlayerSaves.Add(player);
                     }
                     else
                     {
                         // Creates a blank instance of the NPC.
                         NpcAgent npc = new NpcAgent(tag, Engine.Register_Textures[indexOfTexture], Vector2.Zero, Vector2.Zero, SourceRectangleSize, colour, Engine.LayerDepth_Player, baseHealth);
-                        npc.AttachAnimations(animations);
+                        npc.AddAnimations(animations);
                         Engine.Register_NPCs.Add(npc);
                     }
 

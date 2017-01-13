@@ -49,7 +49,7 @@ namespace TileEngine
 
         }
 
-        public bool IsObjectVisible(BaseGameObject gameObject)
+        public bool IsObjectVisible(GameObject gameObject)
         {
             // Returns if the object is visible to decide whether or not an object should be drawn.
             return true;

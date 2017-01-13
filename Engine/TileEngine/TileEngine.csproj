@@ -43,6 +43,7 @@
     <Compile Include="Source\Engine\Animation.cs" />
     <Compile Include="Source\Engine\Camera.cs" />
     <Compile Include="Source\Engine\Engine.cs" />
+    <Compile Include="Source\Engine\Items\Item.cs" />
     <Compile Include="Source\Engine\TileMap\Level.cs" />
     <Compile Include="Source\Main\Randomiser.cs" />
     <Compile Include="Source\Engine\SaveData.cs" />
@@ -51,7 +52,7 @@
     <Compile Include="Source\Engine\Agents\NpcAgent.cs" />
     <Compile Include="Source\Engine\Agents\PlayerAgent.cs" />
     <Compile Include="Source\Main\Game.cs" />
-    <Compile Include="Source\Engine\BaseGameObject.cs" />
+    <Compile Include="Source\Engine\GameObject.cs" />
     <Compile Include="Source\Main\Program.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -64,6 +65,7 @@
   <ItemGroup>
     <Content Include="Content\Config\Engine.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\Config\Tileset.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -86,9 +88,7 @@
     <Content Include="Icon.ico" />
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Source\Engine\Items\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

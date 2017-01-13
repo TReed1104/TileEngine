@@ -21,11 +21,11 @@ namespace TileEngine
             isDefending = false;
         }
 
-        protected void NpcMovementHandler(GameTime gameTime)
+        protected void NpcMovementHandler(float deltaTime)
         {
 
         }
-        protected void NpcBehaviourHandler(GameTime gameTime)
+        protected void NpcBehaviourHandler(float deltaTime)
         {
 
         }

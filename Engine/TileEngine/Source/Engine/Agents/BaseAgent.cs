@@ -9,13 +9,17 @@ using System.Threading.Tasks;
 
 namespace TileEngine
 {
-    public abstract class BaseAgent : BaseGameObject
+    public abstract class BaseAgent : GameObject
     {
         // Enums
         public enum FourDirectional { Down, Up, Left, Right, };
         public enum EightDirectional { Down, Up, Left, Right, UpLeft, UpRight, DownLeft, DownRight };
 
         // Vars
+        public float healthPoints { get; protected set; }
+        public bool isAlive { get { return healthPoints > 0.0f; } }
+        public float damagePower { get; protected set; }
+
         public bool allowChangeInVelocity { get; set; }
         public bool isMovingForAnimation { get; set; }
         public bool isAttacking { get; set; }
@@ -24,7 +28,7 @@ namespace TileEngine
         public FourDirectional animationDirection { get; protected set; }
         protected bool isWallSliding { get; set; }
         public bool isGridSnapped { get { return Engine.IsMovementGridSnapped; } }
-        protected Vector2 snapVelocity { get; set; }
+        protected Vector2 snapVelocity { get; set; } 
         public bool isMovementDisabled { get; set; }
 
         public bool hasGridMovementBeenInitialised { get; protected set; }
@@ -32,12 +36,19 @@ namespace TileEngine
         public Vector2 snappedMovementTargetPosition { get; protected set; }
         public float snappedMovementTimer { get; protected set; }
 
+        // Delegates
+        protected delegate void MovementControl(float deltaTime);
+        protected MovementControl MovementHandler;
+        protected delegate void AgentBehaviour(float deltaTime);
+        protected AgentBehaviour BehaviourHandler;
+
         // Constructors
         public BaseAgent(string tag, Texture2D texture, Vector2 position_World, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth, float healthPoints)
             : base(tag, texture, position_World, sourceRectangle_Position, sourceRectangle_Size, colour, layerDepth)
         {
             // Attributes
             this.healthPoints = healthPoints;
+            damagePower = 1.0f;
 
             // Movement
             movementDirection = EightDirectional.Down;
@@ -63,28 +74,22 @@ namespace TileEngine
             AnimationHandler += AgentAnimationHandler;
             AnimationFinder += AgentAnimationFinder;
         }
-
-        // Delegates
-        protected delegate void MovementControl(GameTime gameTime);
-        protected MovementControl MovementHandler;
-        protected delegate void AgentBehaviour(GameTime gameTime);
-        protected AgentBehaviour BehaviourHandler;
-
+        
         // Methods
         public override void Update(GameTime gameTime)
         {
-            deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
 
             // Movement
-            MovementHandler(gameTime);
-            CollisionHandler_Movement(gameTime);
+            MovementHandler(deltaTime);
+            CollisionHandler_Movement(deltaTime);
 
             // Behaviour
-            BehaviourHandler(gameTime);
+            BehaviourHandler(deltaTime);
 
             // Animations
             UpdateSpriteDirection();
-            AnimationHandler(gameTime);
+            AnimationHandler(deltaTime);
 
             // Reset the Agent to its base mode.
             position += velocity;
@@ -95,6 +100,13 @@ namespace TileEngine
             isWallSliding = false;
 
             allowChangeInVelocity = false;
+        }
+        public override void Draw()
+        {
+            if (isAlive)
+            {
+                base.Draw();
+            }
         }
         protected void UpdateSpriteDirection()
         {
@@ -108,7 +120,7 @@ namespace TileEngine
             if (velocity.X != 0 && velocity.Y > 0) animationDirection = FourDirectional.Down;
             if (velocity.X != 0 && velocity.Y < 0) animationDirection = FourDirectional.Up;
         }
-        protected void AgentAnimationFinder(string animationTag, GameTime gameTime)
+        protected void AgentAnimationFinder(float deltaTime, string animationTag)
         {
             // Work out which version of that directions animation to play
             string animationModifier = "Idle ";
@@ -137,10 +149,10 @@ namespace TileEngine
                 }
 
                 // Play the animation
-                animations[indexOfAnimation].Run(gameTime, this);
+                animations[indexOfAnimation].Run(deltaTime, this);
             }
         }
-        protected void AgentAnimationHandler(GameTime gameTime)
+        protected void AgentAnimationHandler(float deltaTime)
         {
             try
             {
@@ -148,16 +160,16 @@ namespace TileEngine
                 switch (animationDirection)
                 {
                     case FourDirectional.Down:
-                        AnimationFinder("Towards", gameTime);
+                        AnimationFinder(deltaTime, "Towards");
                         break;
                     case FourDirectional.Up:
-                        AnimationFinder("Away", gameTime);
+                        AnimationFinder(deltaTime, "Away");
                         break;
                     case FourDirectional.Left:
-                        AnimationFinder("Left", gameTime);
+                        AnimationFinder(deltaTime, "Left");
                         break;
                     case FourDirectional.Right:
-                        AnimationFinder("Right", gameTime);
+                        AnimationFinder(deltaTime, "Right");
                         break;
                     default:
                         break;
@@ -169,7 +181,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        protected void CollisionHandler_Movement(GameTime gameTime)
+        protected void CollisionHandler_Movement(float deltaTime)
         {
             try
             {
@@ -321,7 +333,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = EightDirectional.Left;
-                                            CollisionHandler_Movement(gameTime);
+                                            CollisionHandler_Movement(deltaTime);
                                         }
 
                                         // If collision is Up, snap Up.
@@ -338,7 +350,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = EightDirectional.Up;
-                                            CollisionHandler_Movement(gameTime);
+                                            CollisionHandler_Movement(deltaTime);
                                         }
                                         break;
                                     }
@@ -361,7 +373,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = EightDirectional.Right;
-                                            CollisionHandler_Movement(gameTime);
+                                            CollisionHandler_Movement(deltaTime);
                                         }
 
                                         // If collision is Up, snap Up.
@@ -378,7 +390,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = EightDirectional.Up;
-                                            CollisionHandler_Movement(gameTime);
+                                            CollisionHandler_Movement(deltaTime);
                                         }
 
                                         break;
@@ -402,7 +414,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = EightDirectional.Left;
-                                            CollisionHandler_Movement(gameTime);
+                                            CollisionHandler_Movement(deltaTime);
                                         }
 
                                         // If collision is Down, snap Down.
@@ -419,7 +431,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = EightDirectional.Down;
-                                            CollisionHandler_Movement(gameTime);
+                                            CollisionHandler_Movement(deltaTime);
                                         }
 
                                         break;
@@ -443,7 +455,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = EightDirectional.Right;
-                                            CollisionHandler_Movement(gameTime);
+                                            CollisionHandler_Movement(deltaTime);
                                         }
 
                                         // If collision is Down, snap Down.
@@ -460,7 +472,7 @@ namespace TileEngine
                                         else
                                         {
                                             movementDirection = EightDirectional.Down;
-                                            CollisionHandler_Movement(gameTime);
+                                            CollisionHandler_Movement(deltaTime);
                                         }
 
                                         break;

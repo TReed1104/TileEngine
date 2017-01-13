@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TileEngine
 {
-    public class Tile : BaseGameObject
+    public class Tile : GameObject
     {
         // Enums
         public enum TileType { Empty, Solid, Water, Ice, Fire, Pitfall, }
@@ -49,14 +49,14 @@ namespace TileEngine
         // Methods
         public override void Update(GameTime gameTime)
         {
-            deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;   // Calculate the DeltaTime
 
-            AnimationHandler(gameTime);
+            AnimationHandler(deltaTime);
         }
-        protected void TileAnimationFinder(string animationTag, GameTime gameTime)
+        protected void TileAnimationFinder(float deltaTime, string animationTag)
         {
         }
-        protected void TileAnimationHandler(GameTime gameTime)
+        protected void TileAnimationHandler(float deltaTime)
         {
         }
         public static TileType Register_ConvertTileType(string stringToConvert)

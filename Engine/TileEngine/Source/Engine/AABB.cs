@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace TileEngine
 {
-    [DebuggerDisplay("{x}, {x}")]
+    [DebuggerDisplay("{x}, {y}")]
     public class AABB
     {
         // Raw Data of the AABB.
         public float x { get; set; }
         public float y { get; set; }
-        public int width { get; set; }
-        public int height { get; set; }
+        public float width { get; set; }
+        public float height { get; set; }
         
 
         // Vector versions of the raw data
@@ -35,7 +35,7 @@ namespace TileEngine
         public Vector2 gridPosition_BottomRight { get { return Engine.ConvertPosition_PixelToGrid(position_BottomRight); } }
 
         // Constructors
-        public AABB(float x, float y, int width, int height)
+        public AABB(float x, float y, float width, float height)
         {
             this.x = x;
             this.y = y;
@@ -46,8 +46,8 @@ namespace TileEngine
         {
             this.x = position.X;
             this.y = position.Y;
-            this.width = (int)size.X;
-            this.height = (int)size.Y;
+            this.width = size.X;
+            this.height = size.Y;
         }
 
         // Methods
@@ -58,8 +58,8 @@ namespace TileEngine
         }
         public void SetSize(Vector2 newSize)
         {
-            this.width = (int)newSize.X;
-            this.height = (int)newSize.Y;
+            this.width = newSize.X;
+            this.height = newSize.Y;
         }
         public bool CheckForCollisionWith(AABB otherAABB)
         {

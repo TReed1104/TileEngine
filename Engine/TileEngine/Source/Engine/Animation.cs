@@ -30,10 +30,10 @@ namespace TileEngine
             this.animationTimer = 0.0f;
         }
 
-        public void Run(GameTime gameTime, BaseGameObject objectToAnimate)
+        public void Run(float deltaTime, GameObject objectToAnimate)
         {
             Vector2 newFramePositon = new Vector2(currentX, currentY);
-            animationTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            animationTimer += deltaTime;
             newFramePositon.Y = startY;
             if (animationTimer >= animationSpeed)
             {

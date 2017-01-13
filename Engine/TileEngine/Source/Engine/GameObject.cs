@@ -10,28 +10,16 @@ using System.Threading.Tasks;
 namespace TileEngine
 {
     [DebuggerDisplay("{tag}")]
-    public abstract class BaseGameObject
+    public abstract class GameObject
     {
         // Vars
         public string tag { get; set; }
-
+        #region // positions
         public Vector2 position { get; set; }
         public Vector2 position_Grid { get { return Engine.ConvertPosition_PixelToGrid(position); } }
         public Vector2 position_Draw { get { return (position - boundingBox_Offset_Texture); } }
-        protected Vector2 boundingBox_Offset_Texture { get; set; }
-        public Vector2 boundingBox_Offset_Tile { get { return -((Tile.Dimensions - boundingBox_Size) / 2); } }
-        public Vector2 boundingBox_Size { get; set; }
-        public AABB boundingBox { get { return new AABB(position, boundingBox_Size); } }
-
-        public Vector2 velocity { get; set; }
-        public float movementSpeed { get; protected set; }
-
-        public float healthPoints { get; protected set; }
-        public bool isAlive {  get { return healthPoints > 0.0f;  } }
-        public float damagePower { get; protected set; }
-
-        protected float deltaTime { get; set; }
-
+        #endregion
+        #region // Sprite rendering
         public Texture2D texture { get; set; }
         public string textureTag { get; set; }
         public Color colour { get; set; }
@@ -56,9 +44,24 @@ namespace TileEngine
         public float layerDepth { get; set; }
         public List<Animation> animations { get; set; }
         public string previousAnimationTag { get; set; }
+        #endregion
+        #region // Bounding Box variables
+        protected Vector2 boundingBox_Offset_Texture { get; set; }
+        public Vector2 boundingBox_Offset_Tile { get { return -((Tile.Dimensions - boundingBox_Size) / 2); } }
+        public Vector2 boundingBox_Size { get; set; }
+        public AABB boundingBox { get { return new AABB(position, boundingBox_Size); } }
+        #endregion
+        public Vector2 velocity { get; set; }
+        public float movementSpeed { get; protected set; }
+
+        // Delegates
+        protected delegate void AnimationSearch(float deltaTime, string animationTag);
+        protected AnimationSearch AnimationFinder;
+        protected delegate void AnimationControl(float deltaTime);
+        protected AnimationControl AnimationHandler;
 
         // Constructors
-        public BaseGameObject(string tag, Texture2D texture, Vector2 position_Base, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth)
+        public GameObject(string tag, Texture2D texture, Vector2 position_Base, Vector2 sourceRectangle_Position, Vector2 sourceRectangle_Size, Color colour, float layerDepth)
         {
             try
             {
@@ -68,13 +71,9 @@ namespace TileEngine
                 position = position_Base;
                 boundingBox_Offset_Texture = Vector2.Zero;
                 boundingBox_Size = Tile.Dimensions;
-
-                healthPoints = 1.0f;
+                
                 velocity = Vector2.Zero;
                 movementSpeed = 0.0f;
-                damagePower = 1.0f;
-
-                deltaTime = 0;
 
                 this.sourceRectangle_Position = sourceRectangle_Position;
                 this.sourceRectangle_Size = sourceRectangle_Size;
@@ -96,30 +95,13 @@ namespace TileEngine
             }
         }
 
-        // Delegates
-        protected delegate void AnimationSearch(string animationTag, GameTime gameTime);
-        protected AnimationSearch AnimationFinder;
-        protected delegate void AnimationControl(GameTime gameTime);
-        protected AnimationControl AnimationHandler;
-
         // Methods
         public abstract void Update(GameTime gameTime);
         public virtual void Draw()
         {
-            try
+            if (Engine.GameCamera.IsObjectVisible(this))
             {
-                if (isAlive)
-                {
-                    if (Engine.GameCamera.IsObjectVisible(this))
-                    {
-                        Engine.XNA_SpriteBatch.Draw(texture, position_Draw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
-                    }
-                }
-            }
-            catch (Exception error)
-            {
-                string methodName = System.Reflection.MethodBase.GetCurrentMethod().Name;
-                Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
+                Engine.XNA_SpriteBatch.Draw(texture, position_Draw, sourceRectangle, colour, rotation, origin, scale, spriteEffect, layerDepth);
             }
         }
         public void AddAnimations(List<Animation> newAnimations)

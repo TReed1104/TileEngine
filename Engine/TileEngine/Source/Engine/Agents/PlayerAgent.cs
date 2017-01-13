@@ -34,7 +34,7 @@ namespace TileEngine
             movementKey_Left = Keys.Left;
         }
 
-        protected void PlayerMovementHandler(GameTime gameTime)
+        protected void PlayerMovementHandler(float deltaTime)
         {
             // The method handling the Keyboard press used for the Player's movement.
             try
@@ -132,7 +132,7 @@ namespace TileEngine
                 Console.WriteLine(string.Format("An Error has occured in {0}.{1}, the Error message is: {2}", ToString(), methodName, error.Message));
             }
         }
-        protected void PlayerBehaviourHandler(GameTime gameTime)
+        protected void PlayerBehaviourHandler(float deltaTime)
         {
 
         }
